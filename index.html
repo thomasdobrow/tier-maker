@@ -30,18 +30,6 @@
 
     #header h1 { font-size: 1.1rem; font-weight: 600; }
 
-    #upload-btn {
-      background: #3a3a3a;
-      color: #eee;
-      border: 1px solid #555;
-      padding: 6px 14px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: background 0.15s;
-    }
-    #upload-btn:hover { background: #4a4a4a; }
-
     /* ── List management bar ── */
     #list-bar {
       padding: 7px 16px;
@@ -58,10 +46,10 @@
       background: #2a2a2a;
       color: #ccc;
       border: 1px solid #444;
-      padding: 4px 12px;
+      padding: 8px 20px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 0.82rem;
+      font-size: 0.95rem;
       transition: background 0.12s;
       white-space: nowrap;
     }
@@ -420,7 +408,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       color: #555;
     }
     #pool-sort > span { flex-shrink: 0; }
@@ -429,10 +417,10 @@
       background: #252525;
       color: #666;
       border: 1px solid #333;
-      padding: 2px 9px;
+      padding: 5px 14px;
       border-radius: 3px;
       cursor: pointer;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       transition: background 0.1s, color 0.1s, border-color 0.1s;
       white-space: nowrap;
     }
@@ -443,13 +431,13 @@
       background: #1e2d1e;
       color: #7dcc7d;
       border: 1px solid #3a6a3a;
-      padding: 2px 10px;
+      padding: 5px 14px;
       border-radius: 3px;
       cursor: pointer;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       white-space: nowrap;
       transition: background 0.1s;
-      margin-left: 4px;
+      margin-right: 8px;
     }
     #quick-rank-btn:hover { background: #2a4a2a; }
     #quick-rank-btn.active { background: #3a1e1e; color: #cc7d7d; border-color: #6a3a3a; }
@@ -576,15 +564,37 @@
       transition: background 0.1s, color 0.1s;
     }
     .zoom-unassign-btn:hover { background: #333; color: #ccc; }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      /* Each tier: single horizontal row, scroll right */
+      .tier-drop-zone {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        align-items: flex-start;
+      }
+
+      /* Pool header: Quick Rank stays visible, scroll right for sort options */
+      #pool-header {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+      #quick-rank-btn,
+      #pool-header-label,
+      #pool-sort,
+      .sort-btn {
+        flex-shrink: 0;
+      }
+    }
   </style>
 </head>
 <body>
 
 <div id="header">
   <h1>Tier Maker</h1>
-  <button id="upload-btn">Browse Folder</button>
-  <input type="file" id="file-input" webkitdirectory multiple accept="image/*" style="display:none" />
-  <div id="search-wrapper">
+<div id="search-wrapper">
     <input id="search-input" type="text" placeholder="Search cards…" autocomplete="off" />
     <div id="search-dropdown"></div>
   </div>
@@ -634,6 +644,7 @@
 
   <div id="pool-section">
     <div id="pool-header">
+      <button id="quick-rank-btn">▶ Quick Rank</button>
       <span id="pool-header-label">Unassigned</span>
       <div id="pool-sort">
         <span>Sort:</span>
@@ -643,10 +654,9 @@
         <button class="sort-btn" data-sort="alpha">A→Z</button>
         <button class="sort-btn" data-sort="shuffle">↺ Shuffle</button>
       </div>
-      <button id="quick-rank-btn">▶ Quick Rank</button>
     </div>
     <div id="pool-drop-zone">
-      <span id="pool-placeholder">Select a folder to load images…</span>
+      <span id="pool-placeholder">Loading cards…</span>
     </div>
   </div>
 </div>
@@ -988,10 +998,7 @@
       loadDropdown.classList.remove('open');
   });
 
-  // ── File loading ──────────────────────────────────────────────
-  const uploadBtn = document.getElementById('upload-btn');
-  const fileInput = document.getElementById('file-input');
-
+  // ── Card loading ──────────────────────────────────────────────
   async function autoLoadAgricolaCards() {
     try {
       const res = await fetch('cards/full/');
@@ -1032,32 +1039,6 @@
     updateListBar();
     autoLoadAgricolaCards();
   })();
-
-  uploadBtn.addEventListener('click', () => fileInput.click());
-
-  fileInput.addEventListener('change', () => {
-    const files = Array.from(fileInput.files)
-      .filter(f => f.type.startsWith('image/'))
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-    if (!files.length) return;
-
-    placeholder.style.display = 'none';
-    const hasDecks = files.some(f => /^[A-E]\d+/i.test(f.name));
-    deckFilters.style.display = hasDecks ? 'flex' : 'none';
-
-    files.forEach(file => {
-      const id = file.name.replace(/\.[^.]+$/, '');
-      if (WEAK_CARDS.has(id)) return;
-      const url  = URL.createObjectURL(file);
-      const card = makeCard(url, id);
-      const deck = file.name.match(/^([A-E])\d+/i)?.[1]?.toUpperCase();
-      if (deck) card.dataset.deck = deck;
-      if (BANNED_CARDS.has(id)) card.classList.add('banned');
-      pool.appendChild(card);
-    });
-
-    fileInput.value = '';
-  });
 
   document.querySelectorAll('.deck-btn').forEach(btn => {
     btn.addEventListener('click', () => {
