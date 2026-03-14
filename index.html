@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tier Maker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a1a;
+      color: #eee;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      user-select: none;
+    }
+
+    /* ── Header ── */
+    #header {
+      padding: 12px 16px;
+      background: #111;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #333;
+      flex-shrink: 0;
+    }
+
+    #header h1 { font-size: 1.1rem; font-weight: 600; }
+
+    #upload-btn {
+      background: #3a3a3a;
+      color: #eee;
+      border: 1px solid #555;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.15s;
+    }
+    #upload-btn:hover { background: #4a4a4a; }
+
+    /* ── List management bar ── */
+    #list-bar {
+      padding: 7px 16px;
+      background: #0e0e0e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #2a2a2a;
+      flex-shrink: 0;
+      font-size: 0.82rem;
+    }
+
+    .lb-btn {
+      background: #2a2a2a;
+      color: #ccc;
+      border: 1px solid #444;
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: background 0.12s;
+      white-space: nowrap;
+    }
+    .lb-btn:hover { background: #3a3a3a; }
+    .lb-btn.primary {
+      background: #1e3a1e;
+      border-color: #3a6a3a;
+      color: #7dcc7d;
+    }
+    .lb-btn.primary:hover { background: #2a4a2a; }
+
+    #lb-divider {
+      width: 1px;
+      height: 18px;
+      background: #333;
+      flex-shrink: 0;
+    }
+
+    #lb-status {
+      flex: 1;
+      color: #666;
+      font-size: 0.8rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #lb-status strong { color: #ccc; }
+    #lb-status em { font-style: italic; color: #555; }
+
+    #lb-saved {
+      font-size: 0.73rem;
+      color: #4a9a4a;
+      opacity: 0;
+      transition: opacity 0.4s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #lb-saved.visible { opacity: 1; }
+
+    /* ── Button wrapper for popovers ── */
+    .lb-btn-wrap { position: relative; }
+
+    /* ── New List popover ── */
+    #new-list-popover {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 14px 16px;
+      width: 250px;
+      z-index: 6000;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    }
+    #new-list-popover.open { display: block; }
+
+    .nlp-row { margin-bottom: 10px; }
+    .nlp-row label {
+      display: block;
+      font-size: 0.72rem;
+      color: #888;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .nlp-input {
+      width: 100%;
+      background: #2a2a2a;
+      color: #eee;
+      border: 1px solid #444;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 0.83rem;
+      outline: none;
+      user-select: text;
+      transition: border-color 0.1s;
+    }
+    .nlp-input:focus { border-color: #666; }
+    .nlp-input.err { border-color: #e05050; }
+
+    .nlp-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+    .nlp-actions button {
+      padding: 5px 14px;
+      border-radius: 4px;
+      border: 1px solid #444;
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+    #nlp-cancel { background: #2a2a2a; color: #aaa; }
+    #nlp-cancel:hover { background: #3a3a3a; }
+    #nlp-create { background: #1e3a1e; color: #7dcc7d; border-color: #3a6a3a; }
+    #nlp-create:hover { background: #2a4a2a; }
+
+    /* ── Load dropdown ── */
+    #load-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 6px;
+      width: 300px;
+      max-height: 340px;
+      overflow-y: auto;
+      z-index: 6000;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    }
+    #load-dropdown.open { display: block; }
+
+    .ld-empty {
+      padding: 16px;
+      color: #555;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    .ld-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #222;
+      transition: background 0.1s;
+    }
+    .ld-item:last-child { border-bottom: none; }
+    .ld-item:hover { background: #252525; }
+    .ld-item.is-active { background: #162216; }
+
+    .ld-info { flex: 1; min-width: 0; }
+    .ld-name {
+      font-size: 0.84rem;
+      color: #ddd;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ld-meta { font-size: 0.71rem; color: #555; margin-top: 2px; }
+
+    .ld-delete {
+      background: none;
+      border: none;
+      color: #444;
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 3px;
+      font-size: 0.78rem;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.1s, background 0.1s;
+    }
+    .ld-delete:hover { color: #e05050; background: #2a1616; }
+
+    /* ── Main area ── */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Tier list ── */
+    #tier-list {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .tier-row {
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1px solid #2a2a2a;
+      min-height: 80px;
+    }
+
+    .tier-label {
+      width: 80px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      cursor: default;
+    }
+
+    .tier-drop-zone {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 4px;
+      padding: 6px;
+      min-height: 80px;
+      background: #242424;
+      transition: background 0.15s;
+    }
+
+    .tier-drop-zone.drag-over {
+      background: #2e2e2e;
+      outline: 2px dashed #666;
+      outline-offset: -2px;
+    }
+
+    /* ── Image cards ── */
+    .img-card {
+      width: 58px;
+      height: 92px;
+      object-fit: cover;
+      cursor: grab;
+      border-radius: 3px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .img-card:active { cursor: grabbing; }
+    .img-card.dragging { opacity: 0.3; }
+
+    .img-card.banned { box-shadow: 0 0 0 2px #e03030; }
+
+    @keyframes card-pulse {
+      0%, 100% { filter: brightness(1)   saturate(1);   }
+      50%       { filter: brightness(2.8) saturate(0.3); }
+    }
+    .img-card.highlighted {
+      animation: card-pulse 0.75s ease-in-out infinite;
+      position: relative;
+      z-index: 2;
+    }
+    .img-card.banned.highlighted {
+      box-shadow: 0 0 0 2px #e03030;
+      animation: card-pulse 0.75s ease-in-out infinite;
+    }
+
+    /* ── Search ── */
+    #search-wrapper {
+      position: relative;
+      margin-left: auto;
+    }
+    #search-input {
+      background: #2a2a2a;
+      color: #eee;
+      border: 1px solid #444;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      width: 200px;
+      outline: none;
+      user-select: text;
+    }
+    #search-input:focus { border-color: #666; }
+    #search-input::placeholder { color: #555; }
+
+    #search-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      width: 320px;
+      background: #222;
+      border: 1px solid #555;
+      border-radius: 4px;
+      max-height: 420px;
+      overflow-y: auto;
+      z-index: 5000;
+    }
+    #search-dropdown.open { display: block; }
+
+    .sr {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      cursor: pointer;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .sr:last-child { border-bottom: none; }
+    .sr:hover, .sr.active { background: #333; }
+    .sr-thumb {
+      width: 29px;
+      height: 46px;
+      object-fit: cover;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .sr-info { flex: 1; min-width: 0; }
+    .sr-name {
+      font-size: 0.82rem;
+      color: #eee;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sr-id { font-size: 0.7rem; color: #777; }
+    .sr-tier {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── Deck filter bar ── */
+    #deck-filters {
+      display: none;
+      gap: 6px;
+      align-items: center;
+    }
+    #deck-filters span { font-size: 0.75rem; color: #888; }
+    .deck-btn {
+      background: #2a2a2a;
+      color: #ccc;
+      border: 1px solid #444;
+      padding: 3px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.12s;
+    }
+    .deck-btn:hover { background: #3a3a3a; }
+    .deck-btn.active { background: #555; border-color: #888; color: #fff; }
+
+    /* ── Image pool ── */
+    #pool-section {
+      flex-shrink: 0;
+      border-top: 2px solid #444;
+      background: #1a1a1a;
+    }
+
+    #pool-header {
+      padding: 6px 10px 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #pool-header-label {
+      font-size: 0.75rem;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    #pool-sort {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: #555;
+    }
+    #pool-sort > span { flex-shrink: 0; }
+
+    .sort-btn {
+      background: #252525;
+      color: #666;
+      border: 1px solid #333;
+      padding: 2px 9px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: background 0.1s, color 0.1s, border-color 0.1s;
+      white-space: nowrap;
+    }
+    .sort-btn:hover { background: #333; color: #aaa; }
+    .sort-btn.active { background: #333; color: #ccc; border-color: #555; }
+
+    #quick-rank-btn {
+      background: #1e2d1e;
+      color: #7dcc7d;
+      border: 1px solid #3a6a3a;
+      padding: 2px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      transition: background 0.1s;
+      margin-left: 4px;
+    }
+    #quick-rank-btn:hover { background: #2a4a2a; }
+    #quick-rank-btn.active { background: #3a1e1e; color: #cc7d7d; border-color: #6a3a3a; }
+
+    .zoom-skip-btn {
+      background: transparent;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 5px 14px;
+      font-size: 0.82rem;
+      color: #888;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .zoom-skip-btn:hover { background: #333; color: #ccc; }
+
+    #pool-drop-zone {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 6px 10px 10px;
+      min-height: 84px;
+      transition: background 0.15s;
+    }
+
+    #pool-drop-zone.drag-over {
+      background: #252525;
+      outline: 2px dashed #555;
+      outline-offset: -2px;
+    }
+
+    #pool-placeholder {
+      color: #444;
+      font-size: 0.85rem;
+      align-self: center;
+      padding: 16px 0;
+    }
+
+    /* ── Drag ghost ── */
+    #drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      width: 58px;
+      height: 92px;
+      object-fit: cover;
+      border-radius: 3px;
+      opacity: 0.85;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    /* ── Zoom overlay ── */
+    #zoom-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(0, 0, 0, 0.82);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      cursor: zoom-out;
+    }
+    #zoom-overlay.visible { display: flex; }
+    #zoom-img {
+      max-height: 82vh;
+      max-width: 90vw;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+      pointer-events: none;
+    }
+    #zoom-img.banned {
+      box-shadow: 0 8px 40px rgba(0,0,0,0.7), 0 0 0 3px #e03030;
+    }
+    #zoom-label {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(0,0,0,0.55);
+      padding: 5px 18px;
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    /* ── Zoom tier assignment buttons ── */
+    #zoom-tier-btns {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .zoom-tier-btn {
+      padding: 10px 32px;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #1a1a1a;
+      transition: transform 0.1s, border-color 0.1s;
+    }
+    .zoom-tier-btn:hover { transform: scale(1.08); }
+    .zoom-tier-btn.is-current {
+      border-color: rgba(255,255,255,0.85);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.3);
+    }
+    .zoom-tier-sep {
+      width: 1px; height: 22px;
+      background: #444;
+      margin: 0 4px;
+    }
+    .zoom-unassign-btn {
+      background: transparent;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 5px 14px;
+      font-size: 0.82rem;
+      color: #888;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .zoom-unassign-btn:hover { background: #333; color: #ccc; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>Tier Maker</h1>
+  <button id="upload-btn">Browse Folder</button>
+  <input type="file" id="file-input" webkitdirectory multiple accept="image/*" style="display:none" />
+  <div id="search-wrapper">
+    <input id="search-input" type="text" placeholder="Search cards…" autocomplete="off" />
+    <div id="search-dropdown"></div>
+  </div>
+  <div id="deck-filters">
+    <span>Deck:</span>
+    <button class="deck-btn active" data-deck="all">All</button>
+    <button class="deck-btn" data-deck="A">A</button>
+    <button class="deck-btn" data-deck="B">B</button>
+    <button class="deck-btn" data-deck="C">C</button>
+    <button class="deck-btn" data-deck="D">D</button>
+    <button class="deck-btn" data-deck="E">E</button>
+  </div>
+</div>
+
+<!-- List management bar -->
+<div id="list-bar">
+  <div class="lb-btn-wrap">
+    <button class="lb-btn primary" id="new-list-btn">+ New List</button>
+    <div id="new-list-popover">
+      <div class="nlp-row">
+        <label for="nlp-name">List Name</label>
+        <input id="nlp-name" class="nlp-input" type="text" placeholder="e.g. My Draft Rankings" />
+      </div>
+      <div class="nlp-row" style="margin-bottom:0">
+        <label for="nlp-creator">Creator</label>
+        <input id="nlp-creator" class="nlp-input" type="text" placeholder="Your name (optional)" />
+      </div>
+      <div class="nlp-actions">
+        <button id="nlp-cancel">Cancel</button>
+        <button id="nlp-create">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="lb-btn-wrap">
+    <button class="lb-btn" id="load-btn">Load ▾</button>
+    <div id="load-dropdown"></div>
+  </div>
+
+  <div id="lb-divider"></div>
+  <div id="lb-status">No list selected</div>
+  <div id="lb-saved">✓ Saved</div>
+</div>
+
+<div id="main">
+  <div id="tier-list"></div>
+
+  <div id="pool-section">
+    <div id="pool-header">
+      <span id="pool-header-label">Unassigned</span>
+      <div id="pool-sort">
+        <span>Sort:</span>
+        <button class="sort-btn active" data-sort="number">Card #</button>
+        <button class="sort-btn" data-sort="occs">Occs first</button>
+        <button class="sort-btn" data-sort="imps">Imps first</button>
+        <button class="sort-btn" data-sort="alpha">A→Z</button>
+        <button class="sort-btn" data-sort="shuffle">↺ Shuffle</button>
+      </div>
+      <button id="quick-rank-btn">▶ Quick Rank</button>
+    </div>
+    <div id="pool-drop-zone">
+      <span id="pool-placeholder">Select a folder to load images…</span>
+    </div>
+  </div>
+</div>
+
+<img id="drag-ghost" alt="" />
+
+<div id="zoom-overlay">
+  <img id="zoom-img" alt="" />
+  <div id="zoom-tier-btns"></div>
+  <div id="zoom-label"></div>
+</div>
+
+<script>
+  // ── Agricola card status sets ──────────────────────────────────
+  const WEAK_CARDS = new Set([
+    'A027','A070','A084','A100','A107','A144','A151','A154','A167',
+    'B101','B139','B147',
+    'C012','C034','C084','C154','C157','C158',
+    'D072','D101','D116','D140','D165',
+    'E108',
+  ]);
+
+  const BANNED_CARDS = new Set([
+    'A014','A033','A039','A048','A082','A097','A131','A133',
+    'B010','B015','B021','B022','B117','B132','B151','B161',
+    'C003','C028','C031','C063','C099','C102','C125',
+    'D004','D019','D021','D033','D074','D092','D097','D137',
+    'E022',
+  ]);
+
+  const TIERS = [
+    { label: 'S', color: '#f08080' },
+    { label: 'A', color: '#f4a460' },
+    { label: 'B', color: '#f4d060' },
+    { label: 'C', color: '#f4f080' },
+    { label: 'F', color: '#90ee90' },
+  ];
+
+  // ── Build tier rows ──────────────────────────────────────────
+  const tierList = document.getElementById('tier-list');
+  TIERS.forEach(tier => {
+    const row  = document.createElement('div');
+    row.className = 'tier-row';
+    const label = document.createElement('div');
+    label.className = 'tier-label';
+    label.textContent = tier.label;
+    label.style.background = tier.color;
+    const zone = document.createElement('div');
+    zone.className = 'tier-drop-zone';
+    zone.dataset.tier = tier.label;
+    row.appendChild(label);
+    row.appendChild(zone);
+    tierList.appendChild(row);
+  });
+
+  // ── Core DOM refs ─────────────────────────────────────────────
+  const pool        = document.getElementById('pool-drop-zone');
+  const placeholder = document.getElementById('pool-placeholder');
+  const deckFilters = document.getElementById('deck-filters');
+
+  // ── Drag state ────────────────────────────────────────────────
+  const ghost = document.getElementById('drag-ghost');
+  let dragged = null;
+  let dragOffX = 0, dragOffY = 0;
+  let dragStartX = 0, dragStartY = 0;
+  let hasDragged = false;
+  const DRAG_THRESHOLD = 5;
+
+  let lastDownTime = 0, lastDownTarget = null;
+  const DBL_MS = 300;
+
+  // ── Persistence ───────────────────────────────────────────────
+  // Active list ID stays in localStorage (it's just UI state, not data).
+  // All list data lives in lists.json via the local server API.
+  const ACTIVE_KEY = 'agricola_active_list';
+
+  let listsCache = {};            // in-memory source of truth
+  function getLists() { return listsCache; }
+
+  // Fire-and-forget: persist a single list object to the server
+  function persistList(list) {
+    fetch(`/api/lists/${list.id}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(list),
+    }).catch(e => console.warn('Could not save list:', e));
+  }
+
+  // Fire-and-forget: remove a list from the server
+  function removeListFromServer(id) {
+    fetch(`/api/lists/${id}`, { method: 'DELETE' })
+      .catch(e => console.warn('Could not delete list:', e));
+  }
+
+  // Load all lists from server; migrate any old localStorage data on first run
+  async function initPersistence() {
+    try {
+      const r = await fetch('/api/lists');
+      if (r.ok) listsCache = await r.json();
+    } catch { listsCache = {}; }
+
+    // One-time migration from old browser localStorage
+    const oldData = localStorage.getItem('agricola_tier_lists');
+    if (oldData) {
+      try {
+        const oldLists = JSON.parse(oldData);
+        let migrated = 0;
+        for (const list of Object.values(oldLists)) {
+          if (list.id && !listsCache[list.id]) {
+            listsCache[list.id] = list;
+            persistList(list);
+            migrated++;
+          }
+        }
+        if (migrated) console.log(`Migrated ${migrated} list(s) from browser storage → lists.json`);
+      } catch {}
+      localStorage.removeItem('agricola_tier_lists');
+    }
+  }
+
+  function getActiveListId() { return localStorage.getItem(ACTIVE_KEY) || null; }
+  function setActiveListId(id) {
+    if (id) localStorage.setItem(ACTIVE_KEY, id);
+    else localStorage.removeItem(ACTIVE_KEY);
+  }
+
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  // Snapshot: just tiers (ordered card IDs per tier)
+  function captureState() {
+    const tiers = {};
+    document.querySelectorAll('.tier-drop-zone').forEach(zone => {
+      tiers[zone.dataset.tier] = [...zone.querySelectorAll('.img-card')].map(c => c.title);
+    });
+    return { tiers };
+  }
+
+  // Restore tier arrangement from saved snapshot
+  function restoreState(state) {
+    if (!state) return;
+    const cardMap = {};
+    document.querySelectorAll('.img-card').forEach(c => { cardMap[c.title] = c; });
+
+    // Move all cards back to pool first
+    Object.values(cardMap).forEach(c => pool.appendChild(c));
+
+    // Re-place tier cards in order
+    for (const [tierLabel, cardIds] of Object.entries(state.tiers || {})) {
+      const zone = document.querySelector(`.tier-drop-zone[data-tier="${tierLabel}"]`);
+      if (!zone) continue;
+      cardIds.forEach(id => { if (cardMap[id]) zone.appendChild(cardMap[id]); });
+    }
+
+    // Reset deck filter to All
+    document.querySelectorAll('.deck-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.deck === 'all'));
+    document.querySelectorAll('.img-card').forEach(c => { c.style.display = ''; });
+    updatePlaceholder();
+  }
+
+  // ── List bar UI ───────────────────────────────────────────────
+  const lbStatus     = document.getElementById('lb-status');
+  const lbSaved      = document.getElementById('lb-saved');
+  const newListBtn   = document.getElementById('new-list-btn');
+  const newListPop   = document.getElementById('new-list-popover');
+  const loadBtn      = document.getElementById('load-btn');
+  const loadDropdown = document.getElementById('load-dropdown');
+  const nlpName      = document.getElementById('nlp-name');
+  const nlpCreator   = document.getElementById('nlp-creator');
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function updateListBar() {
+    const id = getActiveListId();
+    if (!id) {
+      lbStatus.innerHTML = 'No list selected — <em>create or load a list to save progress</em>';
+      return;
+    }
+    const list = getLists()[id];
+    if (!list) {
+      setActiveListId(null);
+      lbStatus.innerHTML = 'No list selected — <em>create or load a list to save progress</em>';
+      return;
+    }
+    const creator = list.creator ? ` <em>by ${escHtml(list.creator)}</em>` : '';
+    lbStatus.innerHTML = `<strong>${escHtml(list.name)}</strong>${creator}`;
+  }
+
+  let saveFlashTimer = null;
+  function flashSaved() {
+    lbSaved.classList.add('visible');
+    clearTimeout(saveFlashTimer);
+    saveFlashTimer = setTimeout(() => lbSaved.classList.remove('visible'), 2000);
+  }
+
+  function autoSave() {
+    const id = getActiveListId();
+    if (!id) return;
+    if (!listsCache[id]) return;
+    listsCache[id].state     = captureState();
+    listsCache[id].updatedAt = new Date().toISOString();
+    persistList(listsCache[id]);
+    flashSaved();
+  }
+
+  function createNewList(name, creator) {
+    const id  = generateId();
+    const now = new Date().toISOString();
+    const list = { id, name, creator: creator || '', createdAt: now, updatedAt: now, state: null };
+
+    setActiveListId(id);
+
+    // Clear tiers → move all cards back to pool
+    document.querySelectorAll('.tier-drop-zone .img-card').forEach(c => pool.appendChild(c));
+    document.querySelectorAll('.deck-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.deck === 'all'));
+    document.querySelectorAll('.img-card').forEach(c => { c.style.display = ''; });
+    updatePlaceholder();
+
+    // Capture blank initial state and persist
+    list.state = captureState();
+    listsCache[id] = list;
+    persistList(list);
+    updateListBar();
+    flashSaved();
+  }
+
+  function loadList(id) {
+    const list = listsCache[id];
+    if (!list) return;
+    setActiveListId(id);
+    restoreState(list.state);
+    updateListBar();
+    flashSaved();
+  }
+
+  function deleteList(id) {
+    const listName = listsCache[id]?.name || 'this list';
+    if (!confirm(`Delete "${listName}"?`)) return;
+    delete listsCache[id];
+    removeListFromServer(id);
+    if (getActiveListId() === id) {
+      setActiveListId(null);
+      updateListBar();
+    }
+    buildLoadDropdown();
+  }
+
+  function buildLoadDropdown() {
+    const lists    = getLists();
+    const activeId = getActiveListId();
+    const items    = Object.values(lists)
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    loadDropdown.innerHTML = '';
+
+    if (!items.length) {
+      loadDropdown.innerHTML = '<div class="ld-empty">No saved lists yet</div>';
+      return;
+    }
+
+    items.forEach(list => {
+      const item = document.createElement('div');
+      item.className = 'ld-item' + (list.id === activeId ? ' is-active' : '');
+
+      const info = document.createElement('div');
+      info.className = 'ld-info';
+      const datePart    = new Date(list.updatedAt).toLocaleDateString();
+      const creatorPart = list.creator ? ` · by ${escHtml(list.creator)}` : '';
+      const tierCount   = Object.values(list.state?.tiers || {}).reduce((s, a) => s + a.length, 0);
+      info.innerHTML = `
+        <div class="ld-name">${escHtml(list.name)}</div>
+        <div class="ld-meta">${datePart}${creatorPart} · ${tierCount} card${tierCount !== 1 ? 's' : ''} ranked</div>`;
+
+      const del = document.createElement('button');
+      del.className = 'ld-delete';
+      del.textContent = '✕';
+      del.title = 'Delete';
+      del.addEventListener('click', ev => { ev.stopPropagation(); deleteList(list.id); });
+
+      item.appendChild(info);
+      item.appendChild(del);
+      item.addEventListener('click', () => {
+        loadList(list.id);
+        loadDropdown.classList.remove('open');
+      });
+      loadDropdown.appendChild(item);
+    });
+  }
+
+  // New List button
+  newListBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    loadDropdown.classList.remove('open');
+    newListPop.classList.toggle('open');
+    if (newListPop.classList.contains('open')) nlpName.focus();
+  });
+
+  document.getElementById('nlp-cancel').addEventListener('click', () => {
+    newListPop.classList.remove('open');
+  });
+
+  document.getElementById('nlp-create').addEventListener('click', () => {
+    const name = nlpName.value.trim();
+    if (!name) { nlpName.classList.add('err'); nlpName.focus(); return; }
+    createNewList(name, nlpCreator.value.trim());
+    nlpName.value = '';
+    nlpCreator.value = '';
+    newListPop.classList.remove('open');
+  });
+
+  [nlpName, nlpCreator].forEach(inp => {
+    inp.addEventListener('input', () => inp.classList.remove('err'));
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  document.getElementById('nlp-create').click();
+      if (e.key === 'Escape') newListPop.classList.remove('open');
+    });
+  });
+
+  // Load button
+  loadBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    newListPop.classList.remove('open');
+    buildLoadDropdown();
+    loadDropdown.classList.toggle('open');
+  });
+
+  // Close popovers on outside click
+  document.addEventListener('pointerdown', e => {
+    if (!e.target.closest('#new-list-btn') && !e.target.closest('#new-list-popover'))
+      newListPop.classList.remove('open');
+    if (!e.target.closest('#load-btn') && !e.target.closest('#load-dropdown'))
+      loadDropdown.classList.remove('open');
+  });
+
+  // ── File loading ──────────────────────────────────────────────
+  const uploadBtn = document.getElementById('upload-btn');
+  const fileInput = document.getElementById('file-input');
+
+  async function autoLoadAgricolaCards() {
+    try {
+      const res = await fetch('cards/full/');
+      if (!res.ok) return;
+      const html = await res.text();
+      const files = [...html.matchAll(/href="([A-E]\d{3}\.png)"/g)]
+        .map(m => m[1]).sort();
+      if (!files.length) return;
+
+      placeholder.style.display = 'none';
+      deckFilters.style.display = 'flex';
+      document.querySelectorAll('.deck-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.deck === 'all'));
+
+      for (const fname of files) {
+        const id   = fname.replace('.png', '');
+        if (WEAK_CARDS.has(id)) continue;
+        const card = makeCard(`cards/full/${fname}`, id);
+        const deck = fname.match(/^([A-E])/)?.[1];
+        if (deck) card.dataset.deck = deck;
+        if (BANNED_CARDS.has(id)) card.classList.add('banned');
+        pool.appendChild(card);
+      }
+
+      // Restore active list state after cards are loaded
+      const activeId = getActiveListId();
+      if (activeId) {
+        const list = getLists()[activeId];
+        if (list?.state) restoreState(list.state);
+      }
+      updateListBar();
+    } catch (e) {}
+  }
+
+  // Load lists from server first, then show UI and cards
+  (async () => {
+    await initPersistence();
+    updateListBar();
+    autoLoadAgricolaCards();
+  })();
+
+  uploadBtn.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', () => {
+    const files = Array.from(fileInput.files)
+      .filter(f => f.type.startsWith('image/'))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    if (!files.length) return;
+
+    placeholder.style.display = 'none';
+    const hasDecks = files.some(f => /^[A-E]\d+/i.test(f.name));
+    deckFilters.style.display = hasDecks ? 'flex' : 'none';
+
+    files.forEach(file => {
+      const id = file.name.replace(/\.[^.]+$/, '');
+      if (WEAK_CARDS.has(id)) return;
+      const url  = URL.createObjectURL(file);
+      const card = makeCard(url, id);
+      const deck = file.name.match(/^([A-E])\d+/i)?.[1]?.toUpperCase();
+      if (deck) card.dataset.deck = deck;
+      if (BANNED_CARDS.has(id)) card.classList.add('banned');
+      pool.appendChild(card);
+    });
+
+    fileInput.value = '';
+  });
+
+  document.querySelectorAll('.deck-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const deck = btn.dataset.deck;
+      document.querySelectorAll('.deck-btn').forEach(b =>
+        b.classList.toggle('active', b === btn));
+      pool.querySelectorAll('.img-card').forEach(c => {
+        c.style.display = (deck === 'all' || c.dataset.deck === deck) ? '' : 'none';
+      });
+      updatePlaceholder();
+    });
+  });
+
+  // ── Card names & types ────────────────────────────────────────
+  let cardNames = {};
+  fetch('card_names.json')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => { cardNames = data; })
+    .catch(() => {});
+
+  let cardTypes = {};
+  fetch('card_types.json')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => { cardTypes = data; })
+    .catch(() => {});
+
+  // ── Pool sort ─────────────────────────────────────────────────
+  let currentSort = 'number';
+
+  function sortPool(mode) {
+    const cards = [...pool.querySelectorAll('.img-card')];
+    if (!cards.length) return;
+
+    if (mode === 'shuffle') {
+      for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+      }
+    } else {
+      cards.sort((a, b) => {
+        const idA = a.title, idB = b.title;
+        if (mode === 'alpha') {
+          const nA = cardNames[idA] || idA, nB = cardNames[idB] || idB;
+          return nA.localeCompare(nB);
+        }
+        if (mode === 'occs' || mode === 'imps') {
+          const primary = mode === 'occs' ? 'occ' : 'imp';
+          const tA = cardTypes[idA] || 'imp', tB = cardTypes[idB] || 'imp';
+          if (tA === primary && tB !== primary) return -1;
+          if (tA !== primary && tB === primary) return  1;
+        }
+        return idA.localeCompare(idB); // card # as primary or tiebreaker
+      });
+    }
+
+    cards.forEach(c => pool.appendChild(c));
+  }
+
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.sort;
+      if (mode !== 'shuffle') {
+        currentSort = mode;
+        document.querySelectorAll('.sort-btn').forEach(b =>
+          b.classList.toggle('active', b.dataset.sort === mode));
+      }
+      sortPool(mode);
+    });
+  });
+
+  // ── Quick Rank mode ───────────────────────────────────────────
+  let reviewMode = false;
+
+  function reviewRemaining() {
+    return [...pool.querySelectorAll('.img-card')].filter(c => c.style.display !== 'none').length;
+  }
+
+  function enterReviewMode() {
+    reviewMode = true;
+    const btn = document.getElementById('quick-rank-btn');
+    btn.textContent = '✕ Stop';
+    btn.classList.add('active');
+    nextReviewCard();
+  }
+
+  function exitReviewMode() {
+    reviewMode = false;
+    const btn = document.getElementById('quick-rank-btn');
+    if (btn) { btn.textContent = '▶ Quick Rank'; btn.classList.remove('active'); }
+  }
+
+  function nextReviewCard() {
+    const next = [...pool.querySelectorAll('.img-card')].find(c => c.style.display !== 'none');
+    if (next) {
+      openZoom(next.src, next.title);
+    } else {
+      exitReviewMode();
+      closeZoom();
+    }
+  }
+
+  document.getElementById('quick-rank-btn').addEventListener('click', () => {
+    if (reviewMode) { exitReviewMode(); closeZoom(); }
+    else enterReviewMode();
+  });
+
+  // ── Zoom overlay ──────────────────────────────────────────────
+  const zoomOverlay  = document.getElementById('zoom-overlay');
+  const zoomImg      = document.getElementById('zoom-img');
+  const zoomLabel    = document.getElementById('zoom-label');
+  const zoomTierBtns = document.getElementById('zoom-tier-btns');
+  let zoomCardId = null;
+
+  function findCardTier(id) {
+    for (const zone of document.querySelectorAll('.tier-drop-zone'))
+      if (zone.querySelector(`.img-card[title="${id}"]`)) return zone.dataset.tier;
+    return null;
+  }
+
+  // ── Card highlight ─────────────────────────────────────────────
+  let highlightedCard = null;
+
+  function highlightCard(id) {
+    clearHighlight();
+    const card = document.querySelector(`.img-card[title="${id}"]`);
+    if (!card) return;
+    card.classList.add('highlighted');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    highlightedCard = card;
+  }
+
+  function clearHighlight() {
+    if (highlightedCard) { highlightedCard.classList.remove('highlighted'); highlightedCard = null; }
+  }
+
+  function scheduleHighlightRemoval() {
+    if (!highlightedCard) return;
+    setTimeout(() => document.addEventListener('pointerdown', clearHighlight, { once: true }), 50);
+  }
+
+  function updateZoomLabel(id) {
+    const name     = (id && cardNames[id]) ? cardNames[id] : (id || '');
+    const tier     = id ? findCardTier(id) : null;
+    const tierData = tier ? TIERS.find(t => t.label === tier) : null;
+    if (reviewMode) {
+      const rem = reviewRemaining();
+      zoomLabel.textContent = name ? `${name}  ·  ${rem} remaining` : `${rem} remaining`;
+      zoomLabel.style.color = '#888';
+      zoomLabel.style.display = '';
+    } else if (name || tier !== undefined) {
+      const tierText = tier ? `${tier} Tier` : 'Unassigned';
+      zoomLabel.textContent = name ? `${name}  ·  ${tierText}` : tierText;
+      zoomLabel.style.color = tierData ? tierData.color : '#999';
+      zoomLabel.style.display = '';
+    } else {
+      zoomLabel.style.display = 'none';
+    }
+  }
+
+  function buildZoomTierButtons(id) {
+    zoomTierBtns.innerHTML = '';
+    if (!id) return;
+
+    const currentTier = findCardTier(id);
+
+    TIERS.forEach(tier => {
+      const btn = document.createElement('button');
+      btn.className = 'zoom-tier-btn' + (tier.label === currentTier ? ' is-current' : '');
+      btn.textContent = tier.label;
+      btn.style.background = tier.color;
+      btn.addEventListener('click', e => { e.stopPropagation(); assignCardToTier(id, tier.label); });
+      zoomTierBtns.appendChild(btn);
+    });
+
+    const sep = document.createElement('div');
+    sep.className = 'zoom-tier-sep';
+    zoomTierBtns.appendChild(sep);
+
+    if (reviewMode) {
+      const skipBtn = document.createElement('button');
+      skipBtn.className = 'zoom-skip-btn';
+      skipBtn.textContent = 'Skip →';
+      skipBtn.addEventListener('click', e => { e.stopPropagation(); nextReviewCard(); });
+      zoomTierBtns.appendChild(skipBtn);
+    } else if (currentTier) {
+      const unBtn = document.createElement('button');
+      unBtn.className = 'zoom-unassign-btn';
+      unBtn.textContent = 'Unassign';
+      unBtn.addEventListener('click', e => { e.stopPropagation(); assignCardToTier(id, null); });
+      zoomTierBtns.appendChild(unBtn);
+    }
+  }
+
+  function assignCardToTier(id, tierLabel) {
+    const card = document.querySelector(`.img-card[title="${id}"]`);
+    if (!card) return;
+
+    // No-op if already in the requested tier
+    if (tierLabel && findCardTier(id) === tierLabel) {
+      if (reviewMode) nextReviewCard(); else closeZoom();
+      return;
+    }
+
+    if (tierLabel) {
+      const zone = document.querySelector(`.tier-drop-zone[data-tier="${tierLabel}"]`);
+      if (zone) zone.appendChild(card);
+    } else {
+      pool.appendChild(card);
+    }
+
+    updatePlaceholder();
+    autoSave();
+    if (reviewMode) nextReviewCard(); else closeZoom();
+  }
+
+  function openZoom(src, id) {
+    zoomImg.src = src;
+    zoomCardId = id || null;
+    zoomImg.classList.toggle('banned', !!id && BANNED_CARDS.has(id));
+    updateZoomLabel(id);
+    buildZoomTierButtons(id);
+    zoomOverlay.classList.add('visible');
+  }
+
+  function closeZoom() {
+    zoomOverlay.classList.remove('visible');
+    zoomImg.src = '';
+    zoomCardId = null;
+    if (reviewMode) exitReviewMode();
+    scheduleHighlightRemoval();
+  }
+
+  zoomOverlay.addEventListener('click', closeZoom);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeZoom(); return; }
+    if (!zoomCardId) return;
+    const tier = TIERS.find(t => t.label === e.key.toUpperCase());
+    if (tier) { e.preventDefault(); assignCardToTier(zoomCardId, tier.label); return; }
+    if (e.key === 'ArrowRight' && reviewMode) { e.preventDefault(); nextReviewCard(); }
+  });
+
+  // ── Search ────────────────────────────────────────────────────
+  const searchInput    = document.getElementById('search-input');
+  const searchDropdown = document.getElementById('search-dropdown');
+  let activeResultIdx  = -1;
+
+  function buildDropdown(query) {
+    const q = query.toLowerCase();
+    const results = Object.entries(cardNames)
+      .filter(([id, name]) =>
+        !WEAK_CARDS.has(id) &&
+        (name.toLowerCase().includes(q) || id.toLowerCase().includes(q)))
+      .slice(0, 14);
+
+    if (!results.length) { searchDropdown.classList.remove('open'); return; }
+
+    searchDropdown.innerHTML = '';
+    activeResultIdx = -1;
+
+    results.forEach(([id, name]) => {
+      const tier     = findCardTier(id);
+      const tierData = tier ? TIERS.find(t => t.label === tier) : null;
+
+      const row = document.createElement('div');
+      row.className = 'sr';
+      row.dataset.id = id;
+
+      const thumb = document.createElement('img');
+      thumb.className = 'sr-thumb';
+      thumb.src = `cards/full/${id}.png`;
+
+      const info = document.createElement('div');
+      info.className = 'sr-info';
+      info.innerHTML = `<div class="sr-name">${name}</div><div class="sr-id">${id}</div>`;
+
+      const badge = document.createElement('div');
+      badge.className = 'sr-tier';
+      badge.textContent = tier || 'Unassigned';
+      badge.style.background = tierData ? tierData.color + '33' : '#333';
+      badge.style.color      = tierData ? tierData.color        : '#888';
+
+      row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
+      row.addEventListener('pointerdown', ev => { ev.preventDefault(); selectResult(id); });
+      searchDropdown.appendChild(row);
+    });
+
+    searchDropdown.classList.add('open');
+  }
+
+  function selectResult(id) {
+    searchDropdown.classList.remove('open');
+    searchInput.value = '';
+    highlightCard(id);
+    openZoom(`cards/full/${id}.png`, id);
+  }
+
+  function setActiveResult(idx) {
+    const rows = searchDropdown.querySelectorAll('.sr');
+    rows.forEach((r, i) => r.classList.toggle('active', i === idx));
+    activeResultIdx = idx;
+  }
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim();
+    if (q.length < 3) { searchDropdown.classList.remove('open'); return; }
+    buildDropdown(q);
+  });
+
+  searchInput.addEventListener('keydown', e => {
+    const rows = [...searchDropdown.querySelectorAll('.sr')];
+    if (e.key === 'ArrowDown') {
+      e.preventDefault(); setActiveResult(Math.min(activeResultIdx + 1, rows.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault(); setActiveResult(Math.max(activeResultIdx - 1, 0));
+    } else if (e.key === 'Enter') {
+      const active = rows[activeResultIdx];
+      if (active) selectResult(active.dataset.id);
+    } else if (e.key === 'Escape') {
+      searchDropdown.classList.remove('open'); searchInput.blur();
+    }
+  });
+
+  document.addEventListener('pointerdown', e => {
+    if (!e.target.closest('#search-wrapper')) searchDropdown.classList.remove('open');
+  });
+
+  // ── Card factory ──────────────────────────────────────────────
+  function makeCard(src, title) {
+    const img = document.createElement('img');
+    img.className = 'img-card';
+    img.src = src;
+    img.title = title || '';
+    img.draggable = false;
+    img.addEventListener('pointerdown', onPointerDown);
+    return img;
+  }
+
+  // ── Pointer-based drag & drop ─────────────────────────────────
+  function onPointerDown(e) {
+    if (e.button !== 0) return;
+    const card = e.currentTarget;
+    const now  = Date.now();
+
+    // Double-click detection: same card within DBL_MS → zoom, no drag
+    if (card === lastDownTarget && now - lastDownTime < DBL_MS) {
+      lastDownTime = 0; lastDownTarget = null;
+      openZoom(card.src, card.title);
+      e.preventDefault(); return;
+    }
+    lastDownTime = now; lastDownTarget = card;
+
+    dragged    = card;
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    hasDragged = false;
+
+    const rect = dragged.getBoundingClientRect();
+    dragOffX = e.clientX - rect.left - rect.width  / 2;
+    dragOffY = e.clientY - rect.top  - rect.height / 2;
+
+    ghost.src = dragged.src;
+    ghost.style.display = 'block';
+    moveGhost(e.clientX, e.clientY);
+    dragged.classList.add('dragging');
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup',   onPointerUp);
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!dragged) return;
+    if (!hasDragged) {
+      const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+      if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+      hasDragged = true;
+    }
+    moveGhost(e.clientX, e.clientY);
+    highlightZone(e.clientX, e.clientY);
+  }
+
+  function onPointerUp(e) {
+    if (!dragged) return;
+    clearHighlights();
+    ghost.style.display = 'none';
+
+    if (hasDragged) {
+      const target = dropZoneAt(e.clientX, e.clientY);
+      if (target) {
+        const sibling = cardAt(target, e.clientX, e.clientY);
+        sibling && sibling !== dragged
+          ? target.insertBefore(dragged, sibling)
+          : target.appendChild(dragged);
+        updatePlaceholder();
+        autoSave();   // ← persist after every successful drop
+      }
+    }
+
+    dragged.classList.remove('dragging');
+    dragged = null; hasDragged = false;
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup',   onPointerUp);
+  }
+
+  function moveGhost(cx, cy) {
+    ghost.style.left = (cx - dragOffX) + 'px';
+    ghost.style.top  = (cy - dragOffY) + 'px';
+  }
+
+  // ── Zone helpers ──────────────────────────────────────────────
+  function allZones() { return [...document.querySelectorAll('.tier-drop-zone'), pool]; }
+
+  function dropZoneAt(x, y) {
+    const ghostWas = ghost.style.display;
+    ghost.style.display = 'none';
+    dragged.style.display = 'none';
+    const el = document.elementFromPoint(x, y);
+    ghost.style.display = ghostWas;
+    dragged.style.display = '';
+    if (!el) return null;
+    return el.closest('.tier-drop-zone, #pool-drop-zone');
+  }
+
+  function cardAt(zone, x, y) {
+    const cards = [...zone.querySelectorAll('.img-card')].filter(c => c !== dragged);
+    for (const c of cards) {
+      const r = c.getBoundingClientRect();
+      if (x < r.left + r.width / 2) return c;
+    }
+    return null;
+  }
+
+  function highlightZone(x, y) { clearHighlights(); const z = dropZoneAt(x, y); if (z) z.classList.add('drag-over'); }
+  function clearHighlights() { allZones().forEach(z => z.classList.remove('drag-over')); }
+
+  function updatePlaceholder() {
+    const hasVisible = [...pool.querySelectorAll('.img-card')].some(c => c.style.display !== 'none');
+    placeholder.style.display = hasVisible ? 'none' : '';
+  }
+</script>
+</body>
+</html>

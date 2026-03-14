@@ -1,0 +1,18 @@
+{
+  "name": "tier_maker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start":  "node server.js",
+    "render": "node render_cards.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {},
+  "devDependencies": {
+    "csv-parse": "^6.1.0",
+    "puppeteer": "^24.38.0"
+  }
+}
