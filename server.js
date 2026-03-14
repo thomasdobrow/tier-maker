@@ -5,9 +5,13 @@ const fs   = require('fs');
 const path = require('path');
 const url  = require('url');
 
-const BASE_DIR   = __dirname;
-const LISTS_FILE = path.join(process.env.DATA_DIR || BASE_DIR, 'lists.json');
-const PORT       = process.env.PORT || 8765;
+const BASE_DIR = __dirname;
+const PORT     = process.env.PORT || 8765;
+
+const UPSTASH_URL   = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const USE_REDIS     = !!(UPSTASH_URL && UPSTASH_TOKEN);
+const LISTS_FILE    = path.join(process.env.DATA_DIR || BASE_DIR, 'lists.json');
 
 const MIME = {
   '.html':  'text/html; charset=utf-8',
@@ -22,20 +26,65 @@ const MIME = {
   '.ttf':   'font/ttf',
 };
 
-// ── Lists file I/O ────────────────────────────────────────────
-function readLists() {
-  try {
-    if (!fs.existsSync(LISTS_FILE)) return {};
-    return JSON.parse(fs.readFileSync(LISTS_FILE, 'utf8'));
-  } catch { return {}; }
+// ── Redis (Upstash REST) ───────────────────────────────────────
+async function redis(...args) {
+  const res = await fetch(UPSTASH_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${UPSTASH_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  });
+  const json = await res.json();
+  if (json.error) throw new Error(`Redis error: ${json.error}`);
+  return json.result;
 }
 
-function writeLists(lists) {
-  fs.writeFileSync(LISTS_FILE, JSON.stringify(lists, null, 2), 'utf8');
+// ── Lists I/O ─────────────────────────────────────────────────
+async function readLists() {
+  if (!USE_REDIS) {
+    try {
+      if (!fs.existsSync(LISTS_FILE)) return {};
+      return JSON.parse(fs.readFileSync(LISTS_FILE, 'utf8'));
+    } catch { return {}; }
+  }
+  const ids = await redis('HKEYS', 'tm:index');
+  if (!ids || ids.length === 0) return {};
+  const vals = await redis('MGET', ...ids.map(id => `tm:list:${id}`));
+  const out = {};
+  ids.forEach((id, i) => { if (vals[i]) out[id] = JSON.parse(vals[i]); });
+  return out;
+}
+
+async function saveList(id, data) {
+  if (!USE_REDIS) {
+    const lists = await readLists();
+    lists[id] = data;
+    fs.writeFileSync(LISTS_FILE, JSON.stringify(lists, null, 2), 'utf8');
+    return;
+  }
+  await Promise.all([
+    redis('SET', `tm:list:${id}`, JSON.stringify(data)),
+    redis('HSET', 'tm:index', id, data.name || id),
+  ]);
+}
+
+async function removeList(id) {
+  if (!USE_REDIS) {
+    const lists = await readLists();
+    delete lists[id];
+    fs.writeFileSync(LISTS_FILE, JSON.stringify(lists, null, 2), 'utf8');
+    return;
+  }
+  await Promise.all([
+    redis('DEL', `tm:list:${id}`),
+    redis('HDEL', 'tm:index', id),
+  ]);
 }
 
 // ── HTTP server ───────────────────────────────────────────────
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url);
   const pathname  = decodeURIComponent(parsedUrl.pathname);
 
@@ -43,8 +92,13 @@ const server = http.createServer((req, res) => {
 
   // ── GET /api/lists — return all lists ──────────────────────
   if (pathname === '/api/lists' && req.method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(readLists()));
+    try {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(await readLists()));
+    } catch (e) {
+      console.error('readLists error:', e);
+      res.writeHead(500); res.end('Server error');
+    }
     return;
   }
 
@@ -57,14 +111,13 @@ const server = http.createServer((req, res) => {
     if (req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
-      req.on('end', () => {
+      req.on('end', async () => {
         try {
-          const lists = readLists();
-          lists[id] = JSON.parse(body);
-          writeLists(lists);
+          await saveList(id, JSON.parse(body));
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end('{"ok":true}');
-        } catch {
+        } catch (e) {
+          console.error('saveList error:', e);
           res.writeHead(400); res.end('Bad request');
         }
       });
@@ -72,11 +125,14 @@ const server = http.createServer((req, res) => {
     }
 
     if (req.method === 'DELETE') {
-      const lists = readLists();
-      delete lists[id];
-      writeLists(lists);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end('{"ok":true}');
+      try {
+        await removeList(id);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('{"ok":true}');
+      } catch (e) {
+        console.error('removeList error:', e);
+        res.writeHead(500); res.end('Server error');
+      }
       return;
     }
   }
@@ -116,5 +172,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Tier Maker → http://localhost:${PORT}`);
+  console.log(`Tier Maker → http://localhost:${PORT}  [${USE_REDIS ? 'Redis' : 'file'}]`);
 });
