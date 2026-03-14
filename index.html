@@ -575,6 +575,14 @@
         align-items: flex-start;
       }
 
+      /* List bar: scroll right so status text isn't cut off */
+      #list-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+      #list-bar > * { flex-shrink: 0; }
+
       /* Pool header: Quick Rank stays visible, scroll right for sort options */
       #pool-header {
         overflow-x: auto;
@@ -648,11 +656,11 @@
       <span id="pool-header-label">Unassigned</span>
       <div id="pool-sort">
         <span>Sort:</span>
+        <button class="sort-btn" data-sort="shuffle">↺ Shuffle</button>
         <button class="sort-btn active" data-sort="number">Card #</button>
         <button class="sort-btn" data-sort="occs">Occs first</button>
         <button class="sort-btn" data-sort="imps">Imps first</button>
         <button class="sort-btn" data-sort="alpha">A→Z</button>
-        <button class="sort-btn" data-sort="shuffle">↺ Shuffle</button>
       </div>
     </div>
     <div id="pool-drop-zone">
