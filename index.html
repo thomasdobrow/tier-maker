@@ -565,6 +565,93 @@
     }
     .zoom-unassign-btn:hover { background: #333; color: #ccc; }
 
+    /* ── Tier actions bar ── */
+    #tier-actions {
+      padding: 5px 16px;
+      background: #0e0e0e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #2a2a2a;
+      flex-shrink: 0;
+    }
+    .ta-btn {
+      background: #252525;
+      color: #bbb;
+      border: 1px solid #444;
+      padding: 5px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      transition: background 0.12s, color 0.12s;
+    }
+    .ta-btn:hover { background: #333; color: #eee; }
+
+    /* ── Normalize modal ── */
+    #normalize-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 12000;
+      background: rgba(0,0,0,0.75);
+      align-items: center;
+      justify-content: center;
+    }
+    #normalize-modal.open { display: flex; }
+    #normalize-dialog {
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 20px 24px;
+      min-width: 280px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    #normalize-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #eee;
+    }
+    #normalize-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 18px;
+      font-size: 0.88rem;
+    }
+    #normalize-table th {
+      color: #666;
+      font-weight: 500;
+      text-align: right;
+      padding: 0 8px 8px;
+    }
+    #normalize-table th:first-child { text-align: left; }
+    #normalize-table td {
+      text-align: right;
+      padding: 4px 8px;
+      color: #ccc;
+    }
+    #normalize-table td:first-child { text-align: left; font-weight: 700; }
+    #normalize-table td.norm-arrow { color: #555; text-align: center; }
+    #normalize-table td.norm-gain  { color: #7dcc7d; }
+    #normalize-table td.norm-loss  { color: #e08080; }
+    #normalize-table td.norm-same  { color: #888; }
+    #normalize-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    #normalize-cancel {
+      background: #2a2a2a; color: #aaa; border: 1px solid #444;
+      padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+    }
+    #normalize-apply {
+      background: #1e3a1e; color: #7dcc7d; border: 1px solid #3a6a3a;
+      padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+    }
+    #normalize-cancel:hover { background: #333; }
+    #normalize-apply:hover  { background: #2a4a2a; }
+
     /* ── Mobile ── */
     @media (max-width: 768px) {
       /* Each tier: single horizontal row, scroll right */
@@ -647,6 +734,10 @@
   <div id="lb-saved">✓ Saved</div>
 </div>
 
+<div id="tier-actions">
+  <button class="ta-btn" id="normalize-btn">⚖ Normalize Tier Counts</button>
+</div>
+
 <div id="main">
   <div id="tier-list"></div>
 
@@ -702,6 +793,8 @@
     { label: 'C', color: '#f4f080' },
     { label: 'F', color: '#90ee90' },
   ];
+
+  const TIER_TARGETS = { S: 0.10, A: 0.20, B: 0.30, C: 0.25, F: 0.15 };
 
   // ── Build tier rows ──────────────────────────────────────────
   const tierList = document.getElementById('tier-list');
@@ -1006,6 +1099,80 @@
       loadDropdown.classList.remove('open');
   });
 
+  // ── Normalize tier counts ─────────────────────────────────────
+  let normalizePending = null;
+
+  function computeNormalizedCounts(total) {
+    const labels = TIERS.map(t => t.label);
+    const counts = {};
+    let assigned = 0;
+    for (let i = 0; i < labels.length - 1; i++) {
+      counts[labels[i]] = Math.round(total * TIER_TARGETS[labels[i]]);
+      assigned += counts[labels[i]];
+    }
+    counts[labels[labels.length - 1]] = total - assigned; // absorbs rounding
+    return counts;
+  }
+
+  function normalizeTierCounts() {
+    const allCards = [];
+    TIERS.forEach(t => {
+      const zone = document.querySelector(`.tier-drop-zone[data-tier="${t.label}"]`);
+      if (zone) allCards.push(...zone.querySelectorAll('.img-card'));
+    });
+    const total = allCards.length;
+
+    const before = {};
+    TIERS.forEach(t => {
+      const zone = document.querySelector(`.tier-drop-zone[data-tier="${t.label}"]`);
+      before[t.label] = zone ? zone.querySelectorAll('.img-card').length : 0;
+    });
+
+    const after = computeNormalizedCounts(total);
+
+    const tbody = document.getElementById('normalize-tbody');
+    tbody.innerHTML = '';
+    TIERS.forEach(t => {
+      const b = before[t.label], a = after[t.label];
+      const deltaClass = a > b ? 'norm-gain' : a < b ? 'norm-loss' : 'norm-same';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:${t.color}">${t.label}</td>
+        <td>${b}</td>
+        <td class="norm-arrow">→</td>
+        <td class="${deltaClass}">${a}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    normalizePending = { allCards: [...allCards], after };
+    document.getElementById('normalize-modal').classList.add('open');
+  }
+
+  function applyNormalize() {
+    if (!normalizePending) return;
+    const { allCards, after } = normalizePending;
+    let idx = 0;
+    TIERS.forEach(t => {
+      const zone = document.querySelector(`.tier-drop-zone[data-tier="${t.label}"]`);
+      const count = after[t.label];
+      for (let i = 0; i < count; i++) {
+        if (allCards[idx]) zone.appendChild(allCards[idx++]);
+      }
+    });
+    closeNormalizeModal();
+    autoSave();
+  }
+
+  function closeNormalizeModal() {
+    document.getElementById('normalize-modal').classList.remove('open');
+    normalizePending = null;
+  }
+
+  document.getElementById('normalize-btn').addEventListener('click', normalizeTierCounts);
+  document.getElementById('normalize-cancel').addEventListener('click', closeNormalizeModal);
+  document.getElementById('normalize-apply').addEventListener('click', applyNormalize);
+  document.getElementById('normalize-modal').addEventListener('click', closeNormalizeModal);
+
   // ── Card loading ──────────────────────────────────────────────
   async function autoLoadAgricolaCards() {
     try {
@@ -1281,7 +1448,12 @@
 
   zoomOverlay.addEventListener('click', closeZoom);
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeZoom(); return; }
+    if (e.key === 'Escape') {
+      if (document.getElementById('normalize-modal').classList.contains('open')) {
+        closeNormalizeModal(); return;
+      }
+      closeZoom(); return;
+    }
     if (!zoomCardId) return;
     const tier = TIERS.find(t => t.label === e.key.toUpperCase());
     if (tier) { e.preventDefault(); assignCardToTier(zoomCardId, tier.label); return; }
@@ -1486,5 +1658,19 @@
     placeholder.style.display = hasVisible ? 'none' : '';
   }
 </script>
+
+<div id="normalize-modal">
+  <div id="normalize-dialog" onclick="event.stopPropagation()">
+    <div id="normalize-title">Normalize Tier Counts</div>
+    <table id="normalize-table">
+      <thead><tr><th>Tier</th><th>Before</th><th></th><th>After</th></tr></thead>
+      <tbody id="normalize-tbody"></tbody>
+    </table>
+    <div id="normalize-actions">
+      <button id="normalize-cancel">Cancel</button>
+      <button id="normalize-apply">Apply</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
