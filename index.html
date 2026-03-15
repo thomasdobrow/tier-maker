@@ -768,6 +768,20 @@
   <div id="zoom-label"></div>
 </div>
 
+<div id="normalize-modal">
+  <div id="normalize-dialog" onclick="event.stopPropagation()">
+    <div id="normalize-title">Normalize Tier Counts</div>
+    <table id="normalize-table">
+      <thead><tr><th>Tier</th><th>Before</th><th></th><th>After</th></tr></thead>
+      <tbody id="normalize-tbody"></tbody>
+    </table>
+    <div id="normalize-actions">
+      <button id="normalize-cancel">Cancel</button>
+      <button id="normalize-apply">Apply</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ── Agricola card status sets ──────────────────────────────────
   const WEAK_CARDS = new Set([
@@ -1658,19 +1672,5 @@
     placeholder.style.display = hasVisible ? 'none' : '';
   }
 </script>
-
-<div id="normalize-modal">
-  <div id="normalize-dialog" onclick="event.stopPropagation()">
-    <div id="normalize-title">Normalize Tier Counts</div>
-    <table id="normalize-table">
-      <thead><tr><th>Tier</th><th>Before</th><th></th><th>After</th></tr></thead>
-      <tbody id="normalize-tbody"></tbody>
-    </table>
-    <div id="normalize-actions">
-      <button id="normalize-cancel">Cancel</button>
-      <button id="normalize-apply">Apply</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
