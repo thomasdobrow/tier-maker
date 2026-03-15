@@ -238,8 +238,10 @@
       width: 80px;
       flex-shrink: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 4px;
       font-size: 1.4rem;
       font-weight: 700;
       color: #1a1a1a;
@@ -652,6 +654,125 @@
     #normalize-cancel:hover { background: #333; }
     #normalize-apply:hover  { background: #2a4a2a; }
 
+    /* ── Tier sort button ── */
+    .tier-sort-btn {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.75);
+      border-radius: 3px;
+      font-size: 0.65rem;
+      padding: 1px 5px;
+      cursor: pointer;
+      line-height: 1.4;
+      transition: background 0.1s;
+    }
+    .tier-sort-btn:hover { background: rgba(0,0,0,0.55); color: #fff; }
+
+    /* ── Sort wizard modal ── */
+    #sort-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 11000;
+      background: rgba(0,0,0,0.82);
+      align-items: center;
+      justify-content: center;
+    }
+    #sort-modal.open { display: flex; }
+    #sort-dialog {
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 20px 24px;
+      width: min(560px, 94vw);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    }
+    #sort-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    #sort-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #eee;
+    }
+    #sort-progress {
+      font-size: 0.78rem;
+      color: #888;
+    }
+    #sort-comparison {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    .sort-choice {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .sort-choice:hover .sort-card-img { outline: 2px solid #bbb; }
+    .sort-card-img {
+      width: 116px;
+      height: 184px;
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    .sort-card-label {
+      font-size: 0.7rem;
+      color: #888;
+      text-align: center;
+      max-width: 116px;
+    }
+    .sort-pick-btn {
+      background: #252525;
+      color: #ccc;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 5px 0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      width: 116px;
+      transition: background 0.1s, color 0.1s;
+    }
+    .sort-pick-btn:hover { background: #3a3a3a; color: #fff; }
+    #sort-vs {
+      color: #555;
+      font-size: 1rem;
+      align-self: center;
+      flex-shrink: 0;
+    }
+    #sort-empty-msg {
+      display: none;
+      text-align: center;
+      color: #888;
+      font-size: 0.88rem;
+      padding: 24px 0 8px;
+    }
+    #sort-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    #sort-resort-all {
+      background: #252525; color: #aaa; border: 1px solid #444;
+      padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.82rem;
+      margin-right: auto;
+    }
+    #sort-resort-all:hover { background: #333; color: #eee; }
+    #sort-cancel {
+      background: #2a2a2a; color: #aaa; border: 1px solid #444;
+      padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+    }
+    #sort-cancel:hover { background: #333; }
+
     /* ── Mobile ── */
     @media (max-width: 768px) {
       /* Each tier: single horizontal row, scroll right */
@@ -782,6 +903,33 @@
   </div>
 </div>
 
+<div id="sort-modal">
+  <div id="sort-dialog" onclick="event.stopPropagation()">
+    <div id="sort-header">
+      <span id="sort-title">Sort Tier X</span>
+      <span id="sort-progress"></span>
+    </div>
+    <div id="sort-comparison">
+      <div class="sort-choice" id="sort-choice-left">
+        <img class="sort-card-img" id="sort-img-left" alt="" />
+        <div class="sort-card-label" id="sort-label-left"></div>
+        <button class="sort-pick-btn" id="sort-pick-left">▲ Pick</button>
+      </div>
+      <div id="sort-vs">vs</div>
+      <div class="sort-choice" id="sort-choice-right">
+        <img class="sort-card-img" id="sort-img-right" alt="" />
+        <div class="sort-card-label" id="sort-label-right"></div>
+        <button class="sort-pick-btn" id="sort-pick-right">▲ Pick</button>
+      </div>
+    </div>
+    <div id="sort-empty-msg">All cards in this tier are already sorted.</div>
+    <div id="sort-actions">
+      <button id="sort-resort-all">↺ Re-sort All</button>
+      <button id="sort-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ── Agricola card status sets ──────────────────────────────────
   const WEAK_CARDS = new Set([
@@ -817,8 +965,16 @@
     row.className = 'tier-row';
     const label = document.createElement('div');
     label.className = 'tier-label';
-    label.textContent = tier.label;
     label.style.background = tier.color;
+    const labelText = document.createElement('span');
+    labelText.textContent = tier.label;
+    const sortBtn = document.createElement('button');
+    sortBtn.className = 'tier-sort-btn';
+    sortBtn.title = `Sort tier ${tier.label}`;
+    sortBtn.textContent = '⇅';
+    sortBtn.addEventListener('click', e => { e.stopPropagation(); openSortWizard(tier.label); });
+    label.appendChild(labelText);
+    label.appendChild(sortBtn);
     const zone = document.createElement('div');
     zone.className = 'tier-drop-zone';
     zone.dataset.tier = tier.label;
@@ -902,13 +1058,17 @@
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
-  // Snapshot: just tiers (ordered card IDs per tier)
+  // Snapshot: tiers (ordered card IDs per tier) + sortedAt timestamps
   function captureState() {
     const tiers = {};
+    const sortedAt = {};
     document.querySelectorAll('.tier-drop-zone').forEach(zone => {
-      tiers[zone.dataset.tier] = [...zone.querySelectorAll('.img-card')].map(c => c.title);
+      tiers[zone.dataset.tier] = [...zone.querySelectorAll('.img-card')].map(c => {
+        if (c.dataset.sortedAt) sortedAt[c.title] = c.dataset.sortedAt;
+        return c.title;
+      });
     });
-    return { tiers };
+    return { tiers, sortedAt };
   }
 
   // Restore tier arrangement from saved snapshot
@@ -926,6 +1086,12 @@
       if (!zone) continue;
       cardIds.forEach(id => { if (cardMap[id]) zone.appendChild(cardMap[id]); });
     }
+
+    // Restore sortedAt timestamps
+    const sortedAt = state.sortedAt || {};
+    Object.entries(sortedAt).forEach(([cardId, ts]) => {
+      if (cardMap[cardId]) cardMap[cardId].dataset.sortedAt = ts;
+    });
 
     // Reset deck filter to All
     document.querySelectorAll('.deck-btn').forEach(b =>
@@ -1112,6 +1278,131 @@
     if (!e.target.closest('#load-btn') && !e.target.closest('#load-dropdown'))
       loadDropdown.classList.remove('open');
   });
+
+  // ── Tier sort wizard ──────────────────────────────────────────
+  let sortWizardState = null;
+
+  function openSortWizard(tierLabel) {
+    const zone = document.querySelector(`.tier-drop-zone[data-tier="${tierLabel}"]`);
+    const allCards = [...zone.querySelectorAll('.img-card')];
+    const sorted = allCards.filter(c => c.dataset.sortedAt);
+    const toSort = allCards.filter(c => !c.dataset.sortedAt);
+
+    // Shuffle toSort for variety
+    for (let i = toSort.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [toSort[i], toSort[j]] = [toSort[j], toSort[i]];
+    }
+
+    sortWizardState = { tierLabel, sorted, toSort, currentIdx: 0,
+                        low: 0, high: 0, comparisonsLeft: 0, currentMid: 0 };
+
+    const isEmpty = toSort.length === 0;
+    document.getElementById('sort-title').textContent = `Sort Tier ${tierLabel}`;
+    document.getElementById('sort-comparison').style.display = isEmpty ? 'none' : 'flex';
+    document.getElementById('sort-empty-msg').style.display = isEmpty ? 'block' : 'none';
+    document.getElementById('sort-modal').classList.add('open');
+
+    if (!isEmpty) startNextCardSort();
+  }
+
+  function startNextCardSort() {
+    const { toSort, currentIdx, sorted } = sortWizardState;
+    if (currentIdx >= toSort.length) { finishSortWizard(); return; }
+
+    sortWizardState.low = 0;
+    sortWizardState.high = sorted.length;
+    sortWizardState.comparisonsLeft = 4;
+
+    // If no sorted baseline yet, place the card directly without any comparison
+    if (sorted.length === 0) { placeCurrentCard(); return; }
+
+    showSortComparison();
+  }
+
+  function showSortComparison() {
+    const { toSort, currentIdx, sorted, low, high, comparisonsLeft } = sortWizardState;
+    const card = toSort[currentIdx];
+    const mid = Math.floor((low + high) / 2);
+    sortWizardState.currentMid = mid;
+    const compareCard = sorted[mid];
+    const compNum = 5 - comparisonsLeft;
+
+    document.getElementById('sort-progress').textContent =
+      `Card ${currentIdx + 1} of ${sortWizardState.toSort.length} · Comparison ${compNum} of 4`;
+
+    document.getElementById('sort-img-left').src  = card.src;
+    document.getElementById('sort-label-left').textContent = card.title;
+    document.getElementById('sort-img-right').src = compareCard.src;
+    document.getElementById('sort-label-right').textContent = compareCard.title;
+  }
+
+  function pickSortCard(side) {
+    if (!sortWizardState) return;
+    const mid = sortWizardState.currentMid;
+
+    if (side === 'left') {
+      // Current (new) card is better ranked → it goes before mid
+      sortWizardState.high = mid;
+    } else {
+      // Comparison card is better ranked → new card goes after mid
+      sortWizardState.low = mid + 1;
+    }
+    sortWizardState.comparisonsLeft--;
+
+    const { low, high, comparisonsLeft } = sortWizardState;
+    if (low >= high || comparisonsLeft <= 0) {
+      placeCurrentCard();
+    } else {
+      showSortComparison();
+    }
+  }
+
+  function placeCurrentCard() {
+    const { toSort, currentIdx, sorted, low, tierLabel } = sortWizardState;
+    const card = toSort[currentIdx];
+    const zone = document.querySelector(`.tier-drop-zone[data-tier="${tierLabel}"]`);
+
+    card.dataset.sortedAt = new Date().toISOString();
+    sorted.splice(low, 0, card);
+    sortWizardState.sorted = sorted;
+
+    // Move card to correct DOM position
+    const nextCard = sorted[low + 1];
+    if (nextCard && nextCard.parentElement === zone) {
+      zone.insertBefore(card, nextCard);
+    } else {
+      zone.appendChild(card);
+    }
+
+    autoSave();
+    sortWizardState.currentIdx++;
+    startNextCardSort();
+  }
+
+  function finishSortWizard() { closeSortWizard(); }
+
+  function closeSortWizard() {
+    document.getElementById('sort-modal').classList.remove('open');
+    sortWizardState = null;
+  }
+
+  function resortAll() {
+    if (!sortWizardState) return;
+    const { tierLabel } = sortWizardState;
+    const zone = document.querySelector(`.tier-drop-zone[data-tier="${tierLabel}"]`);
+    zone.querySelectorAll('.img-card').forEach(c => delete c.dataset.sortedAt);
+    closeSortWizard();
+    openSortWizard(tierLabel);
+  }
+
+  document.getElementById('sort-pick-left').addEventListener('click',   e => { e.stopPropagation(); pickSortCard('left');  });
+  document.getElementById('sort-pick-right').addEventListener('click',  e => { e.stopPropagation(); pickSortCard('right'); });
+  document.getElementById('sort-choice-left').addEventListener('click',  () => pickSortCard('left'));
+  document.getElementById('sort-choice-right').addEventListener('click', () => pickSortCard('right'));
+  document.getElementById('sort-cancel').addEventListener('click', closeSortWizard);
+  document.getElementById('sort-resort-all').addEventListener('click', resortAll);
+  document.getElementById('sort-modal').addEventListener('click', closeSortWizard);
 
   // ── Normalize tier counts ─────────────────────────────────────
   let normalizePending = null;
@@ -1462,6 +1753,13 @@
 
   zoomOverlay.addEventListener('click', closeZoom);
   document.addEventListener('keydown', e => {
+    // Sort wizard takes priority
+    if (sortWizardState && document.getElementById('sort-modal').classList.contains('open')) {
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); pickSortCard('left');  return; }
+      if (e.key === 'ArrowRight') { e.preventDefault(); pickSortCard('right'); return; }
+      if (e.key === 'Escape')     { closeSortWizard(); return; }
+      return;
+    }
     if (e.key === 'Escape') {
       if (document.getElementById('normalize-modal').classList.contains('open')) {
         closeNormalizeModal(); return;
