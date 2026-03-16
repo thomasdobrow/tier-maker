@@ -1332,13 +1332,20 @@
   function showSortComparison() {
     const { toSort, currentIdx, sorted, low, high, comparisonsLeft } = sortWizardState;
     const card = toSort[currentIdx];
-    const mid = Math.floor((low + high) / 2);
+    const range = high - low;
+    const jitter = range > 2
+      ? Math.round((Math.random() - 0.5) * Math.sqrt(range))
+      : 0;
+    const mid = Math.max(low, Math.min(high - 1, Math.floor((low + high) / 2) + jitter));
     sortWizardState.currentMid = mid;
     const compareCard = sorted[mid];
     const compNum = 5 - comparisonsLeft;
+    const compLabel = comparisonsLeft > 0
+      ? `Comparison ${compNum} of 4`
+      : `Comparison ${compNum} · top tier`;
 
     document.getElementById('sort-progress').textContent =
-      `Card ${currentIdx + 1} of ${sortWizardState.toSort.length} · Comparison ${compNum} of 4`;
+      `Card ${currentIdx + 1} of ${sortWizardState.toSort.length} · ${compLabel}`;
 
     document.getElementById('sort-img-left').src  = cardSrc(card);
     document.getElementById('sort-label-left').textContent = card.title;
@@ -1359,8 +1366,8 @@
     }
     sortWizardState.comparisonsLeft--;
 
-    const { low, high, comparisonsLeft } = sortWizardState;
-    if (low >= high || comparisonsLeft <= 0) {
+    const { low, high, comparisonsLeft, sorted } = sortWizardState;
+    if (low >= high || (comparisonsLeft === 0 && low >= Math.ceil(sorted.length / 16))) {
       placeCurrentCard();
     } else {
       showSortComparison();
