@@ -270,12 +270,22 @@
     .img-card {
       width: 58px;
       height: 92px;
-      object-fit: cover;
       cursor: grab;
       border-radius: 3px;
       flex-shrink: 0;
       display: block;
+      position: relative;
     }
+
+    .img-card > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
 
     .img-card:active { cursor: grabbing; }
     .img-card.dragging { opacity: 0.3; }
@@ -288,7 +298,6 @@
     }
     .img-card.highlighted {
       animation: card-pulse 0.75s ease-in-out infinite;
-      position: relative;
       z-index: 2;
     }
     .img-card.banned.highlighted {
@@ -1331,9 +1340,9 @@
     document.getElementById('sort-progress').textContent =
       `Card ${currentIdx + 1} of ${sortWizardState.toSort.length} · Comparison ${compNum} of 4`;
 
-    document.getElementById('sort-img-left').src  = card.src;
+    document.getElementById('sort-img-left').src  = cardSrc(card);
     document.getElementById('sort-label-left').textContent = card.title;
-    document.getElementById('sort-img-right').src = compareCard.src;
+    document.getElementById('sort-img-right').src = cardSrc(compareCard);
     document.getElementById('sort-label-right').textContent = compareCard.title;
   }
 
@@ -1613,7 +1622,7 @@
   function nextReviewCard() {
     const next = [...pool.querySelectorAll('.img-card')].find(c => c.style.display !== 'none');
     if (next) {
-      openZoom(next.src, next.title);
+      openZoom(cardSrc(next), next.title);
     } else {
       exitReviewMode();
       closeZoom();
@@ -1859,14 +1868,20 @@
 
   // ── Card factory ──────────────────────────────────────────────
   function makeCard(src, title) {
+    const wrap = document.createElement('div');
+    wrap.className = 'img-card';
+    wrap.title = title || '';
+    wrap.draggable = false;
+    wrap.addEventListener('pointerdown', onPointerDown);
     const img = document.createElement('img');
-    img.className = 'img-card';
     img.src = src;
-    img.title = title || '';
+    img.alt = '';
     img.draggable = false;
-    img.addEventListener('pointerdown', onPointerDown);
-    return img;
+    wrap.appendChild(img);
+    return wrap;
   }
+
+  function cardSrc(card) { return card.querySelector('img').src; }
 
   // ── Pointer-based drag & drop ─────────────────────────────────
   function onPointerDown(e) {
@@ -1877,7 +1892,7 @@
     // Double-click detection: same card within DBL_MS → zoom, no drag
     if (card === lastDownTarget && now - lastDownTime < DBL_MS) {
       lastDownTime = 0; lastDownTarget = null;
-      openZoom(card.src, card.title);
+      openZoom(cardSrc(card), card.title);
       e.preventDefault(); return;
     }
     lastDownTime = now; lastDownTarget = card;
@@ -1890,7 +1905,7 @@
     dragOffX = e.clientX - rect.left - rect.width  / 2;
     dragOffY = e.clientY - rect.top  - rect.height / 2;
 
-    ghost.src = dragged.src;
+    ghost.src = cardSrc(dragged);
     ghost.style.display = 'block';
     moveGhost(e.clientX, e.clientY);
     dragged.classList.add('dragging');
@@ -1957,7 +1972,10 @@
     const cards = [...zone.querySelectorAll('.img-card')].filter(c => c !== dragged);
     for (const c of cards) {
       const r = c.getBoundingClientRect();
-      if (x < r.left + r.width / 2) return c;
+      // Cursor is above this card's row → insert before it
+      if (y < r.top) return c;
+      // Cursor is in this card's row and to the left of its midpoint → insert before it
+      if (y < r.bottom && x < r.left + r.width / 2) return c;
     }
     return null;
   }

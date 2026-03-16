@@ -171,6 +171,7 @@ function buildCardHTML(record) {
           <div>${textToMeepleHTML(record.Text || '')}</div>
         </div>
       </div>
+      <div class="card-extra-score"></div>
       <div class="card-bottom-left-corner"></div>
       <div class="card-bottom-right-corner"></div>
     </div>
