@@ -915,7 +915,9 @@
       justify-content: center;
       gap: 20px;
       margin-bottom: 16px;
+      transition: opacity 0.35s ease;
     }
+    #sort-comparison.sort-fading { opacity: 0; }
     .sort-choice {
       display: flex;
       flex-direction: column;
@@ -1200,6 +1202,9 @@
     { label: 'C', color: '#f4f080' },
     { label: 'F', color: '#90ee90' },
   ];
+
+  const SORT_LEFT_KEYS  = new Set(['q','a','z','w','s','x','e','d','c','r','f','v','t','1','2','3','4','5']);
+  const SORT_RIGHT_KEYS = new Set([']',"'",'/',';','.','[','p','l',',','o','k','m','i','j','n','u','7','8','9','0','-','=']);
 
   const TIER_TARGETS = { S: 0.10, A: 0.20, B: 0.30, C: 0.25, F: 0.15 };
 
@@ -1882,6 +1887,7 @@
 
   // ── Tier sort wizard ──────────────────────────────────────────
   let sortWizardState = null;
+  let sortPickLocked  = false;
 
   function openSortWizard(tierLabel) {
     const zone = document.querySelector(`.tier-drop-zone[data-tier="${tierLabel}"]`);
@@ -1946,24 +1952,30 @@
   }
 
   function pickSortCard(side) {
-    if (!sortWizardState) return;
-    const mid = sortWizardState.currentMid;
+    if (!sortWizardState || sortPickLocked) return;
+    sortPickLocked = true;
 
+    const mid = sortWizardState.currentMid;
     if (side === 'left') {
-      // Current (new) card is better ranked → it goes before mid
       sortWizardState.high = mid;
     } else {
-      // Comparison card is better ranked → new card goes after mid
       sortWizardState.low = mid + 1;
     }
     sortWizardState.comparisonsLeft--;
 
+    const comparison = document.getElementById('sort-comparison');
+    comparison.classList.add('sort-fading');
+
     const { low, high, comparisonsLeft, sorted } = sortWizardState;
-    if (low >= high || (comparisonsLeft === 0 && low >= Math.ceil(sorted.length / 16))) {
-      placeCurrentCard();
-    } else {
-      showSortComparison();
-    }
+    const shouldPlace = low >= high || (comparisonsLeft === 0 && low >= Math.ceil(sorted.length / 16));
+
+    setTimeout(() => {
+      if (shouldPlace) { placeCurrentCard(); } else { showSortComparison(); }
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        comparison.classList.remove('sort-fading');
+        sortPickLocked = false;
+      }));
+    }, 500);
   }
 
   function placeCurrentCard() {
@@ -1991,6 +2003,7 @@
   function finishSortWizard() { closeSortWizard(); }
 
   function closeSortWizard() {
+    sortPickLocked = false;
     document.getElementById('sort-modal').classList.remove('open');
     sortWizardState = null;
   }
@@ -2399,8 +2412,8 @@
   document.addEventListener('keydown', e => {
     // Sort wizard takes priority
     if (sortWizardState && document.getElementById('sort-modal').classList.contains('open')) {
-      if (e.key === 'ArrowLeft')  { e.preventDefault(); pickSortCard('left');  return; }
-      if (e.key === 'ArrowRight') { e.preventDefault(); pickSortCard('right'); return; }
+      if (e.key === 'ArrowLeft'  || SORT_LEFT_KEYS.has(e.key.toLowerCase()))  { e.preventDefault(); pickSortCard('left');  return; }
+      if (e.key === 'ArrowRight' || SORT_RIGHT_KEYS.has(e.key.toLowerCase())) { e.preventDefault(); pickSortCard('right'); return; }
       if (e.key === 'Escape')     { closeSortWizard(); return; }
       return;
     }
