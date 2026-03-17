@@ -132,5 +132,45 @@
         "F": []
       }
     }
+  },
+  "mmtxrfb89phpc": {
+    "id": "mmtxrfb89phpc",
+    "name": "Test Cube List",
+    "creator": "",
+    "type": "vintage_cube",
+    "locked": true,
+    "createdAt": "2026-03-17T01:30:47.492Z",
+    "updatedAt": "2026-03-17T01:31:05.559Z",
+    "state": {
+      "tiers": {
+        "S": [],
+        "A": [],
+        "B": [],
+        "C": [],
+        "F": []
+      },
+      "sortedAt": {}
+    }
+  },
+  "mmtxxdfgnea9z": {
+    "id": "mmtxxdfgnea9z",
+    "name": "Tom test",
+    "creator": "Tom",
+    "type": "vintage_cube",
+    "locked": true,
+    "createdAt": "2026-03-17T01:35:24.988Z",
+    "updatedAt": "2026-03-17T01:35:32.188Z",
+    "state": {
+      "tiers": {
+        "S": [],
+        "A": [],
+        "B": [],
+        "C": [],
+        "F": [
+          "B101"
+        ]
+      },
+      "sortedAt": {}
+    }
   }
 }

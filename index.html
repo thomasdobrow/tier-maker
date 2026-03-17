@@ -212,6 +212,102 @@
     }
     .ld-delete:hover { color: #e05050; background: #2a1616; }
 
+    /* ── Load dropdown type tabs ── */
+    .ld-type-tabs {
+      display: flex;
+      border-bottom: 1px solid #2a2a2a;
+      flex-shrink: 0;
+    }
+    .ld-type-tab {
+      flex: 1;
+      padding: 8px 0;
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.12s;
+    }
+    .ld-type-tab:hover { color: #aaa; }
+    .ld-type-tab.active { color: #ddd; border-bottom-color: #7dcc7d; }
+
+    /* ── Lock button ── */
+    #lock-btn {
+      margin-left: auto;
+      padding: 5px 13px;
+      font-size: 0.8rem;
+      background: #1e2a1e;
+      border: 1px solid #2e4a2e;
+      color: #7dcc7d;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s;
+    }
+    #lock-btn:hover { background: #253528; }
+    #lock-btn.locked {
+      background: #2a1e1e;
+      border-color: #4a2e2e;
+      color: #e08080;
+    }
+    #lock-btn.locked:hover { background: #352525; }
+
+    /* ── Locked button state ── */
+    .btn-locked { opacity: 0.35; cursor: not-allowed !important; }
+
+    /* ── Confirm modal ── */
+    #confirm-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 14000;
+      background: rgba(0,0,0,0.75);
+      align-items: center;
+      justify-content: center;
+    }
+    #confirm-modal.open { display: flex; }
+    #confirm-dialog {
+      background: #1c1c1c;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 22px 24px;
+      min-width: 280px;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    #confirm-msg {
+      font-size: 0.88rem;
+      color: #ddd;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    #confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    #confirm-cancel {
+      background: #2a2a2a; color: #aaa; border: 1px solid #444;
+      padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+    }
+    #confirm-ok {
+      background: #1e3a1e; color: #7dcc7d; border: 1px solid #3a6a3a;
+      padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+    }
+    #confirm-cancel:hover { background: #333; }
+    #confirm-ok:hover { background: #2a4a2a; }
+
+    /* ── nlp type select ── */
+    select.nlp-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 24px;
+    }
+
     /* ── Main area ── */
     #main {
       flex: 1;
@@ -832,6 +928,7 @@
     <button class="deck-btn" data-deck="D">D</button>
     <button class="deck-btn" data-deck="E">E</button>
   </div>
+  <button id="lock-btn" style="display:none">🔒 Lock List</button>
 </div>
 
 <!-- List management bar -->
@@ -839,6 +936,13 @@
   <div class="lb-btn-wrap">
     <button class="lb-btn primary" id="new-list-btn">+ New List</button>
     <div id="new-list-popover">
+      <div class="nlp-row">
+        <label for="nlp-type">List Type</label>
+        <select id="nlp-type" class="nlp-input">
+          <option value="agricola">Agricola</option>
+          <option value="vintage_cube">Vintage Cube</option>
+        </select>
+      </div>
       <div class="nlp-row">
         <label for="nlp-name">List Name</label>
         <input id="nlp-name" class="nlp-input" type="text" placeholder="e.g. My Draft Rankings" />
@@ -912,6 +1016,16 @@
   </div>
 </div>
 
+<div id="confirm-modal">
+  <div id="confirm-dialog" onclick="event.stopPropagation()">
+    <div id="confirm-msg"></div>
+    <div id="confirm-actions">
+      <button id="confirm-cancel">Cancel</button>
+      <button id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <div id="sort-modal">
   <div id="sort-dialog" onclick="event.stopPropagation()">
     <div id="sort-header">
@@ -966,6 +1080,9 @@
   ];
 
   const TIER_TARGETS = { S: 0.10, A: 0.20, B: 0.30, C: 0.25, F: 0.15 };
+
+  // Vintage Cube seed cards (10 Agricola cards used as placeholder)
+  const VINTAGE_CUBE_CARDS = ['A014','A082','B039','B101','C022','C155','D015','D088','E043','E122'];
 
   // ── Build tier rows ──────────────────────────────────────────
   const tierList = document.getElementById('tier-list');
@@ -1118,6 +1235,8 @@
   const loadDropdown = document.getElementById('load-dropdown');
   const nlpName      = document.getElementById('nlp-name');
   const nlpCreator   = document.getElementById('nlp-creator');
+  const nlpType      = document.getElementById('nlp-type');
+  const lockBtn      = document.getElementById('lock-btn');
 
   function escHtml(s) {
     return String(s)
@@ -1158,34 +1277,117 @@
     flashSaved();
   }
 
-  function createNewList(name, creator) {
+  // ── Lock / Unlock ─────────────────────────────────────────────
+  function updateLockBtn() {
+    const id = getActiveListId();
+    const list = id && listsCache[id];
+    if (!list) { lockBtn.style.display = 'none'; return; }
+    lockBtn.style.display = '';
+    lockBtn.textContent = list.locked ? '🔓 Unlock List' : '🔒 Lock List';
+    lockBtn.classList.toggle('locked', !!list.locked);
+  }
+
+  function updateLockedState() {
+    const id = getActiveListId();
+    const list = id && listsCache[id];
+    const locked = !!(list && list.locked);
+    window.tierLocked = locked;
+    document.querySelectorAll('.tier-sort-btn, .sort-btn').forEach(b => {
+      b.disabled = locked; b.classList.toggle('btn-locked', locked);
+    });
+    const qrBtn = document.getElementById('quick-rank-btn');
+    const nmBtn = document.getElementById('normalize-btn');
+    [qrBtn, nmBtn].filter(Boolean).forEach(b => {
+      b.disabled = locked; b.classList.toggle('btn-locked', locked);
+    });
+    document.querySelectorAll('#zoom-tier-btns button').forEach(b => {
+      b.disabled = locked; b.classList.toggle('btn-locked', locked);
+    });
+  }
+
+  let confirmCallback = null;
+  function showConfirm(msg, cb) {
+    document.getElementById('confirm-msg').textContent = msg;
+    confirmCallback = cb;
+    document.getElementById('confirm-modal').classList.add('open');
+  }
+
+  lockBtn.addEventListener('click', () => {
+    const id = getActiveListId();
+    const list = id && listsCache[id];
+    if (!list) return;
+    const willLock = !list.locked;
+    const msg = willLock
+      ? 'Lock this list? All edits will be disabled until it is unlocked.'
+      : 'Unlock this list? Edits will be re-enabled.';
+    showConfirm(msg, () => {
+      list.locked = willLock;
+      list.updatedAt = new Date().toISOString();
+      persistList(list);
+      updateLockBtn();
+      updateLockedState();
+      flashSaved();
+    });
+  });
+
+  document.getElementById('confirm-ok').addEventListener('click', () => {
+    document.getElementById('confirm-modal').classList.remove('open');
+    if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+  });
+  document.getElementById('confirm-cancel').addEventListener('click', () => {
+    document.getElementById('confirm-modal').classList.remove('open');
+    confirmCallback = null;
+  });
+  document.getElementById('confirm-modal').addEventListener('click', () => {
+    document.getElementById('confirm-modal').classList.remove('open');
+    confirmCallback = null;
+  });
+
+  // ── Card loading per list type ─────────────────────────────────
+  async function loadCardsForType(type) {
+    document.querySelectorAll('.img-card').forEach(c => c.remove());
+    placeholder.textContent = 'Loading…';
+    placeholder.style.display = '';
+    if (type === 'vintage_cube') {
+      deckFilters.style.display = 'none';
+      for (const id of VINTAGE_CUBE_CARDS) {
+        pool.appendChild(makeCard(`cards/full/${id}.png`, id));
+      }
+      placeholder.style.display = 'none';
+    } else {
+      deckFilters.style.display = 'flex';
+      await autoLoadAgricolaCards();
+    }
+  }
+
+  async function createNewList(name, creator, type) {
     const id  = generateId();
     const now = new Date().toISOString();
-    const list = { id, name, creator: creator || '', createdAt: now, updatedAt: now, state: null };
+    const listType = type || 'agricola';
+    const list = { id, name, creator: creator || '', type: listType, locked: false, createdAt: now, updatedAt: now, state: null };
 
     setActiveListId(id);
-
-    // Clear tiers → move all cards back to pool
-    document.querySelectorAll('.tier-drop-zone .img-card').forEach(c => pool.appendChild(c));
-    document.querySelectorAll('.deck-btn').forEach(b =>
-      b.classList.toggle('active', b.dataset.deck === 'all'));
-    document.querySelectorAll('.img-card').forEach(c => { c.style.display = ''; });
-    updatePlaceholder();
+    await loadCardsForType(listType);
 
     // Capture blank initial state and persist
     list.state = captureState();
     listsCache[id] = list;
     persistList(list);
     updateListBar();
+    updateLockBtn();
+    updateLockedState();
     flashSaved();
   }
 
-  function loadList(id) {
+  async function loadList(id) {
     const list = listsCache[id];
     if (!list) return;
     setActiveListId(id);
+    await loadCardsForType(list.type || 'agricola');
     restoreState(list.state);
     updateListBar();
+    updateLockBtn();
+    updateLockedState();
     flashSaved();
   }
 
@@ -1197,20 +1399,41 @@
     if (getActiveListId() === id) {
       setActiveListId(null);
       updateListBar();
+      updateLockBtn();
+      updateLockedState();
     }
     buildLoadDropdown();
   }
 
+  let loadTypeFilter = 'agricola';
+
   function buildLoadDropdown() {
     const lists    = getLists();
     const activeId = getActiveListId();
-    const items    = Object.values(lists)
-      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
     loadDropdown.innerHTML = '';
 
+    // Type tabs
+    const tabs = document.createElement('div');
+    tabs.className = 'ld-type-tabs';
+    [{ value: 'agricola', label: 'Agricola' }, { value: 'vintage_cube', label: 'Vintage Cube' }].forEach(t => {
+      const btn = document.createElement('button');
+      btn.className = 'ld-type-tab' + (t.value === loadTypeFilter ? ' active' : '');
+      btn.textContent = t.label;
+      btn.addEventListener('click', e => { e.stopPropagation(); loadTypeFilter = t.value; buildLoadDropdown(); });
+      tabs.appendChild(btn);
+    });
+    loadDropdown.appendChild(tabs);
+
+    const items = Object.values(lists)
+      .filter(l => (l.type || 'agricola') === loadTypeFilter)
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
     if (!items.length) {
-      loadDropdown.innerHTML = '<div class="ld-empty">No saved lists yet</div>';
+      const empty = document.createElement('div');
+      empty.className = 'ld-empty';
+      empty.textContent = 'No saved lists yet';
+      loadDropdown.appendChild(empty);
       return;
     }
 
@@ -1223,8 +1446,9 @@
       const datePart    = new Date(list.updatedAt).toLocaleDateString();
       const creatorPart = list.creator ? ` · by ${escHtml(list.creator)}` : '';
       const tierCount   = Object.values(list.state?.tiers || {}).reduce((s, a) => s + a.length, 0);
+      const lockIcon    = list.locked ? ' 🔒' : '';
       info.innerHTML = `
-        <div class="ld-name">${escHtml(list.name)}</div>
+        <div class="ld-name">${escHtml(list.name)}${lockIcon}</div>
         <div class="ld-meta">${datePart}${creatorPart} · ${tierCount} card${tierCount !== 1 ? 's' : ''} ranked</div>`;
 
       const del = document.createElement('button');
@@ -1258,7 +1482,7 @@
   document.getElementById('nlp-create').addEventListener('click', () => {
     const name = nlpName.value.trim();
     if (!name) { nlpName.classList.add('err'); nlpName.focus(); return; }
-    createNewList(name, nlpCreator.value.trim());
+    createNewList(name, nlpCreator.value.trim(), nlpType.value);
     nlpName.value = '';
     nlpCreator.value = '';
     newListPop.classList.remove('open');
@@ -1518,22 +1742,19 @@
         if (BANNED_CARDS.has(id)) card.classList.add('banned');
         pool.appendChild(card);
       }
-
-      // Restore active list state after cards are loaded
-      const activeId = getActiveListId();
-      if (activeId) {
-        const list = getLists()[activeId];
-        if (list?.state) restoreState(list.state);
-      }
-      updateListBar();
     } catch (e) {}
   }
 
-  // Load lists from server first, then show UI and cards
+  // Load lists from server; always start with no active list
   (async () => {
     await initPersistence();
+    setActiveListId(null);
     updateListBar();
-    autoLoadAgricolaCards();
+    updateLockBtn();
+    updateLockedState();
+    placeholder.textContent = 'Create or load a list to begin.';
+    placeholder.style.display = '';
+    deckFilters.style.display = 'none';
   })();
 
   document.querySelectorAll('.deck-btn').forEach(btn => {
@@ -1756,6 +1977,7 @@
     zoomImg.classList.toggle('banned', !!id && BANNED_CARDS.has(id));
     updateZoomLabel(id);
     buildZoomTierButtons(id);
+    updateLockedState(); // apply lock to freshly-built zoom buttons
     zoomOverlay.classList.add('visible');
   }
 
@@ -1784,7 +2006,7 @@
     }
     if (!zoomCardId) return;
     const tier = TIERS.find(t => t.label === e.key.toUpperCase());
-    if (tier) { e.preventDefault(); assignCardToTier(zoomCardId, tier.label); return; }
+    if (tier) { e.preventDefault(); if (!window.tierLocked) assignCardToTier(zoomCardId, tier.label); return; }
     if (e.key === 'ArrowRight' && reviewMode) { e.preventDefault(); nextReviewCard(); }
   });
 
@@ -1903,6 +2125,8 @@
       e.preventDefault(); return;
     }
     lastDownTime = now; lastDownTarget = card;
+
+    if (window.tierLocked) return; // no drag when locked
 
     dragged    = card;
     dragStartX = e.clientX; dragStartY = e.clientY;
