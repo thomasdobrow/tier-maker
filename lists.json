@@ -172,5 +172,24 @@
       },
       "sortedAt": {}
     }
+  },
+  "mmtyyd55qfu37": {
+    "id": "mmtyyd55qfu37",
+    "name": "Test Cube",
+    "creator": "",
+    "type": "vintage_cube",
+    "locked": false,
+    "createdAt": "2026-03-17T02:04:10.889Z",
+    "updatedAt": "2026-03-17T02:04:10.889Z",
+    "state": {
+      "tiers": {
+        "S": [],
+        "A": [],
+        "B": [],
+        "C": [],
+        "F": []
+      },
+      "sortedAt": {}
+    }
   }
 }

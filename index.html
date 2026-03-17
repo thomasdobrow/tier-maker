@@ -257,6 +257,74 @@
     /* ── Locked button state ── */
     .btn-locked { opacity: 0.35; cursor: not-allowed !important; }
 
+    /* ── Delete code modal ── */
+    #delete-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 15000;
+      background: rgba(0,0,0,0.75);
+      align-items: center;
+      justify-content: center;
+    }
+    #delete-modal.open { display: flex; }
+    #delete-dialog {
+      background: #1c1c1c;
+      border: 1px solid #4a2a2a;
+      border-radius: 8px;
+      padding: 22px 24px;
+      min-width: 300px;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    #delete-dialog h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e08080;
+      margin-bottom: 6px;
+    }
+    #delete-dialog p {
+      font-size: 0.82rem;
+      color: #777;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    #delete-code-input {
+      width: 100%;
+      padding: 7px 10px;
+      background: #0e0e16;
+      border: 1px solid #3a2a2a;
+      border-radius: 4px;
+      color: #ccc;
+      font-size: 0.85rem;
+      outline: none;
+      margin-bottom: 6px;
+      box-sizing: border-box;
+    }
+    #delete-code-input:focus { border-color: #6a3a3a; }
+    #delete-code-input.err { border-color: #e05050; }
+    #delete-code-error {
+      font-size: 0.75rem;
+      color: #e08080;
+      min-height: 1.1em;
+      margin-bottom: 12px;
+    }
+    #delete-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    #delete-modal-cancel {
+      background: #2a2a2a; color: #aaa; border: 1px solid #444;
+      padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+    }
+    #delete-modal-ok {
+      background: #3a1e1e; color: #e08080; border: 1px solid #6a3a3a;
+      padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+    }
+    #delete-modal-cancel:hover { background: #333; }
+    #delete-modal-ok:hover { background: #4a2828; }
+
     /* ── Confirm modal ── */
     #confirm-modal {
       display: none;
@@ -1016,6 +1084,19 @@
   </div>
 </div>
 
+<div id="delete-modal">
+  <div id="delete-dialog" onclick="event.stopPropagation()">
+    <h3>Delete List</h3>
+    <p id="delete-modal-msg"></p>
+    <input id="delete-code-input" type="text" placeholder="Enter deletion code" autocomplete="off" />
+    <div id="delete-code-error"></div>
+    <div id="delete-modal-actions">
+      <button id="delete-modal-cancel">Cancel</button>
+      <button id="delete-modal-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
 <div id="confirm-modal">
   <div id="confirm-dialog" onclick="event.stopPropagation()">
     <div id="confirm-msg"></div>
@@ -1081,8 +1162,129 @@
 
   const TIER_TARGETS = { S: 0.10, A: 0.20, B: 0.30, C: 0.25, F: 0.15 };
 
-  // Vintage Cube seed cards (10 Agricola cards used as placeholder)
-  const VINTAGE_CUBE_CARDS = ['A014','A082','B039','B101','C022','C155','D015','D088','E043','E122'];
+  // Vintage Cube card list (from CubeCobra)
+  const VINTAGE_CUBE_CARDS = [
+    'Esper Sentinel','Giver of Runes','Guide of Souls','Mother of Runes','Ocelot Pride',
+    'Thraben Inspector','Ajani, Nacatl Pariah','Cathar Commando','Containment Priest',
+    'Intrepid Adversary','Jacked Rabbit','Lion Sash','Luminarch Aspirant',
+    'Phelia, Exuberant Shepherd','Securitron Squadron','Selfless Spirit','Stoneforge Mystic',
+    'Thalia, Guardian of Thraben','Voice of Victory','Adeline, Resplendent Cathar',
+    'Archon of Emeria','Clarion Conqueror','Cosmogrand Zenith','Elite Spellbinder',
+    'Enduring Innocence','Loran of the Third Path','Sage of the Skies','Sanguine Evangelist',
+    'Skyclave Apparition','Auriok Salvagers','Dion, Bahamut\'s Dominant','Palace Jailer',
+    'Serra Paragon','Witch Enchanter','Solitude','Summon: Good King Mog XII',
+    'Eagles of the North','Overlord of the Mistmoors','The Wandering Emperor',
+    'Elspeth, Storm Slayer','Path to Exile','Swords to Plowshares','Get Lost','Reprieve',
+    'Oust','Balance','Winds of Abandon','Council\'s Judgment','Lingering Souls','Wrath of God',
+    'Sunfall','Portable Hole','Glimmer Lens','Staff of the Storyteller','Parallax Wave',
+    'Virtue of Loyalty','Leyline Binding',
+    'Tamiyo, Inquisitive Student','Duelist of the Mind','Faerie Mastermind',
+    'Goben, Gene-Splice Savant','Jace, Vryn\'s Prodigy','Kitsa, Otterball Elite',
+    'Malcolm, Alluring Scoundrel','Snapcaster Mage','Suspicious Stowaway','Thassa\'s Oracle',
+    'Wan Shi Tong, Librarian','Brazen Borrower','Chrome Host Seedshark','Emry, Lurker of the Loch',
+    'Forensic Gadgeteer','Hullbreacher','Spellseeker','Tishana\'s Tidebinder','Displacer Kitten',
+    'Urza, Lord High Artificer','Quantum Riddler','Kappa Cannoneer','Narset, Parter of Veils',
+    'Jace, the Mind Sculptor','Jace, Wielder of Mysteries',
+    'Ancestral Recall','Brainstorm','Mystical Tutor','Occult Epiphany','Spell Pierce',
+    'Stern Scolding','Thought Scour','Brain Freeze','Counterspell','Daze','Flash','Lose Focus',
+    'Mana Drain','Mana Leak','Memory Lapse','Miscalculation','Remand','Brainsurge',
+    'Force of Negation','Frantic Search','Cryptic Command','Force of Will','Gush',
+    'Mystic Confluence','Dig Through Time','Gitaxian Probe','Ponder','Preordain','Time Walk',
+    'Stock Up','Timetwister','Tinker','L\u00f3rien Revealed','Time Warp','Echo of Eons',
+    'Time Spiral','Upheaval','Aether Spellbomb','Astrologian\'s Planisphere',
+    'Proft\'s Eidetic Memory','Concealing Curtains',
+    'Caustic Bronco','Dark Confidant','Dauthi Voidwalker','Deep-Cavern Bat','Emperor of Bones',
+    'Kitesail Freebooter','Mai, Scornful Striker','Orcish Bowmasters','Sorin of House Markov',
+    'Barrowgoyf','Preacher of the Schism','Sedgemoor Witch','Grief','Sheoldred, the Apocalypse',
+    'Crabomination','Metamorphosis Fanatic','Troll of Khazad-d\u00fbm','Archon of Cruelty',
+    'Griselbrand','Liliana of the Veil',
+    'Booster Tutor','Cut Down','Dark Ritual','Demonic Consultation','Entomb','Fatal Push',
+    'Vampiric Tutor','Bitter Triumph','Cabal Ritual','Goryo\'s Vengeance','Infernal Grasp',
+    'Shallow Grave','Sheoldred\'s Edict','Dismember','Baleful Mastery','Snuff Out','Bone Shards',
+    'Duress','Imperial Seal','Inquisition of Kozilek','Mind Twist','Reanimate','Thoughtseize',
+    'Unearth','Chain of Smog','Collective Brutality','Demonic Tutor','Exhume','Hymn to Tourach',
+    'Night\'s Whisper','Doomsday','Life // Death','Toxic Deluge','Yawgmoth\'s Will','Damnation',
+    'Tendrils of Agony','Wishclaw Talisman','Bolas\'s Citadel','Animate Dead','Necromancy',
+    'Dragon\'s Rage Channeler','Ragavan, Nimble Pilferer','Amped Raptor','Embereth Shieldbreaker',
+    'Fear of Missing Out','Gau, Feral Youth','Generous Plunderer','Inti, Seneschal of the Sun',
+    'Ivora, Insatiable Heir','Magda, Brazen Outlaw','Nia, Skysail Storyteller',
+    'Reckless Pyrosurfer','Robber of the Rich','Scrapwork Mutt','Slickshot Show-Off',
+    'Broadside Bombardiers','Death-Greeter\'s Champion','Goblin Rabblemaster','Gut, True Soul Zealot',
+    'Laelia, the Blade Reforged','Screaming Nemesis','Seasoned Pyromancer','Simian Spirit Guide',
+    'Tersa Lightshatter','Emberwilde Captain','Headliner Scarlett','Pyrogoyf',
+    'Bonehoard Dracosaur','Fury','Glorybringer','Oliphaunt','Trumpeting Carnosaur',
+    'Etali, Primal Conqueror','Chandra, Torch of Defiance',
+    'Burst Lightning','Galvanic Discharge','Lightning Bolt','Red Elemental Blast',
+    'Redirect Lightning','Unholy Heat','Abrade','Mine Collapse','Through the Breach',
+    'Pyrokinesis','Chain Lightning','Faithless Looting','Flame Slash','Suplex','Wheel of Fortune',
+    'Fiery Confluence','Cori-Steel Cutter','Legion Extruder','Goblin Bombardment',
+    'Underworld Breach','Fable of the Mirror-Breaker','Sneak Attack','The Legend of Roku',
+    'Birds of Paradise','Delighted Halfling','Elvish Mystic','Hexdrinker','Ignoble Hierarch',
+    'Llanowar Elves','Noble Hierarch','Sylvan Safekeeper','Badgermole Cub','Biophagus',
+    'Bristly Bill, Spine Sower','Cankerbloom','Cren, Undercity Dreamer','Fanatic of Rhonas',
+    'Keen-Eyed Curator','Lotus Cobra','Outland Liberator','Scythecat Cub','Springheart Nantuko',
+    'Sylvan Caryatid','Tarmogoyf','Elvish Spirit Guide','Endurance','Eternal Witness',
+    'Ramunap Excavator','Reclamation Sage','Sentinel of the Nameless City','Six',
+    'Surrak, Elusive Hunter','Tireless Tracker','Traveling Chocobo','Ursine Monstrosity',
+    'Baloth Prime','Icetill Explorer','Ouroboroid','Questing Beast','Sowing Mycospawn',
+    'Ulvenwald Oddity','Titania, Protector of Argoth','Generous Ent','Primeval Titan',
+    'Vaultborn Tyrant','Woodfall Primus','Worldspine Wurm','Nissa, Who Shakes the World',
+    'Nissa, Ascended Animist','Crop Rotation','Once Upon a Time','Tear Asunder',
+    'Green Sun\'s Zenith','Pest Infestation','Channel','Malevolent Rumble','Natural Order',
+    'Esika\'s Chariot','Fastbond','Sylvan Library','Court of Garenbrig',
+    'Walk-In Closet // Forgotten Cellar',
+    'Walking Ballista','Cogwork Librarian','Golos, Tireless Pilgrim','Myr Battlesphere',
+    'Blightsteel Colossus','Emrakul, the Aeons Torn','Triplicate Titan','Ulamog, the Infinite Gyre',
+    'Tezzeret, Cruel Captain','Karn, Scion of Urza','Ugin, Eye of the Storms',
+    'Black Lotus','Chrome Mox','Gleemox','Lion\'s Eye Diamond','Lotus Petal','Mana Crypt',
+    'Mishra\'s Bauble','Mox Diamond','Mox Emerald','Mox Jet','Mox Opal','Mox Pearl',
+    'Mox Ruby','Mox Sapphire','Urza\'s Bauble','Zuran Orb',
+    'Chromatic Star','Currency Converter','Expedition Map','Ghost Vacuum','Mana Vault',
+    'Manifold Key','Retrofitter Foundry','Sensei\'s Divining Top','Skullclamp','Sol Ring',
+    'Soul-Guide Lantern','Chaos Orb','Grim Monolith','Lightning Greaves','Mind Stone',
+    'Pentad Prism','Smuggler\'s Copter','Sword of the Meek','Talisman of Creativity',
+    'Talisman of Curiosity','Talisman of Dominance','Talisman of Progress','Time Vault',
+    'Umezawa\'s Jitte','Basalt Monolith','Coalition Relic','Ensnaring Bridge',
+    'Palant\u00edr of Orthanc','Helm of Obedience','Relic of Sauron','The One Ring',
+    'Memory Jar','The Mightstone and Weakstone','Coveted Jewel','Nexus of Becoming',
+    'Kaldra Compleat','Portal to Phyrexia','Makdee and Itla, Skysnarers',
+    'No More Lies','Aang, Swift Savior','Teferi, Time Raveler','Fractured Identity',
+    'Teferi, Hero of Dominaria','Baleful Strix','Lim-D\u00fbl\'s Vault','Psychic Frog',
+    'Kaito Shizuki','Thief of Sanity','Ertai Resurrected','Kaito, Bane of Nightmares',
+    'Fallen Shinobi','Bloodtithe Harvester','Carnage Interpreter','Fire Covenant',
+    'Kolaghan\'s Command','Chaos Defiler','Orcish Lumberjack','Manamorphose','Mawloc',
+    'Territorial Kavu','Wrenn and Six','Minsc & Boo, Timeless Heroes','Bloodbraid Challenger',
+    'Arwen, Mortal Queen','Torsten, Founder of Benalia','Tidehollow Sculler',
+    'Lurrus of the Dream-Den','Expressive Iteration','Third Path Iconoclast','Dack Fayden',
+    'Invert Polarity','Lutri, the Spellchaser','Saheeli, Sublime Artificer','Vivi Ornitier',
+    'Fire // Ice','Deathrite Shaman','Pillage the Bog','Wight of the Reliquary',
+    'Witherbloom Apprentice','Grist, the Hunger Tide','Figure of Destiny','Forth Eorlingas!',
+    'Phlage, Titan of Fire\'s Fury','Zirda, the Dawnwaker','Comet, Stellar Pup',
+    'Otharri, Suns\' Glory','Nadu, Winged Wisdom','Oko, Thief of Crowns',
+    'Uro, Titan of Nature\'s Wrath','Tamiyo, Collector of Tales','Thopter Foundry',
+    'Loot, the Pathfinder','Aragorn, King of Gondor','Leovold, Emissary of Trest',
+    'Omnath, Locus of Creation','Atraxa, Grand Unifier',
+    'Dryad Arbor','Celestial Colonnade','Flooded Strand','Hallowed Fountain',
+    'Meticulous Archive','Tundra','Creeping Tar Pit','Polluted Delta','Undercity Sewers',
+    'Underground Sea','Watery Grave','Badlands','Blazemire Verge','Blood Crypt',
+    'Bloodstained Mire','Raucous Theater','Commercial District','Raging Ravine',
+    'Stomping Ground','Taiga','Thornspire Verge','Wooded Foothills','Horizon Canopy',
+    'Lush Portico','Savannah','Temple Garden','Windswept Heath','Bleachbone Verge',
+    'Godless Shrine','Marsh Flats','Scrubland','Shadowy Backstreet','Fiery Islet',
+    'Riverpyre Verge','Scalding Tarn','Steam Vents','Thundering Falls','Volcanic Island',
+    'Bayou','Nurturing Peatland','Overgrown Tomb','Underground Mortuary','Verdant Catacombs',
+    'Wastewood Verge','Arid Mesa','Elegant Parlor','Plateau','Sacred Foundry','Breeding Pool',
+    'Hedge Maze','Misty Rainforest','Tropical Island','Waterlogged Grove',
+    'Spara\'s Headquarters','Raffine\'s Tower','Xander\'s Lounge','Ziatora\'s Proving Ground',
+    'Jetmir\'s Garden','Savai Triome','Ketria Triome','Indatha Triome','Raugrin Triome',
+    'Zagoth Triome','Mana Confluence','Multiversal Passage','Prismatic Vista','Starting Town',
+    'Ancient Tomb','Arena of Glory','Bazaar of Baghdad','Boseiju, Who Endures',
+    'City of Traitors','Dark Depths','Gaea\'s Cradle','Karakas','Library of Alexandria',
+    'Mishra\'s Workshop','Otawara, Soaring City','Seat of the Synod','Shelldock Isle',
+    'Shifting Woodland','Strip Mine','Thespian\'s Stage','Tolarian Academy',
+    'Urborg, Tomb of Yawgmoth','Urza\'s Saga','Wasteland',
+    'Hymn of the Wilds','Sovereign\'s Realm','Backup Plan','Double Stroke','Deal Broker',
+  ];
 
   // ── Build tier rows ──────────────────────────────────────────
   const tierList = document.getElementById('tier-list');
@@ -1344,16 +1546,42 @@
   });
 
   // ── Card loading per list type ─────────────────────────────────
+  async function loadVintageCubeCards() {
+    const BATCH = 75;
+    const nameToImg = {};
+    for (let i = 0; i < VINTAGE_CUBE_CARDS.length; i += BATCH) {
+      const batch = VINTAGE_CUBE_CARDS.slice(i, i + BATCH);
+      try {
+        const resp = await fetch('https://api.scryfall.com/cards/collection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifiers: batch.map(name => ({ name })) }),
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          (data.data || []).forEach(card => {
+            const uri = card.image_uris?.normal
+              || card.card_faces?.[0]?.image_uris?.normal;
+            if (uri) nameToImg[card.name] = uri;
+          });
+        }
+      } catch (e) { console.warn('Scryfall batch failed', e); }
+    }
+    for (const name of VINTAGE_CUBE_CARDS) {
+      const src = nameToImg[name]
+        || `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal`;
+      pool.appendChild(makeCard(src, name));
+    }
+    placeholder.style.display = 'none';
+  }
+
   async function loadCardsForType(type) {
     document.querySelectorAll('.img-card').forEach(c => c.remove());
     placeholder.textContent = 'Loading…';
     placeholder.style.display = '';
     if (type === 'vintage_cube') {
       deckFilters.style.display = 'none';
-      for (const id of VINTAGE_CUBE_CARDS) {
-        pool.appendChild(makeCard(`cards/full/${id}.png`, id));
-      }
-      placeholder.style.display = 'none';
+      await loadVintageCubeCards();
     } else {
       deckFilters.style.display = 'flex';
       await autoLoadAgricolaCards();
@@ -1391,9 +1619,43 @@
     flashSaved();
   }
 
-  function deleteList(id) {
+  // ── Delete code modal ─────────────────────────────────────────
+  const DELETE_CODE = 'confirmation';
+  let pendingDeleteId = null;
+
+  const deleteModal      = document.getElementById('delete-modal');
+  const deleteCodeInput  = document.getElementById('delete-code-input');
+  const deleteCodeError  = document.getElementById('delete-code-error');
+  const deleteModalMsg   = document.getElementById('delete-modal-msg');
+
+  function openDeleteModal(id) {
     const listName = listsCache[id]?.name || 'this list';
-    if (!confirm(`Delete "${listName}"?`)) return;
+    pendingDeleteId = id;
+    deleteModalMsg.textContent = `You are about to permanently delete "${listName}". This cannot be undone.`;
+    deleteCodeInput.value = '';
+    deleteCodeError.textContent = '';
+    deleteCodeInput.classList.remove('err');
+    deleteModal.classList.add('open');
+    setTimeout(() => deleteCodeInput.focus(), 50);
+  }
+
+  function closeDeleteModal() {
+    deleteModal.classList.remove('open');
+    pendingDeleteId = null;
+  }
+
+  function commitDelete() {
+    const entered = deleteCodeInput.value.trim();
+    if (entered !== DELETE_CODE) {
+      deleteCodeInput.classList.add('err');
+      deleteCodeError.textContent = entered.length === 0
+        ? 'Please enter the deletion code.'
+        : 'Incorrect code. List not deleted.';
+      deleteCodeInput.select();
+      return;
+    }
+    const id = pendingDeleteId;
+    closeDeleteModal();
     delete listsCache[id];
     removeListFromServer(id);
     if (getActiveListId() === id) {
@@ -1403,6 +1665,22 @@
       updateLockedState();
     }
     buildLoadDropdown();
+  }
+
+  document.getElementById('delete-modal-ok').addEventListener('click', commitDelete);
+  document.getElementById('delete-modal-cancel').addEventListener('click', closeDeleteModal);
+  deleteModal.addEventListener('click', closeDeleteModal);
+  deleteCodeInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  commitDelete();
+    if (e.key === 'Escape') closeDeleteModal();
+  });
+  deleteCodeInput.addEventListener('input', () => {
+    deleteCodeInput.classList.remove('err');
+    deleteCodeError.textContent = '';
+  });
+
+  function deleteList(id) {
+    openDeleteModal(id);
   }
 
   let loadTypeFilter = 'agricola';
