@@ -456,6 +456,21 @@
 
     .img-card.banned { box-shadow: 0 0 0 2px #e03030; }
 
+    .img-card.img-missing {
+      background: #1c1c1c;
+      border: 1px dashed #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      font-size: 0.65rem;
+      text-align: center;
+      padding: 4px;
+      box-sizing: border-box;
+      word-break: break-word;
+    }
+    .img-card.img-missing::after { content: attr(title); }
+
     @keyframes card-pulse {
       0%, 100% { filter: brightness(1)   saturate(1);   }
       50%       { filter: brightness(2.8) saturate(0.3); }
@@ -579,14 +594,14 @@
       flex-shrink: 0;
     }
 
-    #pool-sort {
+    #pool-sort, #vc-pool-sort {
       display: flex;
       align-items: center;
       gap: 5px;
       font-size: 0.82rem;
       color: #555;
     }
-    #pool-sort > span { flex-shrink: 0; }
+    #pool-sort > span, #vc-pool-sort > span { flex-shrink: 0; }
 
     .sort-btn {
       background: #252525;
@@ -1055,6 +1070,13 @@
         <button class="sort-btn" data-sort="imps">Imps first</button>
         <button class="sort-btn" data-sort="alpha">A→Z</button>
       </div>
+      <div id="vc-pool-sort" style="display:none">
+        <span>Sort:</span>
+        <button class="sort-btn vc-sort-btn active" data-sort="color">🎨 Color</button>
+        <button class="sort-btn vc-sort-btn" data-sort="cmc">CMC ↑</button>
+        <button class="sort-btn vc-sort-btn" data-sort="alpha">A→Z</button>
+        <button class="sort-btn vc-sort-btn" data-sort="shuffle">↺ Shuffle</button>
+      </div>
     </div>
     <div id="pool-drop-zone">
       <span id="pool-placeholder">Loading cards…</span>
@@ -1494,7 +1516,7 @@
     const list = id && listsCache[id];
     const locked = !!(list && list.locked);
     window.tierLocked = locked;
-    document.querySelectorAll('.tier-sort-btn, .sort-btn').forEach(b => {
+    document.querySelectorAll('.tier-sort-btn, .sort-btn, .vc-sort-btn').forEach(b => {
       b.disabled = locked; b.classList.toggle('btn-locked', locked);
     });
     const qrBtn = document.getElementById('quick-rank-btn');
@@ -1548,7 +1570,21 @@
   // ── Card loading per list type ─────────────────────────────────
   async function loadVintageCubeCards() {
     const BATCH = 75;
-    const nameToImg = {};
+    const nameToImg  = {};
+    const nameToMeta = {};
+    const notFoundNames = [];
+
+    function storeCard(card) {
+      const key = card.name.split(' // ')[0]; // handles DFCs: "Aang, Swift Savior // ..."
+      const uri = card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal;
+      if (uri) nameToImg[key] = uri;
+      nameToMeta[key] = {
+        cmc:      card.cmc ?? 0,
+        colors:   card.colors ?? [],
+        typeLine: card.type_line ?? '',
+      };
+    }
+
     for (let i = 0; i < VINTAGE_CUBE_CARDS.length; i += BATCH) {
       const batch = VINTAGE_CUBE_CARDS.slice(i, i + BATCH);
       try {
@@ -1559,21 +1595,42 @@
         });
         if (resp.ok) {
           const data = await resp.json();
-          (data.data || []).forEach(card => {
-            const uri = card.image_uris?.normal
-              || card.card_faces?.[0]?.image_uris?.normal;
-            if (uri) nameToImg[card.name] = uri;
-          });
+          (data.data     || []).forEach(storeCard);
+          (data.not_found|| []).forEach(id => notFoundNames.push(id.name));
         }
       } catch (e) { console.warn('Scryfall batch failed', e); }
     }
+
+    // Fuzzy fallback for any names Scryfall didn't recognize
+    for (const name of notFoundNames) {
+      try {
+        const r = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(name)}`);
+        if (r.ok) storeCard(await r.json());
+        else console.warn('Scryfall fuzzy not found:', name);
+      } catch (e) { console.warn('Scryfall fuzzy failed', name, e); }
+    }
+
     for (const name of VINTAGE_CUBE_CARDS) {
-      const src = nameToImg[name]
+      const meta = nameToMeta[name];
+      const src  = nameToImg[name]
         || `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal`;
-      pool.appendChild(makeCard(src, name));
+      const card = makeCard(src, name);
+      if (meta) {
+        card.dataset.cmc      = meta.cmc;
+        card.dataset.colors   = meta.colors.join(',');
+        card.dataset.typeLine = meta.typeLine;
+      }
+      card.querySelector('img').addEventListener('error', function() {
+        this.style.display = 'none';
+        card.classList.add('img-missing');
+      }, { once: true });
+      pool.appendChild(card);
     }
     placeholder.style.display = 'none';
   }
+
+  const agPoolSort = document.getElementById('pool-sort');
+  const vcPoolSort = document.getElementById('vc-pool-sort');
 
   async function loadCardsForType(type) {
     document.querySelectorAll('.img-card').forEach(c => c.remove());
@@ -1581,9 +1638,14 @@
     placeholder.style.display = '';
     if (type === 'vintage_cube') {
       deckFilters.style.display = 'none';
+      agPoolSort.style.display = 'none';
+      vcPoolSort.style.display = '';
       await loadVintageCubeCards();
+      sortPool('color'); // default: sort by color on load
     } else {
       deckFilters.style.display = 'flex';
+      agPoolSort.style.display = '';
+      vcPoolSort.style.display = 'none';
       await autoLoadAgricolaCards();
     }
   }
@@ -2063,6 +2125,16 @@
   // ── Pool sort ─────────────────────────────────────────────────
   let currentSort = 'number';
 
+  // Color priority for Vintage Cube: W→U→B→R→G→Colorless/Artifact→Multi→Land
+  function vcColorPriority(card) {
+    const type   = card.dataset.typeLine || '';
+    const colors = (card.dataset.colors || '').split(',').filter(Boolean);
+    if (type.includes('Land'))  return 7;
+    if (colors.length === 0)    return 5; // Colorless / Artifact
+    if (colors.length > 1)      return 6; // Multi-color
+    return ({ W:0, U:1, B:2, R:3, G:4 })[colors[0]] ?? 5;
+  }
+
   function sortPool(mode) {
     const cards = [...pool.querySelectorAll('.img-card')];
     if (!cards.length) return;
@@ -2075,6 +2147,18 @@
     } else {
       cards.sort((a, b) => {
         const idA = a.title, idB = b.title;
+        if (mode === 'color') {
+          const pA = vcColorPriority(a), pB = vcColorPriority(b);
+          if (pA !== pB) return pA - pB;
+          const cA = parseFloat(a.dataset.cmc ?? 99), cB = parseFloat(b.dataset.cmc ?? 99);
+          if (cA !== cB) return cA - cB;
+          return idA.localeCompare(idB);
+        }
+        if (mode === 'cmc') {
+          const cA = parseFloat(a.dataset.cmc ?? 99), cB = parseFloat(b.dataset.cmc ?? 99);
+          if (cA !== cB) return cA - cB;
+          return idA.localeCompare(idB);
+        }
         if (mode === 'alpha') {
           const nA = cardNames[idA] || idA, nB = cardNames[idB] || idB;
           return nA.localeCompare(nB);
@@ -2097,8 +2181,10 @@
       const mode = btn.dataset.sort;
       if (mode !== 'shuffle') {
         currentSort = mode;
-        document.querySelectorAll('.sort-btn').forEach(b =>
-          b.classList.toggle('active', b.dataset.sort === mode));
+        // Scope active highlight to the sort bar the button belongs to
+        btn.closest('#pool-sort, #vc-pool-sort')
+          ?.querySelectorAll('.sort-btn')
+          .forEach(b => b.classList.toggle('active', b.dataset.sort === mode));
       }
       sortPool(mode);
     });
