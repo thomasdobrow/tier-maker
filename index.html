@@ -1286,20 +1286,18 @@
     'Uro, Titan of Nature\'s Wrath','Tamiyo, Collector of Tales','Thopter Foundry',
     'Loot, the Pathfinder','Aragorn, King of Gondor','Leovold, Emissary of Trest',
     'Omnath, Locus of Creation','Atraxa, Grand Unifier',
-    'Dryad Arbor','Celestial Colonnade','Flooded Strand','Hallowed Fountain',
-    'Meticulous Archive','Tundra','Creeping Tar Pit','Polluted Delta','Undercity Sewers',
-    'Underground Sea','Watery Grave','Badlands','Blazemire Verge','Blood Crypt',
-    'Bloodstained Mire','Raucous Theater','Commercial District','Raging Ravine',
-    'Stomping Ground','Taiga','Thornspire Verge','Wooded Foothills','Horizon Canopy',
-    'Lush Portico','Savannah','Temple Garden','Windswept Heath','Bleachbone Verge',
-    'Godless Shrine','Marsh Flats','Scrubland','Shadowy Backstreet','Fiery Islet',
-    'Riverpyre Verge','Scalding Tarn','Steam Vents','Thundering Falls','Volcanic Island',
-    'Bayou','Nurturing Peatland','Overgrown Tomb','Underground Mortuary','Verdant Catacombs',
-    'Wastewood Verge','Arid Mesa','Elegant Parlor','Plateau','Sacred Foundry','Breeding Pool',
-    'Hedge Maze','Misty Rainforest','Tropical Island','Waterlogged Grove',
-    'Spara\'s Headquarters','Raffine\'s Tower','Xander\'s Lounge','Ziatora\'s Proving Ground',
-    'Jetmir\'s Garden','Savai Triome','Ketria Triome','Indatha Triome','Raugrin Triome',
-    'Zagoth Triome','Mana Confluence','Multiversal Passage','Prismatic Vista','Starting Town',
+    // Lands — cycles reduced to one representative each:
+    //   Original Duals → Volcanic Island
+    //   Fetchlands     → Scalding Tarn
+    //   Shocklands     → Steam Vents
+    //   New Duals      → Thundering Falls
+    //   Triomes        → Xander's Lounge
+    'Dryad Arbor','Celestial Colonnade','Creeping Tar Pit',
+    'Blazemire Verge','Raging Ravine','Thornspire Verge','Horizon Canopy',
+    'Bleachbone Verge','Fiery Islet','Riverpyre Verge',
+    'Scalding Tarn','Steam Vents','Thundering Falls','Volcanic Island',
+    'Nurturing Peatland','Wastewood Verge','Xander\'s Lounge','Waterlogged Grove',
+    'Mana Confluence','Multiversal Passage','Prismatic Vista','Starting Town',
     'Ancient Tomb','Arena of Glory','Bazaar of Baghdad','Boseiju, Who Endures',
     'City of Traitors','Dark Depths','Gaea\'s Cradle','Karakas','Library of Alexandria',
     'Mishra\'s Workshop','Otawara, Soaring City','Seat of the Synod','Shelldock Isle',
@@ -2135,6 +2133,15 @@
     return ({ W:0, U:1, B:2, R:3, G:4 })[colors[0]] ?? 5;
   }
 
+  // CMC sort key: Lands first, then 0-cost non-lands, then ascending CMC
+  function vcCmcSortKey(card) {
+    const type = card.dataset.typeLine || '';
+    const cmc  = parseFloat(card.dataset.cmc ?? 99);
+    if (type.includes('Land')) return -2;
+    if (cmc === 0)             return -1;
+    return cmc;
+  }
+
   function sortPool(mode) {
     const cards = [...pool.querySelectorAll('.img-card')];
     if (!cards.length) return;
@@ -2155,8 +2162,8 @@
           return idA.localeCompare(idB);
         }
         if (mode === 'cmc') {
-          const cA = parseFloat(a.dataset.cmc ?? 99), cB = parseFloat(b.dataset.cmc ?? 99);
-          if (cA !== cB) return cA - cB;
+          const kA = vcCmcSortKey(a), kB = vcCmcSortKey(b);
+          if (kA !== kB) return kA - kB;
           return idA.localeCompare(idB);
         }
         if (mode === 'alpha') {
