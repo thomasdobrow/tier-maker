@@ -667,24 +667,30 @@
       padding: 16px 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #pool-placeholder.loading {
-      display: flex;
+
+    /* ── Full-area loading overlay ── */
+    #main { position: relative; }
+    #loading-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background: rgba(26,26,26,0.93);
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 14px;
-      padding: 48px 0;
-      color: #555;
+      pointer-events: none;
     }
-    #pool-placeholder.loading::before {
-      content: '';
-      width: 38px;
-      height: 38px;
+    #loading-overlay.active { display: flex; }
+    #lo-spinner {
+      width: 38px; height: 38px;
       border: 3px solid #2a2a2a;
       border-top-color: #999;
       border-radius: 50%;
       animation: spin 0.75s linear infinite;
-      flex-shrink: 0;
     }
+    #lo-text { color: #666; font-size: 0.85rem; }
 
     /* ── Drag ghost ── */
     #drag-ghost {
@@ -982,6 +988,58 @@
       padding: 6px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
     }
     #sort-cancel:hover { background: #333; }
+    .sort-choice.sort-chosen .sort-card-img {
+      outline: 3px solid #66bb44;
+      box-shadow: 0 0 14px rgba(100,200,60,0.45);
+      transition: none;
+    }
+
+    /* ── How-to button ── */
+    #howto-btn {
+      margin-left: auto;
+      background: #252525;
+      border: 1px solid #555;
+      color: #aaa;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.1s, color 0.1s;
+    }
+    #howto-btn:hover { background: #3a3a3a; color: #eee; }
+
+    /* ── How-to modal ── */
+    #howto-modal {
+      display: none; position: fixed; inset: 0;
+      z-index: 13000; background: rgba(0,0,0,0.75);
+      align-items: center; justify-content: center;
+    }
+    #howto-modal.open { display: flex; }
+    #howto-dialog {
+      background: #1c1c1c; border: 1px solid #444; border-radius: 8px;
+      padding: 20px 24px; width: min(520px,94vw); max-height: 86vh;
+      overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    #howto-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; font-weight: 600;
+    }
+    #howto-close {
+      background: none; border: none; color: #888; font-size: 1.1rem; cursor: pointer;
+    }
+    #howto-close:hover { color: #eee; }
+    #howto-body section { margin-bottom: 16px; }
+    #howto-body h3 {
+      font-size: 0.78rem; color: #ccc; margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    #howto-body p, #howto-body li { font-size: 0.85rem; color: #999; line-height: 1.55; }
+    #howto-body ul { padding-left: 18px; margin-top: 4px; }
+    #howto-body li { margin-bottom: 3px; }
+    #howto-body b { color: #ccc; }
+    #howto-body em { color: #bbb; font-style: normal; }
 
     /* ── Mobile ── */
     @media (max-width: 768px) {
@@ -1034,6 +1092,7 @@
     <button class="deck-btn" data-deck="E">E</button>
   </div>
   <button id="lock-btn" style="display:none">🔒 Lock List</button>
+  <button id="howto-btn" title="How to use">?</button>
 </div>
 
 <!-- List management bar -->
@@ -1044,8 +1103,8 @@
       <div class="nlp-row">
         <label for="nlp-type">List Type</label>
         <select id="nlp-type" class="nlp-input">
-          <option value="agricola">Agricola</option>
           <option value="vintage_cube">Vintage Cube</option>
+          <option value="agricola">Agricola</option>
         </select>
       </div>
       <div class="nlp-row">
@@ -1103,6 +1162,10 @@
     <div id="pool-drop-zone">
       <span id="pool-placeholder">Loading cards…</span>
     </div>
+  </div>
+  <div id="loading-overlay">
+    <div id="lo-spinner"></div>
+    <div id="lo-text">Loading cards…</div>
   </div>
 </div>
 
@@ -1174,6 +1237,57 @@
     <div id="sort-actions">
       <button id="sort-resort-all">↺ Re-sort All</button>
       <button id="sort-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="howto-modal">
+  <div id="howto-dialog" onclick="event.stopPropagation()">
+    <div id="howto-header">
+      <span>How to Use — Vintage Cube Tier Maker</span>
+      <button id="howto-close">✕</button>
+    </div>
+    <div id="howto-body">
+      <section>
+        <h3>Getting Started</h3>
+        <p>Click <b>+ New List</b>, choose <b>Vintage Cube</b>, and give it a name. ~370 cards load automatically from Scryfall with full art and metadata.</p>
+      </section>
+      <section>
+        <h3>Sorting the Pool</h3>
+        <p>Use the sort bar above the Unassigned section to organize cards before ranking:</p>
+        <ul>
+          <li><b>🎨 Color</b> — groups by W → U → B → R → G → Colorless → Multi → Land</li>
+          <li><b>CMC ↑</b> — Lands first, then 0-cost, then ascending mana value</li>
+          <li><b>A→Z</b> — alphabetical &nbsp;·&nbsp; <b>↺ Shuffle</b> — random order</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Assigning Cards to Tiers</h3>
+        <p>Drag any card from the Unassigned pool into a tier row (<b>S / A / B / C / F</b>). Or click a card to zoom in, then click a tier button or press its letter key.</p>
+      </section>
+      <section>
+        <h3>Quick Rank</h3>
+        <p>Click <b>▶ Quick Rank</b> to review unassigned cards one at a time. Press a tier letter (<b>S A B C F</b>) to assign, or press <b>→</b> / <b>Skip →</b> to defer the card to the end of the queue.</p>
+      </section>
+      <section>
+        <h3>Sort Within a Tier</h3>
+        <p>Click <b>↕</b> on any tier row to open the Sort Wizard. Two cards appear — pick which is <em>better</em>:</p>
+        <ul>
+          <li><b>Left-hand keys</b> (Q A Z W S X E D C R F V T, 1–5) → left card is better</li>
+          <li><b>Right-hand keys</b> (P L O K M I J N U, 7–0 - = [ ] ' / ; . ,) → right card is better</li>
+          <li>Or click <b>▲ Pick</b> under either card</li>
+        </ul>
+        <p>Each card is sorted via binary search — up to 4 comparisons per card. Cards already sorted stay in position.</p>
+      </section>
+      <section>
+        <h3>Other Controls</h3>
+        <ul>
+          <li><b>⚖ Normalize</b> — redistributes cards proportionally across tiers</li>
+          <li><b>🔒 Lock</b> — prevents accidental changes to tier assignments</li>
+          <li><b>Search bar</b> — highlights matching cards in the pool</li>
+          <li><b>Escape</b> — closes any open overlay</li>
+        </ul>
+      </section>
     </div>
   </div>
 </div>
@@ -1656,9 +1770,8 @@
 
   async function loadCardsForType(type) {
     document.querySelectorAll('.img-card').forEach(c => c.remove());
-    placeholder.textContent = 'Loading cards…';
-    placeholder.classList.add('loading');
-    placeholder.style.display = '';
+    placeholder.style.display = 'none';
+    document.getElementById('loading-overlay').classList.add('active');
     if (type === 'vintage_cube') {
       deckFilters.style.display = 'none';
       agPoolSort.style.display = 'none';
@@ -1671,7 +1784,7 @@
       vcPoolSort.style.display = 'none';
       await autoLoadAgricolaCards();
     }
-    placeholder.classList.remove('loading');
+    document.getElementById('loading-overlay').classList.remove('active');
   }
 
   function setTierAreaVisible(visible) {
@@ -1684,7 +1797,7 @@
   async function createNewList(name, creator, type) {
     const id  = generateId();
     const now = new Date().toISOString();
-    const listType = type || 'agricola';
+    const listType = type || 'vintage_cube';
     const list = { id, name, creator: creator || '', type: listType, locked: false, createdAt: now, updatedAt: now, state: null };
 
     setActiveListId(id);
@@ -1706,7 +1819,7 @@
     if (!list) return;
     setActiveListId(id);
     setTierAreaVisible(true);
-    await loadCardsForType(list.type || 'agricola');
+    await loadCardsForType(list.type || 'vintage_cube');
     restoreState(list.state);
     updateListBar();
     updateLockBtn();
@@ -1956,6 +2069,11 @@
     if (!sortWizardState || sortPickLocked) return;
     sortPickLocked = true;
 
+    // Flash the chosen side green
+    const choiceEl = document.getElementById(side === 'left' ? 'sort-choice-left' : 'sort-choice-right');
+    choiceEl.classList.add('sort-chosen');
+    setTimeout(() => choiceEl.classList.remove('sort-chosen'), 550);
+
     const mid = sortWizardState.currentMid;
     if (side === 'left') {
       sortWizardState.high = mid;
@@ -2025,6 +2143,12 @@
   document.getElementById('sort-cancel').addEventListener('click', closeSortWizard);
   document.getElementById('sort-resort-all').addEventListener('click', resortAll);
   document.getElementById('sort-modal').addEventListener('click', closeSortWizard);
+
+  // ── How-to modal ──────────────────────────────────────────────
+  const howtoModal = document.getElementById('howto-modal');
+  document.getElementById('howto-btn').addEventListener('click', () => howtoModal.classList.add('open'));
+  document.getElementById('howto-close').addEventListener('click', () => howtoModal.classList.remove('open'));
+  howtoModal.addEventListener('click', () => howtoModal.classList.remove('open'));
 
   // ── Normalize tier counts ─────────────────────────────────────
   let normalizePending = null;
@@ -2419,6 +2543,9 @@
       return;
     }
     if (e.key === 'Escape') {
+      if (howtoModal.classList.contains('open')) {
+        howtoModal.classList.remove('open'); return;
+      }
       if (document.getElementById('normalize-modal').classList.contains('open')) {
         closeNormalizeModal(); return;
       }
