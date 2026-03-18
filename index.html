@@ -1769,6 +1769,7 @@
   const vcPoolSort = document.getElementById('vc-pool-sort');
 
   async function loadCardsForType(type) {
+    currentListType = type;
     document.querySelectorAll('.img-card').forEach(c => c.remove());
     placeholder.style.display = 'none';
     document.getElementById('loading-overlay').classList.add('active');
@@ -2275,6 +2276,7 @@
   });
 
   // ── Card names & types ────────────────────────────────────────
+  let currentListType = null;
   let cardNames = {};
   fetch('card_names.json')
     .then(r => r.ok ? r.json() : Promise.reject())
@@ -2564,44 +2566,69 @@
 
   function buildDropdown(query) {
     const q = query.toLowerCase();
-    const results = Object.entries(cardNames)
-      .filter(([id, name]) =>
-        !WEAK_CARDS.has(id) &&
-        (name.toLowerCase().includes(q) || id.toLowerCase().includes(q)))
-      .slice(0, 14);
-
-    if (!results.length) { searchDropdown.classList.remove('open'); return; }
-
     searchDropdown.innerHTML = '';
     activeResultIdx = -1;
 
-    results.forEach(([id, name]) => {
-      const tier     = findCardTier(id);
-      const tierData = tier ? TIERS.find(t => t.label === tier) : null;
+    let rows = [];
 
-      const row = document.createElement('div');
-      row.className = 'sr';
-      row.dataset.id = id;
+    if (currentListType === 'vintage_cube') {
+      // Search cards by title (card name) from the live DOM
+      rows = [...document.querySelectorAll('.img-card')]
+        .filter(c => c.title.toLowerCase().includes(q))
+        .slice(0, 14)
+        .map(card => {
+          const name = card.title;
+          const tier = findCardTier(name);
+          const tierData = tier ? TIERS.find(t => t.label === tier) : null;
+          const row = document.createElement('div');
+          row.className = 'sr';
+          row.dataset.id = name;
+          const thumb = document.createElement('img');
+          thumb.className = 'sr-thumb';
+          thumb.src = cardSrc(card);
+          const info = document.createElement('div');
+          info.className = 'sr-info';
+          info.innerHTML = `<div class="sr-name">${name}</div>`;
+          const badge = document.createElement('div');
+          badge.className = 'sr-tier';
+          badge.textContent = tier || 'Unassigned';
+          badge.style.background = tierData ? tierData.color + '33' : '#333';
+          badge.style.color      = tierData ? tierData.color        : '#888';
+          row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
+          row.addEventListener('pointerdown', ev => { ev.preventDefault(); selectResult(name); });
+          return row;
+        });
+    } else {
+      rows = Object.entries(cardNames)
+        .filter(([id, name]) =>
+          !WEAK_CARDS.has(id) &&
+          (name.toLowerCase().includes(q) || id.toLowerCase().includes(q)))
+        .slice(0, 14)
+        .map(([id, name]) => {
+          const tier = findCardTier(id);
+          const tierData = tier ? TIERS.find(t => t.label === tier) : null;
+          const row = document.createElement('div');
+          row.className = 'sr';
+          row.dataset.id = id;
+          const thumb = document.createElement('img');
+          thumb.className = 'sr-thumb';
+          thumb.src = `cards/full/${id}.png`;
+          const info = document.createElement('div');
+          info.className = 'sr-info';
+          info.innerHTML = `<div class="sr-name">${name}</div><div class="sr-id">${id}</div>`;
+          const badge = document.createElement('div');
+          badge.className = 'sr-tier';
+          badge.textContent = tier || 'Unassigned';
+          badge.style.background = tierData ? tierData.color + '33' : '#333';
+          badge.style.color      = tierData ? tierData.color        : '#888';
+          row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
+          row.addEventListener('pointerdown', ev => { ev.preventDefault(); selectResult(id); });
+          return row;
+        });
+    }
 
-      const thumb = document.createElement('img');
-      thumb.className = 'sr-thumb';
-      thumb.src = `cards/full/${id}.png`;
-
-      const info = document.createElement('div');
-      info.className = 'sr-info';
-      info.innerHTML = `<div class="sr-name">${name}</div><div class="sr-id">${id}</div>`;
-
-      const badge = document.createElement('div');
-      badge.className = 'sr-tier';
-      badge.textContent = tier || 'Unassigned';
-      badge.style.background = tierData ? tierData.color + '33' : '#333';
-      badge.style.color      = tierData ? tierData.color        : '#888';
-
-      row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
-      row.addEventListener('pointerdown', ev => { ev.preventDefault(); selectResult(id); });
-      searchDropdown.appendChild(row);
-    });
-
+    if (!rows.length) { searchDropdown.classList.remove('open'); return; }
+    rows.forEach(r => searchDropdown.appendChild(r));
     searchDropdown.classList.add('open');
   }
 
@@ -2609,7 +2636,12 @@
     searchDropdown.classList.remove('open');
     searchInput.value = '';
     highlightCard(id);
-    openZoom(`cards/full/${id}.png`, id);
+    if (currentListType === 'vintage_cube') {
+      const card = document.querySelector(`.img-card[title="${id}"]`);
+      if (card) openZoom(cardSrc(card), id);
+    } else {
+      openZoom(`cards/full/${id}.png`, id);
+    }
   }
 
   function setActiveResult(idx) {
