@@ -191,5 +191,24 @@
       },
       "sortedAt": {}
     }
+  },
+  "mmwi0onlj8pof": {
+    "id": "mmwi0onlj8pof",
+    "name": "VC Test",
+    "creator": "",
+    "type": "vintage_cube",
+    "locked": false,
+    "createdAt": "2026-03-18T20:33:24.177Z",
+    "updatedAt": "2026-03-18T20:33:24.177Z",
+    "state": {
+      "tiers": {
+        "S": [],
+        "A": [],
+        "B": [],
+        "C": [],
+        "F": []
+      },
+      "sortedAt": {}
+    }
   }
 }

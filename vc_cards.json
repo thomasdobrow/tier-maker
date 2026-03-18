@@ -1,0 +1,3530 @@
+{
+  "Esper Sentinel": {
+    "file": "esper-sentinel.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Artifact Creature — Human Soldier"
+  },
+  "Giver of Runes": {
+    "file": "giver-of-runes.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Kor Cleric"
+  },
+  "Guide of Souls": {
+    "file": "guide-of-souls.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Cleric"
+  },
+  "Mother of Runes": {
+    "file": "mother-of-runes.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Cleric"
+  },
+  "Ocelot Pride": {
+    "file": "ocelot-pride.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Cat"
+  },
+  "Thraben Inspector": {
+    "file": "thraben-inspector.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Soldier"
+  },
+  "Ajani, Nacatl Pariah": {
+    "file": "ajani-nacatl-pariah.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Legendary Creature — Cat Warrior // Legendary Planeswalker — Ajani"
+  },
+  "Cathar Commando": {
+    "file": "cathar-commando.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Soldier"
+  },
+  "Containment Priest": {
+    "file": "containment-priest.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Cleric"
+  },
+  "Intrepid Adversary": {
+    "file": "intrepid-adversary.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Scout"
+  },
+  "Jacked Rabbit": {
+    "file": "jacked-rabbit.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Rabbit Warrior"
+  },
+  "Lion Sash": {
+    "file": "lion-sash.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Artifact Creature — Equipment Cat"
+  },
+  "Luminarch Aspirant": {
+    "file": "luminarch-aspirant.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Cleric"
+  },
+  "Phelia, Exuberant Shepherd": {
+    "file": "phelia-exuberant-shepherd.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Dog"
+  },
+  "Securitron Squadron": {
+    "file": "securitron-squadron.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Artifact Creature — Robot"
+  },
+  "Selfless Spirit": {
+    "file": "selfless-spirit.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Spirit Cleric"
+  },
+  "Stoneforge Mystic": {
+    "file": "stoneforge-mystic.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Kor Artificer"
+  },
+  "Thalia, Guardian of Thraben": {
+    "file": "thalia-guardian-of-thraben.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Human Soldier"
+  },
+  "Voice of Victory": {
+    "file": "voice-of-victory.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Bard"
+  },
+  "Adeline, Resplendent Cathar": {
+    "file": "adeline-resplendent-cathar.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Human Knight"
+  },
+  "Archon of Emeria": {
+    "file": "archon-of-emeria.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Archon"
+  },
+  "Clarion Conqueror": {
+    "file": "clarion-conqueror.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Dragon"
+  },
+  "Cosmogrand Zenith": {
+    "file": "cosmogrand-zenith.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Soldier"
+  },
+  "Elite Spellbinder": {
+    "file": "elite-spellbinder.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Cleric"
+  },
+  "Enduring Innocence": {
+    "file": "enduring-innocence.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Enchantment Creature — Sheep Glimmer"
+  },
+  "Loran of the Third Path": {
+    "file": "loran-of-the-third-path.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Human Artificer"
+  },
+  "Sage of the Skies": {
+    "file": "sage-of-the-skies.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Monk"
+  },
+  "Sanguine Evangelist": {
+    "file": "sanguine-evangelist.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Vampire Cleric"
+  },
+  "Skyclave Apparition": {
+    "file": "skyclave-apparition.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Kor Spirit"
+  },
+  "Auriok Salvagers": {
+    "file": "auriok-salvagers.jpg",
+    "cmc": 4,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Soldier"
+  },
+  "Dion, Bahamut's Dominant": {
+    "file": "dion-bahamuts-dominant.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Legendary Creature — Human Noble Knight // Legendary Enchantment Creature — Saga Dragon"
+  },
+  "Palace Jailer": {
+    "file": "palace-jailer.jpg",
+    "cmc": 4,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Human Soldier"
+  },
+  "Serra Paragon": {
+    "file": "serra-paragon.jpg",
+    "cmc": 4,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Angel"
+  },
+  "Witch Enchanter": {
+    "file": "witch-enchanter.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Creature — Human Warlock // Land"
+  },
+  "Solitude": {
+    "file": "solitude.jpg",
+    "cmc": 5,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Elemental Incarnation"
+  },
+  "Summon: Good King Mog XII": {
+    "file": "summon-good-king-mog-xii.jpg",
+    "cmc": 5,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Enchantment Creature — Saga Moogle"
+  },
+  "Eagles of the North": {
+    "file": "eagles-of-the-north.jpg",
+    "cmc": 6,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Creature — Bird Soldier"
+  },
+  "Overlord of the Mistmoors": {
+    "file": "overlord-of-the-mistmoors.jpg",
+    "cmc": 7,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Enchantment Creature — Avatar Horror"
+  },
+  "The Wandering Emperor": {
+    "file": "the-wandering-emperor.jpg",
+    "cmc": 4,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Legendary Planeswalker"
+  },
+  "Elspeth, Storm Slayer": {
+    "file": "elspeth-storm-slayer.jpg",
+    "cmc": 5,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Legendary Planeswalker — Elspeth"
+  },
+  "Path to Exile": {
+    "file": "path-to-exile.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Instant"
+  },
+  "Swords to Plowshares": {
+    "file": "swords-to-plowshares.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Instant"
+  },
+  "Get Lost": {
+    "file": "get-lost.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Instant"
+  },
+  "Reprieve": {
+    "file": "reprieve.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Instant"
+  },
+  "Oust": {
+    "file": "oust.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Balance": {
+    "file": "balance.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Winds of Abandon": {
+    "file": "winds-of-abandon.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Council's Judgment": {
+    "file": "councils-judgment.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Lingering Souls": {
+    "file": "lingering-souls.jpg",
+    "cmc": 3,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Wrath of God": {
+    "file": "wrath-of-god.jpg",
+    "cmc": 4,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Sunfall": {
+    "file": "sunfall.jpg",
+    "cmc": 5,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Portable Hole": {
+    "file": "portable-hole.jpg",
+    "cmc": 1,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Artifact"
+  },
+  "Glimmer Lens": {
+    "file": "glimmer-lens.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Artifact — Equipment"
+  },
+  "Staff of the Storyteller": {
+    "file": "staff-of-the-storyteller.jpg",
+    "cmc": 2,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Artifact"
+  },
+  "Parallax Wave": {
+    "file": "parallax-wave.jpg",
+    "cmc": 4,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Virtue of Loyalty": {
+    "file": "virtue-of-loyalty.jpg",
+    "cmc": 5,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Enchantment // Instant — Adventure"
+  },
+  "Leyline Binding": {
+    "file": "leyline-binding.jpg",
+    "cmc": 6,
+    "colors": [
+      "W"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Tamiyo, Inquisitive Student": {
+    "file": "tamiyo-inquisitive-student.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Legendary Creature — Moonfolk Wizard // Legendary Planeswalker — Tamiyo"
+  },
+  "Duelist of the Mind": {
+    "file": "duelist-of-the-mind.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Human Advisor"
+  },
+  "Faerie Mastermind": {
+    "file": "faerie-mastermind.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Faerie Rogue"
+  },
+  "Jace, Vryn's Prodigy": {
+    "file": "jace-vryns-prodigy.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Legendary Creature — Human Wizard // Legendary Planeswalker — Jace"
+  },
+  "Kitsa, Otterball Elite": {
+    "file": "kitsa-otterball-elite.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Otter Wizard"
+  },
+  "Malcolm, Alluring Scoundrel": {
+    "file": "malcolm-alluring-scoundrel.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Siren Pirate"
+  },
+  "Snapcaster Mage": {
+    "file": "snapcaster-mage.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Human Wizard"
+  },
+  "Suspicious Stowaway": {
+    "file": "suspicious-stowaway.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Creature — Human Rogue Werewolf // Creature — Werewolf"
+  },
+  "Thassa's Oracle": {
+    "file": "thassas-oracle.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Merfolk Wizard"
+  },
+  "Wan Shi Tong, Librarian": {
+    "file": "wan-shi-tong-librarian.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Bird Spirit"
+  },
+  "Brazen Borrower": {
+    "file": "brazen-borrower.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Faerie Rogue // Instant — Adventure"
+  },
+  "Chrome Host Seedshark": {
+    "file": "chrome-host-seedshark.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Phyrexian Shark"
+  },
+  "Emry, Lurker of the Loch": {
+    "file": "emry-lurker-of-the-loch.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Merfolk Wizard"
+  },
+  "Forensic Gadgeteer": {
+    "file": "forensic-gadgeteer.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Vedalken Artificer Detective"
+  },
+  "Hullbreacher": {
+    "file": "hullbreacher.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Merfolk Pirate"
+  },
+  "Spellseeker": {
+    "file": "spellseeker.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Human Wizard"
+  },
+  "Tishana's Tidebinder": {
+    "file": "tishanas-tidebinder.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Merfolk Wizard"
+  },
+  "Displacer Kitten": {
+    "file": "displacer-kitten.jpg",
+    "cmc": 4,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Cat Beast"
+  },
+  "Urza, Lord High Artificer": {
+    "file": "urza-lord-high-artificer.jpg",
+    "cmc": 4,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Human Artificer"
+  },
+  "Quantum Riddler": {
+    "file": "quantum-riddler.jpg",
+    "cmc": 5,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Creature — Sphinx"
+  },
+  "Kappa Cannoneer": {
+    "file": "kappa-cannoneer.jpg",
+    "cmc": 6,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Artifact Creature — Turtle Warrior"
+  },
+  "Narset, Parter of Veils": {
+    "file": "narset-parter-of-veils.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Narset"
+  },
+  "Jace, the Mind Sculptor": {
+    "file": "jace-the-mind-sculptor.jpg",
+    "cmc": 4,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Jace"
+  },
+  "Jace, Wielder of Mysteries": {
+    "file": "jace-wielder-of-mysteries.jpg",
+    "cmc": 4,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Jace"
+  },
+  "Ancestral Recall": {
+    "file": "ancestral-recall.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Brainstorm": {
+    "file": "brainstorm.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Mystical Tutor": {
+    "file": "mystical-tutor.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Occult Epiphany": {
+    "file": "occult-epiphany.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Spell Pierce": {
+    "file": "spell-pierce.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Stern Scolding": {
+    "file": "stern-scolding.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Thought Scour": {
+    "file": "thought-scour.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Brain Freeze": {
+    "file": "brain-freeze.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Counterspell": {
+    "file": "counterspell.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Daze": {
+    "file": "daze.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Flash": {
+    "file": "flash.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Lose Focus": {
+    "file": "lose-focus.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Mana Drain": {
+    "file": "mana-drain.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Mana Leak": {
+    "file": "mana-leak.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Memory Lapse": {
+    "file": "memory-lapse.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Miscalculation": {
+    "file": "miscalculation.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Remand": {
+    "file": "remand.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Brainsurge": {
+    "file": "brainsurge.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Force of Negation": {
+    "file": "force-of-negation.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Frantic Search": {
+    "file": "frantic-search.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Cryptic Command": {
+    "file": "cryptic-command.jpg",
+    "cmc": 4,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Force of Will": {
+    "file": "force-of-will.jpg",
+    "cmc": 5,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Gush": {
+    "file": "gush.jpg",
+    "cmc": 5,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Mystic Confluence": {
+    "file": "mystic-confluence.jpg",
+    "cmc": 5,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Dig Through Time": {
+    "file": "dig-through-time.jpg",
+    "cmc": 8,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Gitaxian Probe": {
+    "file": "gitaxian-probe.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Ponder": {
+    "file": "ponder.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Preordain": {
+    "file": "preordain.jpg",
+    "cmc": 1,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Time Walk": {
+    "file": "time-walk.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Stock Up": {
+    "file": "stock-up.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Timetwister": {
+    "file": "timetwister.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Tinker": {
+    "file": "tinker.jpg",
+    "cmc": 3,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Lórien Revealed": {
+    "file": "lrien-revealed.jpg",
+    "cmc": 5,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Time Warp": {
+    "file": "time-warp.jpg",
+    "cmc": 5,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Echo of Eons": {
+    "file": "echo-of-eons.jpg",
+    "cmc": 6,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Time Spiral": {
+    "file": "time-spiral.jpg",
+    "cmc": 6,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Upheaval": {
+    "file": "upheaval.jpg",
+    "cmc": 6,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Aether Spellbomb": {
+    "file": "aether-spellbomb.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Astrologian's Planisphere": {
+    "file": "astrologians-planisphere.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Artifact — Equipment"
+  },
+  "Proft's Eidetic Memory": {
+    "file": "profts-eidetic-memory.jpg",
+    "cmc": 2,
+    "colors": [
+      "U"
+    ],
+    "typeLine": "Legendary Enchantment"
+  },
+  "Concealing Curtains": {
+    "file": "concealing-curtains.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Creature — Wall // Creature — Eye Horror"
+  },
+  "Caustic Bronco": {
+    "file": "caustic-bronco.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Snake Horse Mount"
+  },
+  "Dark Confidant": {
+    "file": "dark-confidant.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Human Wizard"
+  },
+  "Dauthi Voidwalker": {
+    "file": "dauthi-voidwalker.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Dauthi Rogue"
+  },
+  "Deep-Cavern Bat": {
+    "file": "deep-cavern-bat.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Bat"
+  },
+  "Emperor of Bones": {
+    "file": "emperor-of-bones.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Skeleton Noble"
+  },
+  "Kitesail Freebooter": {
+    "file": "kitesail-freebooter.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Human Pirate"
+  },
+  "Mai, Scornful Striker": {
+    "file": "mai-scornful-striker.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Legendary Creature — Human Noble Ally"
+  },
+  "Orcish Bowmasters": {
+    "file": "orcish-bowmasters.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Orc Archer"
+  },
+  "Sorin of House Markov": {
+    "file": "sorin-of-house-markov.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Legendary Creature — Human Noble // Legendary Planeswalker — Sorin"
+  },
+  "Barrowgoyf": {
+    "file": "barrowgoyf.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Lhurgoyf"
+  },
+  "Preacher of the Schism": {
+    "file": "preacher-of-the-schism.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Vampire Cleric"
+  },
+  "Sedgemoor Witch": {
+    "file": "sedgemoor-witch.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Human Warlock"
+  },
+  "Grief": {
+    "file": "grief.jpg",
+    "cmc": 4,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Elemental Incarnation"
+  },
+  "Sheoldred, the Apocalypse": {
+    "file": "sheoldred-the-apocalypse.jpg",
+    "cmc": 4,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Legendary Creature — Phyrexian Praetor"
+  },
+  "Crabomination": {
+    "file": "crabomination.jpg",
+    "cmc": 6,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Crab Demon"
+  },
+  "Metamorphosis Fanatic": {
+    "file": "metamorphosis-fanatic.jpg",
+    "cmc": 6,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Human Cleric"
+  },
+  "Troll of Khazad-dûm": {
+    "file": "troll-of-khazad-dm.jpg",
+    "cmc": 6,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Troll"
+  },
+  "Archon of Cruelty": {
+    "file": "archon-of-cruelty.jpg",
+    "cmc": 8,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Creature — Archon"
+  },
+  "Griselbrand": {
+    "file": "griselbrand.jpg",
+    "cmc": 8,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Legendary Creature — Demon"
+  },
+  "Liliana of the Veil": {
+    "file": "liliana-of-the-veil.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Legendary Planeswalker — Liliana"
+  },
+  "Booster Tutor": {
+    "file": "booster-tutor.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Cut Down": {
+    "file": "cut-down.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Dark Ritual": {
+    "file": "dark-ritual.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Demonic Consultation": {
+    "file": "demonic-consultation.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Entomb": {
+    "file": "entomb.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Fatal Push": {
+    "file": "fatal-push.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Vampiric Tutor": {
+    "file": "vampiric-tutor.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Bitter Triumph": {
+    "file": "bitter-triumph.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Cabal Ritual": {
+    "file": "cabal-ritual.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Goryo's Vengeance": {
+    "file": "goryos-vengeance.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant — Arcane"
+  },
+  "Infernal Grasp": {
+    "file": "infernal-grasp.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Shallow Grave": {
+    "file": "shallow-grave.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Sheoldred's Edict": {
+    "file": "sheoldreds-edict.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Dismember": {
+    "file": "dismember.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Baleful Mastery": {
+    "file": "baleful-mastery.jpg",
+    "cmc": 4,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Snuff Out": {
+    "file": "snuff-out.jpg",
+    "cmc": 4,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Instant"
+  },
+  "Bone Shards": {
+    "file": "bone-shards.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Duress": {
+    "file": "duress.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Imperial Seal": {
+    "file": "imperial-seal.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Inquisition of Kozilek": {
+    "file": "inquisition-of-kozilek.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Mind Twist": {
+    "file": "mind-twist.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Reanimate": {
+    "file": "reanimate.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Thoughtseize": {
+    "file": "thoughtseize.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Unearth": {
+    "file": "unearth.jpg",
+    "cmc": 1,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Chain of Smog": {
+    "file": "chain-of-smog.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Collective Brutality": {
+    "file": "collective-brutality.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Demonic Tutor": {
+    "file": "demonic-tutor.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Exhume": {
+    "file": "exhume.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Hymn to Tourach": {
+    "file": "hymn-to-tourach.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Night's Whisper": {
+    "file": "nights-whisper.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Doomsday": {
+    "file": "doomsday.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Toxic Deluge": {
+    "file": "toxic-deluge.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Yawgmoth's Will": {
+    "file": "yawgmoths-will.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Damnation": {
+    "file": "damnation.jpg",
+    "cmc": 4,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Tendrils of Agony": {
+    "file": "tendrils-of-agony.jpg",
+    "cmc": 4,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Wishclaw Talisman": {
+    "file": "wishclaw-talisman.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Artifact"
+  },
+  "Bolas's Citadel": {
+    "file": "bolass-citadel.jpg",
+    "cmc": 6,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Legendary Artifact"
+  },
+  "Animate Dead": {
+    "file": "animate-dead.jpg",
+    "cmc": 2,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Enchantment — Aura"
+  },
+  "Necromancy": {
+    "file": "necromancy.jpg",
+    "cmc": 3,
+    "colors": [
+      "B"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Dragon's Rage Channeler": {
+    "file": "dragons-rage-channeler.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Human Shaman"
+  },
+  "Ragavan, Nimble Pilferer": {
+    "file": "ragavan-nimble-pilferer.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Monkey Pirate"
+  },
+  "Amped Raptor": {
+    "file": "amped-raptor.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Dinosaur"
+  },
+  "Embereth Shieldbreaker": {
+    "file": "embereth-shieldbreaker.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Human Knight // Sorcery — Adventure"
+  },
+  "Fear of Missing Out": {
+    "file": "fear-of-missing-out.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Enchantment Creature — Nightmare"
+  },
+  "Gau, Feral Youth": {
+    "file": "gau-feral-youth.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Human Berserker"
+  },
+  "Generous Plunderer": {
+    "file": "generous-plunderer.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Human Rogue"
+  },
+  "Inti, Seneschal of the Sun": {
+    "file": "inti-seneschal-of-the-sun.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Human Knight"
+  },
+  "Ivora, Insatiable Heir": {
+    "file": "ivora-insatiable-heir.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Vampire Warrior"
+  },
+  "Magda, Brazen Outlaw": {
+    "file": "magda-brazen-outlaw.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Dwarf Berserker"
+  },
+  "Reckless Pyrosurfer": {
+    "file": "reckless-pyrosurfer.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Human Scout"
+  },
+  "Robber of the Rich": {
+    "file": "robber-of-the-rich.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Human Archer Rogue"
+  },
+  "Scrapwork Mutt": {
+    "file": "scrapwork-mutt.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact Creature — Dog"
+  },
+  "Slickshot Show-Off": {
+    "file": "slickshot-show-off.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Bird Wizard"
+  },
+  "Broadside Bombardiers": {
+    "file": "broadside-bombardiers.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Goblin Pirate"
+  },
+  "Death-Greeter's Champion": {
+    "file": "death-greeters-champion.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Human Warrior"
+  },
+  "Goblin Rabblemaster": {
+    "file": "goblin-rabblemaster.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Goblin Warrior"
+  },
+  "Gut, True Soul Zealot": {
+    "file": "gut-true-soul-zealot.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Goblin Shaman"
+  },
+  "Laelia, the Blade Reforged": {
+    "file": "laelia-the-blade-reforged.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Spirit Warrior"
+  },
+  "Screaming Nemesis": {
+    "file": "screaming-nemesis.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Spirit"
+  },
+  "Seasoned Pyromancer": {
+    "file": "seasoned-pyromancer.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Human Shaman"
+  },
+  "Simian Spirit Guide": {
+    "file": "simian-spirit-guide.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Ape Spirit"
+  },
+  "Tersa Lightshatter": {
+    "file": "tersa-lightshatter.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Orc Wizard"
+  },
+  "Emberwilde Captain": {
+    "file": "emberwilde-captain.jpg",
+    "cmc": 4,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Djinn Pirate"
+  },
+  "Headliner Scarlett": {
+    "file": "headliner-scarlett.jpg",
+    "cmc": 4,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Creature — Human Warlock"
+  },
+  "Pyrogoyf": {
+    "file": "pyrogoyf.jpg",
+    "cmc": 4,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Lhurgoyf"
+  },
+  "Bonehoard Dracosaur": {
+    "file": "bonehoard-dracosaur.jpg",
+    "cmc": 5,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Dinosaur Dragon"
+  },
+  "Fury": {
+    "file": "fury.jpg",
+    "cmc": 5,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Elemental Incarnation"
+  },
+  "Glorybringer": {
+    "file": "glorybringer.jpg",
+    "cmc": 5,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Dragon"
+  },
+  "Oliphaunt": {
+    "file": "oliphaunt.jpg",
+    "cmc": 6,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Elephant"
+  },
+  "Trumpeting Carnosaur": {
+    "file": "trumpeting-carnosaur.jpg",
+    "cmc": 6,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Dinosaur"
+  },
+  "Etali, Primal Conqueror": {
+    "file": "etali-primal-conqueror.jpg",
+    "cmc": 7,
+    "colors": [],
+    "typeLine": "Legendary Creature — Elder Dinosaur // Legendary Creature — Phyrexian Elder Dinosaur"
+  },
+  "Chandra, Torch of Defiance": {
+    "file": "chandra-torch-of-defiance.jpg",
+    "cmc": 4,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Legendary Planeswalker — Chandra"
+  },
+  "Burst Lightning": {
+    "file": "burst-lightning.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Galvanic Discharge": {
+    "file": "galvanic-discharge.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Lightning Bolt": {
+    "file": "lightning-bolt.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Red Elemental Blast": {
+    "file": "red-elemental-blast.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Redirect Lightning": {
+    "file": "redirect-lightning.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant — Lesson"
+  },
+  "Unholy Heat": {
+    "file": "unholy-heat.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Abrade": {
+    "file": "abrade.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Mine Collapse": {
+    "file": "mine-collapse.jpg",
+    "cmc": 4,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Through the Breach": {
+    "file": "through-the-breach.jpg",
+    "cmc": 5,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant — Arcane"
+  },
+  "Pyrokinesis": {
+    "file": "pyrokinesis.jpg",
+    "cmc": 6,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Chain Lightning": {
+    "file": "chain-lightning.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Faithless Looting": {
+    "file": "faithless-looting.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Flame Slash": {
+    "file": "flame-slash.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Suplex": {
+    "file": "suplex.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Wheel of Fortune": {
+    "file": "wheel-of-fortune.jpg",
+    "cmc": 3,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Fiery Confluence": {
+    "file": "fiery-confluence.jpg",
+    "cmc": 4,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Cori-Steel Cutter": {
+    "file": "cori-steel-cutter.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Artifact — Equipment"
+  },
+  "Legion Extruder": {
+    "file": "legion-extruder.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Artifact"
+  },
+  "Goblin Bombardment": {
+    "file": "goblin-bombardment.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Underworld Breach": {
+    "file": "underworld-breach.jpg",
+    "cmc": 2,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Fable of the Mirror-Breaker": {
+    "file": "fable-of-the-mirror-breaker.jpg",
+    "cmc": 3,
+    "colors": [],
+    "typeLine": "Enchantment — Saga // Enchantment Creature — Goblin Shaman"
+  },
+  "Sneak Attack": {
+    "file": "sneak-attack.jpg",
+    "cmc": 4,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "The Legend of Roku": {
+    "file": "the-legend-of-roku.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Enchantment — Saga // Legendary Creature — Avatar"
+  },
+  "Birds of Paradise": {
+    "file": "birds-of-paradise.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Bird"
+  },
+  "Delighted Halfling": {
+    "file": "delighted-halfling.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Halfling Citizen"
+  },
+  "Elvish Mystic": {
+    "file": "elvish-mystic.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Elf Druid"
+  },
+  "Hexdrinker": {
+    "file": "hexdrinker.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Snake"
+  },
+  "Ignoble Hierarch": {
+    "file": "ignoble-hierarch.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Goblin Shaman"
+  },
+  "Llanowar Elves": {
+    "file": "llanowar-elves.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Elf Druid"
+  },
+  "Noble Hierarch": {
+    "file": "noble-hierarch.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Human Druid"
+  },
+  "Sylvan Safekeeper": {
+    "file": "sylvan-safekeeper.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Human Wizard"
+  },
+  "Badgermole Cub": {
+    "file": "badgermole-cub.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Badger Mole"
+  },
+  "Biophagus": {
+    "file": "biophagus.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Human Tyranid Wizard"
+  },
+  "Bristly Bill, Spine Sower": {
+    "file": "bristly-bill-spine-sower.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Creature — Plant Druid"
+  },
+  "Cankerbloom": {
+    "file": "cankerbloom.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Phyrexian Fungus"
+  },
+  "Fanatic of Rhonas": {
+    "file": "fanatic-of-rhonas.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Snake Druid"
+  },
+  "Keen-Eyed Curator": {
+    "file": "keen-eyed-curator.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Raccoon Scout"
+  },
+  "Lotus Cobra": {
+    "file": "lotus-cobra.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Snake"
+  },
+  "Outland Liberator": {
+    "file": "outland-liberator.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Creature — Human Werewolf // Creature — Werewolf"
+  },
+  "Scythecat Cub": {
+    "file": "scythecat-cub.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Cat"
+  },
+  "Springheart Nantuko": {
+    "file": "springheart-nantuko.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Enchantment Creature — Insect Monk"
+  },
+  "Sylvan Caryatid": {
+    "file": "sylvan-caryatid.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Plant"
+  },
+  "Tarmogoyf": {
+    "file": "tarmogoyf.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Lhurgoyf"
+  },
+  "Elvish Spirit Guide": {
+    "file": "elvish-spirit-guide.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Elf Spirit"
+  },
+  "Endurance": {
+    "file": "endurance.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Elemental Incarnation"
+  },
+  "Eternal Witness": {
+    "file": "eternal-witness.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Human Shaman"
+  },
+  "Ramunap Excavator": {
+    "file": "ramunap-excavator.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Snake Cleric"
+  },
+  "Reclamation Sage": {
+    "file": "reclamation-sage.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Elf Shaman"
+  },
+  "Sentinel of the Nameless City": {
+    "file": "sentinel-of-the-nameless-city.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Merfolk Warrior Scout"
+  },
+  "Six": {
+    "file": "six.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Creature — Treefolk"
+  },
+  "Surrak, Elusive Hunter": {
+    "file": "surrak-elusive-hunter.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Creature — Human Warrior"
+  },
+  "Tireless Tracker": {
+    "file": "tireless-tracker.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Human Scout"
+  },
+  "Traveling Chocobo": {
+    "file": "traveling-chocobo.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Bird"
+  },
+  "Ursine Monstrosity": {
+    "file": "ursine-monstrosity.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Bear Mutant"
+  },
+  "Baloth Prime": {
+    "file": "baloth-prime.jpg",
+    "cmc": 4,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Beast"
+  },
+  "Icetill Explorer": {
+    "file": "icetill-explorer.jpg",
+    "cmc": 4,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Insect Scout"
+  },
+  "Ouroboroid": {
+    "file": "ouroboroid.jpg",
+    "cmc": 4,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Plant Wurm"
+  },
+  "Questing Beast": {
+    "file": "questing-beast.jpg",
+    "cmc": 4,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Creature — Beast"
+  },
+  "Sowing Mycospawn": {
+    "file": "sowing-mycospawn.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Creature — Eldrazi Fungus"
+  },
+  "Ulvenwald Oddity": {
+    "file": "ulvenwald-oddity.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Creature — Beast // Creature — Beast Horror"
+  },
+  "Titania, Protector of Argoth": {
+    "file": "titania-protector-of-argoth.jpg",
+    "cmc": 5,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Creature — Elemental"
+  },
+  "Generous Ent": {
+    "file": "generous-ent.jpg",
+    "cmc": 6,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Treefolk"
+  },
+  "Primeval Titan": {
+    "file": "primeval-titan.jpg",
+    "cmc": 6,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Giant"
+  },
+  "Vaultborn Tyrant": {
+    "file": "vaultborn-tyrant.jpg",
+    "cmc": 7,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Dinosaur"
+  },
+  "Woodfall Primus": {
+    "file": "woodfall-primus.jpg",
+    "cmc": 8,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Treefolk Shaman"
+  },
+  "Worldspine Wurm": {
+    "file": "worldspine-wurm.jpg",
+    "cmc": 11,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Creature — Wurm"
+  },
+  "Nissa, Who Shakes the World": {
+    "file": "nissa-who-shakes-the-world.jpg",
+    "cmc": 5,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Planeswalker — Nissa"
+  },
+  "Nissa, Ascended Animist": {
+    "file": "nissa-ascended-animist.jpg",
+    "cmc": 7,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Planeswalker — Nissa"
+  },
+  "Crop Rotation": {
+    "file": "crop-rotation.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Instant"
+  },
+  "Once Upon a Time": {
+    "file": "once-upon-a-time.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Instant"
+  },
+  "Tear Asunder": {
+    "file": "tear-asunder.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Instant"
+  },
+  "Green Sun's Zenith": {
+    "file": "green-suns-zenith.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Pest Infestation": {
+    "file": "pest-infestation.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Channel": {
+    "file": "channel.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Malevolent Rumble": {
+    "file": "malevolent-rumble.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Natural Order": {
+    "file": "natural-order.jpg",
+    "cmc": 4,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Esika's Chariot": {
+    "file": "esikas-chariot.jpg",
+    "cmc": 4,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Legendary Artifact — Vehicle"
+  },
+  "Fastbond": {
+    "file": "fastbond.jpg",
+    "cmc": 1,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Sylvan Library": {
+    "file": "sylvan-library.jpg",
+    "cmc": 2,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Court of Garenbrig": {
+    "file": "court-of-garenbrig.jpg",
+    "cmc": 3,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Enchantment"
+  },
+  "Walking Ballista": {
+    "file": "walking-ballista.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact Creature — Construct"
+  },
+  "Cogwork Librarian": {
+    "file": "cogwork-librarian.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Artifact Creature — Construct"
+  },
+  "Golos, Tireless Pilgrim": {
+    "file": "golos-tireless-pilgrim.jpg",
+    "cmc": 5,
+    "colors": [],
+    "typeLine": "Legendary Artifact Creature — Scout"
+  },
+  "Myr Battlesphere": {
+    "file": "myr-battlesphere.jpg",
+    "cmc": 7,
+    "colors": [],
+    "typeLine": "Artifact Creature — Myr Construct"
+  },
+  "Blightsteel Colossus": {
+    "file": "blightsteel-colossus.jpg",
+    "cmc": 12,
+    "colors": [],
+    "typeLine": "Artifact Creature — Phyrexian Golem"
+  },
+  "Emrakul, the Aeons Torn": {
+    "file": "emrakul-the-aeons-torn.jpg",
+    "cmc": 15,
+    "colors": [],
+    "typeLine": "Legendary Creature — Eldrazi"
+  },
+  "Triplicate Titan": {
+    "file": "triplicate-titan.jpg",
+    "cmc": 9,
+    "colors": [],
+    "typeLine": "Artifact Creature — Golem"
+  },
+  "Ulamog, the Infinite Gyre": {
+    "file": "ulamog-the-infinite-gyre.jpg",
+    "cmc": 11,
+    "colors": [],
+    "typeLine": "Legendary Creature — Eldrazi"
+  },
+  "Tezzeret, Cruel Captain": {
+    "file": "tezzeret-cruel-captain.jpg",
+    "cmc": 3,
+    "colors": [],
+    "typeLine": "Legendary Planeswalker — Tezzeret"
+  },
+  "Karn, Scion of Urza": {
+    "file": "karn-scion-of-urza.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Legendary Planeswalker — Karn"
+  },
+  "Ugin, Eye of the Storms": {
+    "file": "ugin-eye-of-the-storms.jpg",
+    "cmc": 7,
+    "colors": [],
+    "typeLine": "Legendary Planeswalker — Ugin"
+  },
+  "Black Lotus": {
+    "file": "black-lotus.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Chrome Mox": {
+    "file": "chrome-mox.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Gleemox": {
+    "file": "gleemox.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Lion's Eye Diamond": {
+    "file": "lions-eye-diamond.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Lotus Petal": {
+    "file": "lotus-petal.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mana Crypt": {
+    "file": "mana-crypt.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mishra's Bauble": {
+    "file": "mishras-bauble.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mox Diamond": {
+    "file": "mox-diamond.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mox Emerald": {
+    "file": "mox-emerald.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mox Jet": {
+    "file": "mox-jet.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mox Opal": {
+    "file": "mox-opal.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Artifact"
+  },
+  "Mox Pearl": {
+    "file": "mox-pearl.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mox Ruby": {
+    "file": "mox-ruby.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mox Sapphire": {
+    "file": "mox-sapphire.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Urza's Bauble": {
+    "file": "urzas-bauble.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Zuran Orb": {
+    "file": "zuran-orb.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Chromatic Star": {
+    "file": "chromatic-star.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Currency Converter": {
+    "file": "currency-converter.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Expedition Map": {
+    "file": "expedition-map.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Ghost Vacuum": {
+    "file": "ghost-vacuum.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Mana Vault": {
+    "file": "mana-vault.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Manifold Key": {
+    "file": "manifold-key.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Retrofitter Foundry": {
+    "file": "retrofitter-foundry.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Sensei's Divining Top": {
+    "file": "senseis-divining-top.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Skullclamp": {
+    "file": "skullclamp.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact — Equipment"
+  },
+  "Sol Ring": {
+    "file": "sol-ring.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Soul-Guide Lantern": {
+    "file": "soul-guide-lantern.jpg",
+    "cmc": 1,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Chaos Orb": {
+    "file": "chaos-orb.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Grim Monolith": {
+    "file": "grim-monolith.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Lightning Greaves": {
+    "file": "lightning-greaves.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact — Equipment"
+  },
+  "Mind Stone": {
+    "file": "mind-stone.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Pentad Prism": {
+    "file": "pentad-prism.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Smuggler's Copter": {
+    "file": "smugglers-copter.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact — Vehicle"
+  },
+  "Sword of the Meek": {
+    "file": "sword-of-the-meek.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact — Equipment"
+  },
+  "Talisman of Creativity": {
+    "file": "talisman-of-creativity.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Talisman of Curiosity": {
+    "file": "talisman-of-curiosity.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Talisman of Dominance": {
+    "file": "talisman-of-dominance.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Talisman of Progress": {
+    "file": "talisman-of-progress.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Time Vault": {
+    "file": "time-vault.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Umezawa's Jitte": {
+    "file": "umezawas-jitte.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Legendary Artifact — Equipment"
+  },
+  "Basalt Monolith": {
+    "file": "basalt-monolith.jpg",
+    "cmc": 3,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Coalition Relic": {
+    "file": "coalition-relic.jpg",
+    "cmc": 3,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Ensnaring Bridge": {
+    "file": "ensnaring-bridge.jpg",
+    "cmc": 3,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Palantír of Orthanc": {
+    "file": "palantr-of-orthanc.jpg",
+    "cmc": 3,
+    "colors": [],
+    "typeLine": "Legendary Artifact"
+  },
+  "Helm of Obedience": {
+    "file": "helm-of-obedience.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Relic of Sauron": {
+    "file": "relic-of-sauron.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "The One Ring": {
+    "file": "the-one-ring.jpg",
+    "cmc": 4,
+    "colors": [],
+    "typeLine": "Legendary Artifact"
+  },
+  "Memory Jar": {
+    "file": "memory-jar.jpg",
+    "cmc": 5,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "The Mightstone and Weakstone": {
+    "file": "the-mightstone-and-weakstone.jpg",
+    "cmc": 5,
+    "colors": [],
+    "typeLine": "Legendary Artifact — Powerstone"
+  },
+  "Coveted Jewel": {
+    "file": "coveted-jewel.jpg",
+    "cmc": 6,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Nexus of Becoming": {
+    "file": "nexus-of-becoming.jpg",
+    "cmc": 6,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "Kaldra Compleat": {
+    "file": "kaldra-compleat.jpg",
+    "cmc": 7,
+    "colors": [],
+    "typeLine": "Legendary Artifact — Equipment"
+  },
+  "Portal to Phyrexia": {
+    "file": "portal-to-phyrexia.jpg",
+    "cmc": 9,
+    "colors": [],
+    "typeLine": "Artifact"
+  },
+  "No More Lies": {
+    "file": "no-more-lies.jpg",
+    "cmc": 2,
+    "colors": [
+      "U",
+      "W"
+    ],
+    "typeLine": "Instant"
+  },
+  "Aang, Swift Savior": {
+    "file": "aang-swift-savior.jpg",
+    "cmc": 3,
+    "colors": [],
+    "typeLine": "Legendary Creature — Human Avatar Ally // Legendary Creature — Avatar Spirit Ally"
+  },
+  "Teferi, Time Raveler": {
+    "file": "teferi-time-raveler.jpg",
+    "cmc": 3,
+    "colors": [
+      "U",
+      "W"
+    ],
+    "typeLine": "Legendary Planeswalker — Teferi"
+  },
+  "Fractured Identity": {
+    "file": "fractured-identity.jpg",
+    "cmc": 5,
+    "colors": [
+      "U",
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Teferi, Hero of Dominaria": {
+    "file": "teferi-hero-of-dominaria.jpg",
+    "cmc": 5,
+    "colors": [
+      "U",
+      "W"
+    ],
+    "typeLine": "Legendary Planeswalker — Teferi"
+  },
+  "Baleful Strix": {
+    "file": "baleful-strix.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Artifact Creature — Bird"
+  },
+  "Lim-Dûl's Vault": {
+    "file": "lim-dls-vault.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Psychic Frog": {
+    "file": "psychic-frog.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Creature — Frog"
+  },
+  "Kaito Shizuki": {
+    "file": "kaito-shizuki.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Kaito"
+  },
+  "Thief of Sanity": {
+    "file": "thief-of-sanity.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Creature — Specter"
+  },
+  "Ertai Resurrected": {
+    "file": "ertai-resurrected.jpg",
+    "cmc": 4,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Phyrexian Human Wizard"
+  },
+  "Kaito, Bane of Nightmares": {
+    "file": "kaito-bane-of-nightmares.jpg",
+    "cmc": 4,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Kaito"
+  },
+  "Fallen Shinobi": {
+    "file": "fallen-shinobi.jpg",
+    "cmc": 5,
+    "colors": [
+      "B",
+      "U"
+    ],
+    "typeLine": "Creature — Zombie Ninja"
+  },
+  "Bloodtithe Harvester": {
+    "file": "bloodtithe-harvester.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "R"
+    ],
+    "typeLine": "Creature — Vampire"
+  },
+  "Carnage Interpreter": {
+    "file": "carnage-interpreter.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "R"
+    ],
+    "typeLine": "Creature — Devil Detective"
+  },
+  "Fire Covenant": {
+    "file": "fire-covenant.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Kolaghan's Command": {
+    "file": "kolaghans-command.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Chaos Defiler": {
+    "file": "chaos-defiler.jpg",
+    "cmc": 5,
+    "colors": [
+      "B",
+      "R"
+    ],
+    "typeLine": "Artifact Creature — Demon Construct"
+  },
+  "Orcish Lumberjack": {
+    "file": "orcish-lumberjack.jpg",
+    "cmc": 1,
+    "colors": [
+      "R"
+    ],
+    "typeLine": "Creature — Orc"
+  },
+  "Manamorphose": {
+    "file": "manamorphose.jpg",
+    "cmc": 2,
+    "colors": [
+      "G",
+      "R"
+    ],
+    "typeLine": "Instant"
+  },
+  "Mawloc": {
+    "file": "mawloc.jpg",
+    "cmc": 2,
+    "colors": [
+      "G",
+      "R"
+    ],
+    "typeLine": "Creature — Tyranid"
+  },
+  "Territorial Kavu": {
+    "file": "territorial-kavu.jpg",
+    "cmc": 2,
+    "colors": [
+      "G",
+      "R"
+    ],
+    "typeLine": "Creature — Kavu"
+  },
+  "Wrenn and Six": {
+    "file": "wrenn-and-six.jpg",
+    "cmc": 2,
+    "colors": [
+      "G",
+      "R"
+    ],
+    "typeLine": "Legendary Planeswalker — Wrenn"
+  },
+  "Minsc & Boo, Timeless Heroes": {
+    "file": "minsc--boo-timeless-heroes.jpg",
+    "cmc": 4,
+    "colors": [
+      "G",
+      "R"
+    ],
+    "typeLine": "Legendary Planeswalker — Minsc"
+  },
+  "Bloodbraid Challenger": {
+    "file": "bloodbraid-challenger.jpg",
+    "cmc": 5,
+    "colors": [
+      "G",
+      "R"
+    ],
+    "typeLine": "Creature — Elf Berserker"
+  },
+  "Arwen, Mortal Queen": {
+    "file": "arwen-mortal-queen.jpg",
+    "cmc": 3,
+    "colors": [
+      "G",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Elf Noble"
+  },
+  "Torsten, Founder of Benalia": {
+    "file": "torsten-founder-of-benalia.jpg",
+    "cmc": 7,
+    "colors": [
+      "G",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Human Soldier"
+  },
+  "Tidehollow Sculler": {
+    "file": "tidehollow-sculler.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "W"
+    ],
+    "typeLine": "Artifact Creature — Zombie"
+  },
+  "Lurrus of the Dream-Den": {
+    "file": "lurrus-of-the-dream-den.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Cat Nightmare"
+  },
+  "Expressive Iteration": {
+    "file": "expressive-iteration.jpg",
+    "cmc": 2,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Third Path Iconoclast": {
+    "file": "third-path-iconoclast.jpg",
+    "cmc": 2,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Creature — Human Monk"
+  },
+  "Dack Fayden": {
+    "file": "dack-fayden.jpg",
+    "cmc": 3,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Dack"
+  },
+  "Invert Polarity": {
+    "file": "invert-polarity.jpg",
+    "cmc": 3,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Instant"
+  },
+  "Lutri, the Spellchaser": {
+    "file": "lutri-the-spellchaser.jpg",
+    "cmc": 3,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Elemental Otter"
+  },
+  "Saheeli, Sublime Artificer": {
+    "file": "saheeli-sublime-artificer.jpg",
+    "cmc": 3,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Saheeli"
+  },
+  "Vivi Ornitier": {
+    "file": "vivi-ornitier.jpg",
+    "cmc": 3,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Wizard"
+  },
+  "Deathrite Shaman": {
+    "file": "deathrite-shaman.jpg",
+    "cmc": 1,
+    "colors": [
+      "B",
+      "G"
+    ],
+    "typeLine": "Creature — Elf Shaman"
+  },
+  "Pillage the Bog": {
+    "file": "pillage-the-bog.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "G"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Wight of the Reliquary": {
+    "file": "wight-of-the-reliquary.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "G"
+    ],
+    "typeLine": "Creature — Zombie Knight"
+  },
+  "Witherbloom Apprentice": {
+    "file": "witherbloom-apprentice.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "G"
+    ],
+    "typeLine": "Creature — Human Druid"
+  },
+  "Grist, the Hunger Tide": {
+    "file": "grist-the-hunger-tide.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "G"
+    ],
+    "typeLine": "Legendary Planeswalker — Grist"
+  },
+  "Figure of Destiny": {
+    "file": "figure-of-destiny.jpg",
+    "cmc": 1,
+    "colors": [
+      "R",
+      "W"
+    ],
+    "typeLine": "Creature — Kithkin"
+  },
+  "Forth Eorlingas!": {
+    "file": "forth-eorlingas.jpg",
+    "cmc": 2,
+    "colors": [
+      "R",
+      "W"
+    ],
+    "typeLine": "Sorcery"
+  },
+  "Phlage, Titan of Fire's Fury": {
+    "file": "phlage-titan-of-fires-fury.jpg",
+    "cmc": 3,
+    "colors": [
+      "R",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Elder Giant"
+  },
+  "Zirda, the Dawnwaker": {
+    "file": "zirda-the-dawnwaker.jpg",
+    "cmc": 3,
+    "colors": [
+      "R",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Elemental Fox"
+  },
+  "Comet, Stellar Pup": {
+    "file": "comet-stellar-pup.jpg",
+    "cmc": 4,
+    "colors": [
+      "R",
+      "W"
+    ],
+    "typeLine": "Legendary Planeswalker — Comet"
+  },
+  "Otharri, Suns' Glory": {
+    "file": "otharri-suns-glory.jpg",
+    "cmc": 5,
+    "colors": [
+      "R",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Phoenix"
+  },
+  "Nadu, Winged Wisdom": {
+    "file": "nadu-winged-wisdom.jpg",
+    "cmc": 3,
+    "colors": [
+      "G",
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Bird Wizard"
+  },
+  "Oko, Thief of Crowns": {
+    "file": "oko-thief-of-crowns.jpg",
+    "cmc": 3,
+    "colors": [
+      "G",
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Oko"
+  },
+  "Uro, Titan of Nature's Wrath": {
+    "file": "uro-titan-of-natures-wrath.jpg",
+    "cmc": 3,
+    "colors": [
+      "G",
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Elder Giant"
+  },
+  "Tamiyo, Collector of Tales": {
+    "file": "tamiyo-collector-of-tales.jpg",
+    "cmc": 4,
+    "colors": [
+      "G",
+      "U"
+    ],
+    "typeLine": "Legendary Planeswalker — Tamiyo"
+  },
+  "Thopter Foundry": {
+    "file": "thopter-foundry.jpg",
+    "cmc": 2,
+    "colors": [
+      "B",
+      "U",
+      "W"
+    ],
+    "typeLine": "Artifact"
+  },
+  "Loot, the Pathfinder": {
+    "file": "loot-the-pathfinder.jpg",
+    "cmc": 5,
+    "colors": [
+      "G",
+      "R",
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Beast Noble"
+  },
+  "Aragorn, King of Gondor": {
+    "file": "aragorn-king-of-gondor.jpg",
+    "cmc": 4,
+    "colors": [
+      "R",
+      "U",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Human Noble"
+  },
+  "Leovold, Emissary of Trest": {
+    "file": "leovold-emissary-of-trest.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "G",
+      "U"
+    ],
+    "typeLine": "Legendary Creature — Elf Advisor"
+  },
+  "Omnath, Locus of Creation": {
+    "file": "omnath-locus-of-creation.jpg",
+    "cmc": 4,
+    "colors": [
+      "G",
+      "R",
+      "U",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Elemental"
+  },
+  "Atraxa, Grand Unifier": {
+    "file": "atraxa-grand-unifier.jpg",
+    "cmc": 7,
+    "colors": [
+      "B",
+      "G",
+      "U",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Phyrexian Angel"
+  },
+  "Dryad Arbor": {
+    "file": "dryad-arbor.jpg",
+    "cmc": 0,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Land Creature — Forest Dryad"
+  },
+  "Celestial Colonnade": {
+    "file": "celestial-colonnade.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Creeping Tar Pit": {
+    "file": "creeping-tar-pit.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Blazemire Verge": {
+    "file": "blazemire-verge.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Raging Ravine": {
+    "file": "raging-ravine.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Thornspire Verge": {
+    "file": "thornspire-verge.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Horizon Canopy": {
+    "file": "horizon-canopy.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Bleachbone Verge": {
+    "file": "bleachbone-verge.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Fiery Islet": {
+    "file": "fiery-islet.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Riverpyre Verge": {
+    "file": "riverpyre-verge.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Scalding Tarn": {
+    "file": "scalding-tarn.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Steam Vents": {
+    "file": "steam-vents.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Mountain"
+  },
+  "Thundering Falls": {
+    "file": "thundering-falls.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Mountain"
+  },
+  "Volcanic Island": {
+    "file": "volcanic-island.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Mountain"
+  },
+  "Nurturing Peatland": {
+    "file": "nurturing-peatland.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Wastewood Verge": {
+    "file": "wastewood-verge.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Xander's Lounge": {
+    "file": "xanders-lounge.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Swamp Mountain"
+  },
+  "Waterlogged Grove": {
+    "file": "waterlogged-grove.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Mana Confluence": {
+    "file": "mana-confluence.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Multiversal Passage": {
+    "file": "multiversal-passage.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Prismatic Vista": {
+    "file": "prismatic-vista.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Starting Town": {
+    "file": "starting-town.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Town"
+  },
+  "Ancient Tomb": {
+    "file": "ancient-tomb.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Arena of Glory": {
+    "file": "arena-of-glory.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Bazaar of Baghdad": {
+    "file": "bazaar-of-baghdad.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Boseiju, Who Endures": {
+    "file": "boseiju-who-endures.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Land"
+  },
+  "City of Traitors": {
+    "file": "city-of-traitors.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Dark Depths": {
+    "file": "dark-depths.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Snow Land"
+  },
+  "Gaea's Cradle": {
+    "file": "gaeas-cradle.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Land"
+  },
+  "Karakas": {
+    "file": "karakas.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Land"
+  },
+  "Library of Alexandria": {
+    "file": "library-of-alexandria.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Mishra's Workshop": {
+    "file": "mishras-workshop.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Otawara, Soaring City": {
+    "file": "otawara-soaring-city.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Land"
+  },
+  "Seat of the Synod": {
+    "file": "seat-of-the-synod.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Artifact Land"
+  },
+  "Shelldock Isle": {
+    "file": "shelldock-isle.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Shifting Woodland": {
+    "file": "shifting-woodland.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Strip Mine": {
+    "file": "strip-mine.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Thespian's Stage": {
+    "file": "thespians-stage.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Tolarian Academy": {
+    "file": "tolarian-academy.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Land"
+  },
+  "Urborg, Tomb of Yawgmoth": {
+    "file": "urborg-tomb-of-yawgmoth.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Legendary Land"
+  },
+  "Urza's Saga": {
+    "file": "urzas-saga.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Enchantment Land — Urza's Saga"
+  },
+  "Wasteland": {
+    "file": "wasteland.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Goben, Gene-Splice Savant": {
+    "file": "norman-osborn.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Legendary Creature — Human Scientist Villain // Legendary Creature — Goblin Human Villain"
+  },
+  "Life // Death": {
+    "file": "life.jpg",
+    "cmc": 3,
+    "colors": [
+      "B",
+      "G"
+    ],
+    "typeLine": "Sorcery // Sorcery"
+  },
+  "Nia, Skysail Storyteller": {
+    "file": "gwen-stacy.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Legendary Creature — Human Performer Hero // Legendary Creature — Spider Human Hero"
+  },
+  "Cren, Undercity Dreamer": {
+    "file": "miles-morales.jpg",
+    "cmc": 2,
+    "colors": [],
+    "typeLine": "Legendary Creature — Human Citizen Hero // Legendary Creature — Spider Human Hero"
+  },
+  "Walk-In Closet // Forgotten Cellar": {
+    "file": "walk-in-closet.jpg",
+    "cmc": 8,
+    "colors": [
+      "G"
+    ],
+    "typeLine": "Enchantment — Room // Enchantment — Room"
+  },
+  "Makdee and Itla, Skysnarers": {
+    "file": "spider-woman-stunning-savior.jpg",
+    "cmc": 2,
+    "colors": [
+      "U",
+      "W"
+    ],
+    "typeLine": "Legendary Creature — Spider Human Hero"
+  },
+  "Fire // Ice": {
+    "file": "fire.jpg",
+    "cmc": 4,
+    "colors": [
+      "R",
+      "U"
+    ],
+    "typeLine": "Instant // Instant"
+  }
+}

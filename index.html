@@ -1705,51 +1705,18 @@
 
   // ── Card loading per list type ─────────────────────────────────
   async function loadVintageCubeCards() {
-    const BATCH = 75;
-    const nameToImg  = {};
-    const nameToMeta = {};
-    const notFoundNames = [];
-
-    function storeCard(card) {
-      const key = card.name.split(' // ')[0]; // handles DFCs: "Aang, Swift Savior // ..."
-      const uri = card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal;
-      if (uri) nameToImg[key] = uri;
-      nameToMeta[key] = {
-        cmc:      card.cmc ?? 0,
-        colors:   card.colors ?? [],
-        typeLine: card.type_line ?? '',
-      };
-    }
-
-    for (let i = 0; i < VINTAGE_CUBE_CARDS.length; i += BATCH) {
-      const batch = VINTAGE_CUBE_CARDS.slice(i, i + BATCH);
-      try {
-        const resp = await fetch('https://api.scryfall.com/cards/collection', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ identifiers: batch.map(name => ({ name })) }),
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          (data.data     || []).forEach(storeCard);
-          (data.not_found|| []).forEach(id => notFoundNames.push(id.name));
-        }
-      } catch (e) { console.warn('Scryfall batch failed', e); }
-    }
-
-    // Fuzzy fallback for any names Scryfall didn't recognize
-    for (const name of notFoundNames) {
-      try {
-        const r = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(name)}`);
-        if (r.ok) storeCard(await r.json());
-        else console.warn('Scryfall fuzzy not found:', name);
-      } catch (e) { console.warn('Scryfall fuzzy failed', name, e); }
-    }
+    // Load pre-downloaded metadata; fall back to Scryfall on individual cards if absent
+    let vcData = {};
+    try {
+      const resp = await fetch('vc_cards.json');
+      if (resp.ok) vcData = await resp.json();
+    } catch (e) { console.warn('vc_cards.json not found — images will load from Scryfall', e); }
 
     for (const name of VINTAGE_CUBE_CARDS) {
-      const meta = nameToMeta[name];
-      const src  = nameToImg[name]
-        || `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal`;
+      const meta = vcData[name];
+      const src  = meta
+        ? `cards/vc/${meta.file}`
+        : `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal`;
       const card = makeCard(src, name);
       if (meta) {
         card.dataset.cmc      = meta.cmc;
@@ -1820,7 +1787,7 @@
     if (!list) return;
     setActiveListId(id);
     setTierAreaVisible(true);
-    await loadCardsForType(list.type || 'vintage_cube');
+    await loadCardsForType(list.type || 'agricola');
     restoreState(list.state);
     updateListBar();
     updateLockBtn();
