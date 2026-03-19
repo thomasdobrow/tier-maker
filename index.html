@@ -3094,6 +3094,11 @@
     return 29;
   }
 
+  // Expected bucket-distance between two independent random complete rankings of 464 cards.
+  // Computed analytically: 2 × Σ_{i<j} c_i·c_j·(j−i) / 464² × 464 ≈ 1506.
+  // Used as the denominator so that 0% = "as random as two shuffled lists", 100% = identical.
+  const E_RANDOM_464 = 1506;
+
   function listDistanceScore(rankingsA, rankingsB) {
     const allCards = new Set([...Object.keys(rankingsA), ...Object.keys(rankingsB)]);
     let total = 0;
@@ -3143,16 +3148,16 @@
     const rankB = computeRankings(listB);
     const dist = listDistanceScore(rankA, rankB);
     const numCards = Object.keys(rankA).length;
-    const maxDist = numCards * 29;
-    const simPct = Math.round((1 - dist / maxDist) * 100);
-    // bg-position shifts the gradient: 0% = green end visible, 100% = red end visible
+    // Anchor to expected random baseline: 100% = identical, 0% = two shuffled lists
+    const eRandom = numCards === 464 ? E_RANDOM_464 : Math.round(E_RANDOM_464 * numCards / 464);
+    const simPct = Math.max(0, Math.round((1 - dist / eRandom) * 100));
     const bgPos = (100 - simPct) + '%';
     metric.innerHTML = `
       List distance: <b>${dist.toLocaleString()}</b>
       &nbsp;·&nbsp;
-      Similarity: <span class="h2h-sim-bar-wrap"><span class="h2h-sim-bar-fill" style="width:${simPct}%;background-position:${bgPos} 0"></span></span>
+      Agreement: <span class="h2h-sim-bar-wrap"><span class="h2h-sim-bar-fill" style="width:${simPct}%;background-position:${bgPos} 0"></span></span>
       <b>${simPct}%</b>
-      <span style="color:#3a3a3a">&nbsp;(max possible distance: ${maxDist.toLocaleString()})</span>`;
+      <span style="color:#3a3a3a" title="100% = identical · 0% = two random lists (expected distance: ${eRandom.toLocaleString()})">&nbsp;above random</span>`;
   }
 
   document.getElementById('compare-btn').addEventListener('click', showCompare);
