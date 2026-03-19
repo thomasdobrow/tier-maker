@@ -3018,9 +3018,10 @@
       const pts = allRankings.map(m => m.ranks[name] ?? null);
       const ranked = pts.filter(p => p != null);
       const avg = ranked.length ? ranked.reduce((a, b) => a + b, 0) / ranked.length : Infinity;
-      return { name, avg, pts };
+      const avgBucket = ranked.length ? ranked.reduce((s, r) => s + rankToBucket(r), 0) / ranked.length : Infinity;
+      return { name, avg, avgBucket, pts };
     });
-    cardData.sort((a, b) => a.avg - b.avg);
+    cardData.sort((a, b) => a.avgBucket - b.avgBucket);
 
     container.innerHTML = cardData.map(card => {
       const dots = allRankings.map((m, i) => {
@@ -3110,15 +3111,15 @@
     return total;
   }
 
-  // Returns a tiny directional arrow showing how far the same card lands in the other list.
-  // → red  = other list ranks this card worse (higher number)
-  // ← green = other list ranks this card better (lower number)
+  // Returns a tiny directional arrow showing how this list's rank compares to the other list.
+  // ← green = I rank this card higher (lower number) than the other list
+  // → red   = I rank this card lower (higher number) than the other list
   // Size scales with bucket distance: barely-visible → kinda-small
   function h2hArrow(thisRank, otherRank) {
     if (otherRank == null) return '';
     const bd = Math.abs(rankToBucket(thisRank) - rankToBucket(otherRank));
     if (bd === 0) return '';
-    const worse = otherRank > thisRank;
+    const worse = thisRank > otherRank;
     const ch  = worse ? '→' : '←';
     const col = worse ? '#cc5555' : '#4da870';
     // Linear scale: bd=1 → 0.45em, bd≥14 → 0.85em
