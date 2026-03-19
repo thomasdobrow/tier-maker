@@ -1204,7 +1204,7 @@
     <input id="search-input" type="text" placeholder="Search cards…" autocomplete="off" />
     <div id="search-dropdown"></div>
   </div>
-  <div id="deck-filters">
+  <div id="deck-filters" style="display:none">
     <span>Deck:</span>
     <button class="deck-btn active" data-deck="all">All</button>
     <button class="deck-btn" data-deck="A">A</button>
@@ -1259,13 +1259,13 @@
 </div>
 
 <div id="tier-actions">
-  <button class="ta-btn" id="normalize-btn">⚖ Normalize Tier Counts</button>
+  <button class="ta-btn" id="normalize-btn" style="display:none">⚖ Normalize Tier Counts</button>
 </div>
 
 <div id="main">
-  <div id="tier-list"></div>
+  <div id="tier-list" style="display:none"></div>
 
-  <div id="pool-section">
+  <div id="pool-section" style="display:none">
     <div id="pool-header">
       <button id="quick-rank-btn">▶ Quick Rank</button>
       <span id="pool-header-label">Unassigned</span>
