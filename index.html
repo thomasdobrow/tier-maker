@@ -1080,14 +1080,17 @@
       padding: 8px 16px; background: #0e0e0e; border-bottom: 1px solid #2a2a2a;
       display: flex; align-items: center; gap: 12px; flex-shrink: 0;
     }
-    #compare-tabs { display: flex; gap: 4px; }
-    .compare-tab {
-      background: none; border: none; color: #666;
-      padding: 6px 14px; border-radius: 4px; cursor: pointer;
-      font-size: 0.9rem; transition: color 0.12s, background 0.12s;
+    #compare-tabs {
+      display: flex; gap: 2px;
+      background: #141414; border: 1px solid #333; border-radius: 7px; padding: 3px;
     }
-    .compare-tab:hover { color: #ccc; background: #1e1e1e; }
-    .compare-tab.active { color: #eee; background: #2a2a2a; }
+    .compare-tab {
+      background: none; border: none; color: #555;
+      padding: 5px 16px; border-radius: 5px; cursor: pointer;
+      font-size: 0.85rem; transition: all 0.15s; white-space: nowrap;
+    }
+    .compare-tab:hover { color: #aaa; }
+    .compare-tab.active { background: #383838; color: #eee; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
     #compare-type-sel {
       background: #1c1c1c; color: #ccc; border: 1px solid #444;
       padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;
@@ -1167,14 +1170,14 @@
       margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #2a2a2a;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .h2h-card-row {
-      display: flex; align-items: flex-start; gap: 6px;
-      padding: 5px 0; border-bottom: 1px solid #1a1a1a;
-    }
-    .h2h-num { width: 18px; color: #555; font-size: 0.72rem; flex-shrink: 0; padding-top: 5px; }
-    .h2h-card-img {
-      width: 100%; max-width: 160px; border-radius: 6px; display: block;
-      flex: 1; min-width: 0;
+    .h2h-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+    .h2h-card-item { position: relative; width: 68px; flex-shrink: 0; }
+    .h2h-card-img { width: 100%; border-radius: 5px; display: block; }
+    .h2h-num {
+      position: absolute; top: 3px; left: 3px;
+      background: rgba(0,0,0,0.72); color: #fff;
+      font-size: 0.6rem; font-weight: 700; line-height: 1;
+      padding: 2px 4px; border-radius: 3px; pointer-events: none;
     }
   </style>
 </head>
@@ -3051,11 +3054,13 @@
     const renderCol = (list, cards) => `
       <div class="h2h-col">
         <div class="h2h-col-header">${escHtml(list.name)}${list.creator ? ` <span style="font-weight:400;color:#555">by ${escHtml(list.creator)}</span>` : ''}</div>
-        ${cards.map((c, i) => `
-          <div class="h2h-card-row">
-            <div class="h2h-num">${i + 1}</div>
-            <img class="h2h-card-img" src="${vcCardImgSrc(c)}" alt="${escHtml(c)}" title="${escHtml(c)}" loading="lazy" />
-          </div>`).join('')}
+        <div class="h2h-grid">
+          ${cards.map((c, i) => `
+            <div class="h2h-card-item">
+              <div class="h2h-num">${i + 1}</div>
+              <img class="h2h-card-img" src="${vcCardImgSrc(c)}" alt="${escHtml(c)}" title="${escHtml(c)}" loading="lazy" />
+            </div>`).join('')}
+        </div>
       </div>`;
 
     cols.innerHTML = renderCol(listA, top10(listA)) + renderCol(listB, top10(listB));
