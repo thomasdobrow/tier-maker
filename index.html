@@ -1111,9 +1111,19 @@
     }
     .cmp-rank-avg { width: 36px; text-align: right; color: #555; flex-shrink: 0; font-size: 0.75rem; }
     .cmp-name { width: 180px; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
+    .cmp-bar-outer { display: flex; align-items: center; flex: 1; gap: 5px; min-width: 0; }
+    .cmp-bar-endlabel {
+      font-size: 0.68rem; color: #444; white-space: nowrap; flex-shrink: 0; line-height: 1;
+    }
+    .cmp-bar-endlabel.left  { color: rgba(100,190,100,0.6); }
+    .cmp-bar-endlabel.right { color: rgba(190,90,90,0.5); }
     .cmp-bar-wrap {
-      flex: 1; height: 18px; background: #1e1e1e; border-radius: 3px;
-      position: relative; min-width: 120px;
+      flex: 1; height: 18px; border-radius: 3px; position: relative; min-width: 80px;
+      background: linear-gradient(to right,
+        rgba(70,140,70,0.22) 0%,
+        #1e1e1e 28%,
+        #1e1e1e 72%,
+        rgba(140,60,60,0.18) 100%);
     }
     .cmp-dot {
       width: 8px; height: 8px; border-radius: 50%;
@@ -1890,6 +1900,7 @@
   async function loadList(id) {
     const list = listsCache[id];
     if (!list) return;
+    hideCompare();
     setActiveListId(id);
     setTierAreaVisible(true);
     await loadCardsForType(list.type || 'agricola');
@@ -2897,14 +2908,27 @@
     document.getElementById('tier-actions').style.display = '';
   }
 
+  function totalCardsForType(type) {
+    if (type === 'vintage_cube') return VINTAGE_CUBE_CARDS.length;
+    return null; // agricola loaded dynamically — unsupported for now
+  }
+
+  function isComparable(list) {
+    if (!list.locked) return false;
+    const total = totalCardsForType(list.type);
+    if (total === null) return false;
+    return Object.values(list.state?.tiers || {}).flat().length === total;
+  }
+
   function populateCompareTypeSelector() {
     const sel = document.getElementById('compare-type-sel');
     const types = [...new Set(Object.values(listsCache).map(l => l.type).filter(Boolean))];
     sel.innerHTML = types.map(t =>
       `<option value="${t}">${t === 'vintage_cube' ? 'Vintage Cube' : 'Agricola'}</option>`
     ).join('');
-    const active = currentList?.type;
-    if (active && types.includes(active)) sel.value = active;
+    const activeId = getActiveListId();
+    const active = activeId && listsCache[activeId];
+    if (active?.type && types.includes(active.type)) sel.value = active.type;
   }
 
   function renderCompare() {
@@ -2915,13 +2939,13 @@
 
   function renderRankings() {
     const type = document.getElementById('compare-type-sel').value;
-    const lists = Object.values(listsCache).filter(l => l.type === type && l.state?.tiers);
+    const lists = Object.values(listsCache).filter(l => l.type === type && isComparable(l));
     const legend = document.getElementById('cmp-legend');
     const container = document.getElementById('cmp-cards');
 
     if (!lists.length) {
       legend.innerHTML = '';
-      container.innerHTML = '<div style="padding:20px;color:#555">No ranked lists of this type yet.</div>';
+      container.innerHTML = '<div style="padding:20px;color:#555">No lists available — compare requires lists that are fully ranked and locked.</div>';
       return;
     }
 
@@ -2953,14 +2977,18 @@
       return `<div class="cmp-row">
         <div class="cmp-rank-avg">${avgDisplay}</div>
         <div class="cmp-name" title="${escHtml(card.name)}">${escHtml(card.name)}</div>
-        <div class="cmp-bar-wrap">${dots}</div>
+        <div class="cmp-bar-outer">
+          <span class="cmp-bar-endlabel left">#1</span>
+          <div class="cmp-bar-wrap">${dots}</div>
+          <span class="cmp-bar-endlabel right">#${N}</span>
+        </div>
       </div>`;
     }).join('');
   }
 
   function renderH2H() {
     const type = document.getElementById('compare-type-sel').value;
-    const lists = Object.values(listsCache).filter(l => l.type === type && l.state?.tiers);
+    const lists = Object.values(listsCache).filter(l => l.type === type && isComparable(l));
     const selA = document.getElementById('h2h-sel-a');
     const selB = document.getElementById('h2h-sel-b');
     const prevA = selA.value, prevB = selB.value;
