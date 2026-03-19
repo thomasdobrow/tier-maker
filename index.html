@@ -1162,6 +1162,21 @@
       padding: 6px 10px; border-radius: 4px; font-size: 0.85rem; flex: 1;
     }
     #h2h-vs { color: #555; font-size: 0.85rem; flex-shrink: 0; }
+    #h2h-metric {
+      padding: 7px 16px; font-size: 0.78rem; color: #666;
+      border-bottom: 1px solid #1e1e1e; flex-shrink: 0;
+    }
+    #h2h-metric b { color: #aaa; }
+    #h2h-metric .h2h-sim-bar-wrap {
+      display: inline-block; width: 120px; height: 6px; background: #2a2a2a;
+      border-radius: 3px; vertical-align: middle; margin: 0 6px;
+      position: relative; overflow: hidden;
+    }
+    #h2h-metric .h2h-sim-bar-fill {
+      position: absolute; left: 0; top: 0; height: 100%; border-radius: 3px;
+      background: linear-gradient(to right, #f08080, #f4d060, #7ddd7d);
+      background-size: 200% 100%;
+    }
     #h2h-columns { flex: 1; overflow-y: auto; display: flex; }
     .h2h-col { flex: 1; padding: 12px 16px; border-right: 1px solid #222; }
     .h2h-col:last-child { border-right: none; }
@@ -1303,7 +1318,13 @@
       <select id="h2h-sel-a"></select>
       <span id="h2h-vs">vs</span>
       <select id="h2h-sel-b"></select>
+      <select id="h2h-count" style="flex:0">
+        <option value="10">Top 10</option>
+        <option value="20">Top 20</option>
+        <option value="50">Top 50</option>
+      </select>
     </div>
+    <div id="h2h-metric"></div>
     <div id="h2h-columns"></div>
   </div>
 
@@ -1418,6 +1439,15 @@
           <li>Or click <b>▲ Pick</b> under either card</li>
         </ul>
         <p>Each card is sorted via binary search — up to 4 comparisons per card. Cards already sorted stay in position.</p>
+      </section>
+      <section>
+        <h3>Comparing Lists</h3>
+        <p>Click <b>Compare ↔</b> to open the compare view (only lists that are fully ranked <em>and</em> locked are eligible). Use the <b>All Cards / Head to Head</b> toggle to switch between two modes:</p>
+        <ul>
+          <li><b>All Cards</b> — every card sorted by average rank across all eligible lists. Each row shows a horizontal bar with a colored dot per list at that card's position (#1 = best, left; #N = worst, right). Hover a dot to see the exact rank number.</li>
+          <li><b>Head to Head</b> — pick two lists from the dropdowns to compare their top 10 cards as card-image thumbnails side by side.</li>
+        </ul>
+        <p>Click <b>← Back</b> to return to your tier list. Loading any list also returns you automatically.</p>
       </section>
       <section>
         <h3>Other Controls</h3>
@@ -3035,18 +3065,61 @@
     return `cards/vc/${file}`;
   }
 
+  // Bucket system: ranks 1-15 get individual buckets, then pairs/groups up to 400+
+  const RANK_BUCKETS = [
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  // ranks 1-15 → buckets 0-14
+    2,2,                              // 16-17 → 15
+    2,2,                              // 18-19 → 16
+    2,2,                              // 20-21 → 17
+    2,2,                              // 22-23 → 18
+    2,2,                              // 24-25 → 19
+  ]; // (used only as documentation; actual logic is in rankToBucket)
+
+  function rankToBucket(rank) {
+    if (rank <= 15)  return rank - 1;   // buckets 0-14
+    if (rank <= 17)  return 15;
+    if (rank <= 19)  return 16;
+    if (rank <= 21)  return 17;
+    if (rank <= 23)  return 18;
+    if (rank <= 25)  return 19;
+    if (rank <= 30)  return 20;
+    if (rank <= 35)  return 21;
+    if (rank <= 40)  return 22;
+    if (rank <= 45)  return 23;
+    if (rank <= 50)  return 24;
+    if (rank <= 100) return 25;
+    if (rank <= 200) return 26;
+    if (rank <= 300) return 27;
+    if (rank <= 400) return 28;
+    return 29;
+  }
+
+  function listDistanceScore(rankingsA, rankingsB) {
+    const allCards = new Set([...Object.keys(rankingsA), ...Object.keys(rankingsB)]);
+    let total = 0;
+    for (const card of allCards) {
+      const bA = rankingsA[card] != null ? rankToBucket(rankingsA[card]) : 29;
+      const bB = rankingsB[card] != null ? rankToBucket(rankingsB[card]) : 29;
+      total += Math.abs(bA - bB);
+    }
+    return total;
+  }
+
   function renderH2HColumns() {
     const listA = listsCache[document.getElementById('h2h-sel-a').value];
     const listB = listsCache[document.getElementById('h2h-sel-b').value];
-    const cols = document.getElementById('h2h-columns');
-    if (!listA || !listB) { cols.innerHTML = ''; return; }
+    const cols   = document.getElementById('h2h-columns');
+    const metric = document.getElementById('h2h-metric');
+    if (!listA || !listB) { cols.innerHTML = ''; metric.innerHTML = ''; return; }
 
-    const top10 = list => {
+    const n = parseInt(document.getElementById('h2h-count').value, 10);
+
+    const topN = list => {
       const cards = [];
       for (const tier of ['S','A','B','C','F'])
         for (const card of (list.state?.tiers?.[tier] || [])) {
           cards.push(card);
-          if (cards.length === 10) return cards;
+          if (cards.length === n) return cards;
         }
       return cards;
     };
@@ -3063,7 +3136,23 @@
         </div>
       </div>`;
 
-    cols.innerHTML = renderCol(listA, top10(listA)) + renderCol(listB, top10(listB));
+    cols.innerHTML = renderCol(listA, topN(listA)) + renderCol(listB, topN(listB));
+
+    // Similarity metric
+    const rankA = computeRankings(listA);
+    const rankB = computeRankings(listB);
+    const dist = listDistanceScore(rankA, rankB);
+    const numCards = Object.keys(rankA).length;
+    const maxDist = numCards * 29;
+    const simPct = Math.round((1 - dist / maxDist) * 100);
+    // bg-position shifts the gradient: 0% = green end visible, 100% = red end visible
+    const bgPos = (100 - simPct) + '%';
+    metric.innerHTML = `
+      List distance: <b>${dist.toLocaleString()}</b>
+      &nbsp;·&nbsp;
+      Similarity: <span class="h2h-sim-bar-wrap"><span class="h2h-sim-bar-fill" style="width:${simPct}%;background-position:${bgPos} 0"></span></span>
+      <b>${simPct}%</b>
+      <span style="color:#3a3a3a">&nbsp;(max possible distance: ${maxDist.toLocaleString()})</span>`;
   }
 
   document.getElementById('compare-btn').addEventListener('click', showCompare);
@@ -3082,6 +3171,7 @@
   document.getElementById('compare-type-sel').addEventListener('change', renderCompare);
   document.getElementById('h2h-sel-a').addEventListener('change', renderH2HColumns);
   document.getElementById('h2h-sel-b').addEventListener('change', renderH2HColumns);
+  document.getElementById('h2h-count').addEventListener('change', renderH2HColumns);
 
 </script>
 </body>
