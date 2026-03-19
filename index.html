@@ -3110,6 +3110,22 @@
     return total;
   }
 
+  // Returns a tiny directional arrow showing how far the same card lands in the other list.
+  // → red  = other list ranks this card worse (higher number)
+  // ← green = other list ranks this card better (lower number)
+  // Size scales with bucket distance: barely-visible → kinda-small
+  function h2hArrow(thisRank, otherRank) {
+    if (otherRank == null) return '';
+    const bd = Math.abs(rankToBucket(thisRank) - rankToBucket(otherRank));
+    if (bd === 0) return '';
+    const worse = otherRank > thisRank;
+    const ch  = worse ? '→' : '←';
+    const col = worse ? '#cc5555' : '#4da870';
+    // Linear scale: bd=1 → 0.45em, bd≥14 → 0.85em
+    const em = (0.45 + Math.min(bd - 1, 13) / 13 * 0.4).toFixed(2);
+    return `<span style="font-size:${em}em;color:${col};margin-left:2px;line-height:1;vertical-align:middle">${ch}</span>`;
+  }
+
   function renderH2HColumns() {
     const listA = listsCache[document.getElementById('h2h-sel-a').value];
     const listB = listsCache[document.getElementById('h2h-sel-b').value];
@@ -3118,6 +3134,8 @@
     if (!listA || !listB) { cols.innerHTML = ''; metric.innerHTML = ''; return; }
 
     const n = parseInt(document.getElementById('h2h-count').value, 10);
+    const rankA = computeRankings(listA);
+    const rankB = computeRankings(listB);
 
     const topN = list => {
       const cards = [];
@@ -3129,23 +3147,21 @@
       return cards;
     };
 
-    const renderCol = (list, cards) => `
+    const renderCol = (list, cards, otherRankings) => `
       <div class="h2h-col">
         <div class="h2h-col-header">${escHtml(list.name)}${list.creator ? ` <span style="font-weight:400;color:#555">by ${escHtml(list.creator)}</span>` : ''}</div>
         <div class="h2h-grid">
           ${cards.map((c, i) => `
             <div class="h2h-card-item">
-              <div class="h2h-num">${i + 1}</div>
+              <div class="h2h-num">${i + 1}${h2hArrow(i + 1, otherRankings[c])}</div>
               <img class="h2h-card-img" src="${vcCardImgSrc(c)}" alt="${escHtml(c)}" title="${escHtml(c)}" loading="lazy" />
             </div>`).join('')}
         </div>
       </div>`;
 
-    cols.innerHTML = renderCol(listA, topN(listA)) + renderCol(listB, topN(listB));
+    cols.innerHTML = renderCol(listA, topN(listA), rankB) + renderCol(listB, topN(listB), rankA);
 
     // Similarity metric
-    const rankA = computeRankings(listA);
-    const rankB = computeRankings(listB);
     const dist = listDistanceScore(rankA, rankB);
     const numCards = Object.keys(rankA).length;
     // Anchor to expected random baseline: 100% = identical, 0% = two shuffled lists
