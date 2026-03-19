@@ -1073,6 +1073,78 @@
       }
     }
   </style>
+
+  <style>
+    /* ── Compare section ── */
+    #compare-toolbar {
+      padding: 8px 16px; background: #0e0e0e; border-bottom: 1px solid #2a2a2a;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    #compare-tabs { display: flex; gap: 4px; }
+    .compare-tab {
+      background: none; border: none; color: #666;
+      padding: 6px 14px; border-radius: 4px; cursor: pointer;
+      font-size: 0.9rem; transition: color 0.12s, background 0.12s;
+    }
+    .compare-tab:hover { color: #ccc; background: #1e1e1e; }
+    .compare-tab.active { color: #eee; background: #2a2a2a; }
+    #compare-type-sel {
+      background: #1c1c1c; color: #ccc; border: 1px solid #444;
+      padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;
+      margin-left: auto;
+    }
+    .compare-view { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* Legend */
+    #cmp-legend {
+      padding: 8px 16px; display: flex; flex-wrap: wrap;
+      gap: 10px; border-bottom: 1px solid #222; flex-shrink: 0; font-size: 0.78rem;
+    }
+    .cmp-legend-item { display: flex; align-items: center; gap: 5px; color: #aaa; }
+    .cmp-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* All-cards ranking rows */
+    #cmp-cards { flex: 1; overflow-y: auto; padding: 8px 16px; }
+    .cmp-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 3px 0; border-bottom: 1px solid #1e1e1e; font-size: 0.82rem;
+    }
+    .cmp-rank-avg { width: 36px; text-align: right; color: #555; flex-shrink: 0; font-size: 0.75rem; }
+    .cmp-name { width: 180px; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
+    .cmp-bar-wrap {
+      flex: 1; height: 18px; background: #1e1e1e; border-radius: 3px;
+      position: relative; min-width: 120px;
+    }
+    .cmp-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      position: absolute; top: 50%; transform: translate(-50%, -50%); cursor: default;
+    }
+
+    /* Head to Head */
+    #h2h-controls {
+      padding: 10px 16px; display: flex; align-items: center;
+      gap: 12px; border-bottom: 1px solid #222; flex-shrink: 0;
+    }
+    #h2h-controls select {
+      background: #1c1c1c; color: #ccc; border: 1px solid #444;
+      padding: 6px 10px; border-radius: 4px; font-size: 0.85rem; flex: 1;
+    }
+    #h2h-vs { color: #555; font-size: 0.85rem; flex-shrink: 0; }
+    #h2h-columns { flex: 1; overflow-y: auto; display: flex; }
+    .h2h-col { flex: 1; padding: 12px 16px; border-right: 1px solid #222; }
+    .h2h-col:last-child { border-right: none; }
+    .h2h-col-header {
+      font-size: 0.8rem; font-weight: 600; color: #888;
+      margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #2a2a2a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .h2h-card-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 0; border-bottom: 1px solid #1a1a1a; font-size: 0.82rem;
+    }
+    .h2h-num { width: 20px; color: #555; font-size: 0.75rem; flex-shrink: 0; }
+    .h2h-card-name { color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
 </head>
 <body>
 
@@ -1127,6 +1199,10 @@
     <div id="load-dropdown"></div>
   </div>
 
+  <div class="lb-btn-wrap">
+    <button class="lb-btn" id="compare-btn">Compare ↔</button>
+  </div>
+
   <div id="lb-divider"></div>
   <div id="lb-status">No list selected</div>
   <div id="lb-saved">✓ Saved</div>
@@ -1167,6 +1243,35 @@
     <div id="lo-spinner"></div>
     <div id="lo-text">Loading cards…</div>
   </div>
+</div>
+
+<div id="compare-section" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+
+  <div id="compare-toolbar">
+    <button id="compare-back-btn" class="lb-btn">← Back</button>
+    <div id="compare-tabs">
+      <button class="compare-tab active" data-tab="rankings">All Cards</button>
+      <button class="compare-tab" data-tab="h2h">Head to Head</button>
+    </div>
+    <select id="compare-type-sel"></select>
+  </div>
+
+  <!-- All Cards view -->
+  <div id="compare-rankings" class="compare-view">
+    <div id="cmp-legend"></div>
+    <div id="cmp-cards"></div>
+  </div>
+
+  <!-- Head to Head view -->
+  <div id="compare-h2h" class="compare-view" style="display:none;">
+    <div id="h2h-controls">
+      <select id="h2h-sel-a"></select>
+      <span id="h2h-vs">vs</span>
+      <select id="h2h-sel-b"></select>
+    </div>
+    <div id="h2h-columns"></div>
+  </div>
+
 </div>
 
 <img id="drag-ghost" alt="" />
@@ -2764,6 +2869,151 @@
     const hasVisible = [...pool.querySelectorAll('.img-card')].some(c => c.style.display !== 'none');
     placeholder.style.display = hasVisible ? 'none' : '';
   }
+
+  // ── Compare section ───────────────────────────────────────────
+
+  const CMP_COLORS = ['#f08080','#80aaff','#7ddd7d','#ffcc77','#cc88ff','#70eecc','#ff88bb','#bbee77'];
+
+  function computeRankings(list) {
+    const out = {};
+    let rank = 1;
+    for (const tier of ['S','A','B','C','F'])
+      for (const card of (list.state?.tiers?.[tier] || []))
+        out[card] = rank++;
+    return out;
+  }
+
+  function showCompare() {
+    document.getElementById('main').style.display = 'none';
+    document.getElementById('tier-actions').style.display = 'none';
+    document.getElementById('compare-section').style.display = 'flex';
+    populateCompareTypeSelector();
+    renderCompare();
+  }
+
+  function hideCompare() {
+    document.getElementById('compare-section').style.display = 'none';
+    document.getElementById('main').style.display = '';
+    document.getElementById('tier-actions').style.display = '';
+  }
+
+  function populateCompareTypeSelector() {
+    const sel = document.getElementById('compare-type-sel');
+    const types = [...new Set(Object.values(listsCache).map(l => l.type).filter(Boolean))];
+    sel.innerHTML = types.map(t =>
+      `<option value="${t}">${t === 'vintage_cube' ? 'Vintage Cube' : 'Agricola'}</option>`
+    ).join('');
+    const active = currentList?.type;
+    if (active && types.includes(active)) sel.value = active;
+  }
+
+  function renderCompare() {
+    const tab = document.querySelector('.compare-tab.active')?.dataset.tab;
+    if (tab === 'rankings') renderRankings();
+    else renderH2H();
+  }
+
+  function renderRankings() {
+    const type = document.getElementById('compare-type-sel').value;
+    const lists = Object.values(listsCache).filter(l => l.type === type && l.state?.tiers);
+    const legend = document.getElementById('cmp-legend');
+    const container = document.getElementById('cmp-cards');
+
+    if (!lists.length) {
+      legend.innerHTML = '';
+      container.innerHTML = '<div style="padding:20px;color:#555">No ranked lists of this type yet.</div>';
+      return;
+    }
+
+    const listMeta = lists.map((l, i) => ({ list: l, color: CMP_COLORS[i % CMP_COLORS.length] }));
+    legend.innerHTML = listMeta.map(m =>
+      `<div class="cmp-legend-item"><div class="cmp-legend-dot" style="background:${m.color}"></div><span>${escHtml(m.list.name)}</span></div>`
+    ).join('');
+
+    const allRankings = listMeta.map(m => ({ ...m, ranks: computeRankings(m.list) }));
+    const allCards = [...new Set(allRankings.flatMap(m => Object.keys(m.ranks)))];
+    const N = Math.max(...allRankings.map(m => Object.keys(m.ranks).length));
+
+    const cardData = allCards.map(name => {
+      const pts = allRankings.map(m => m.ranks[name] ?? null);
+      const ranked = pts.filter(p => p != null);
+      const avg = ranked.length ? ranked.reduce((a, b) => a + b, 0) / ranked.length : Infinity;
+      return { name, avg, pts };
+    });
+    cardData.sort((a, b) => a.avg - b.avg);
+
+    container.innerHTML = cardData.map(card => {
+      const dots = allRankings.map((m, i) => {
+        const r = card.pts[i];
+        if (r == null) return '';
+        const pct = N > 1 ? ((r - 1) / (N - 1)) * 100 : 50;
+        return `<div class="cmp-dot" style="left:${pct.toFixed(1)}%;background:${m.color}" title="${escHtml(m.list.name)}: #${r}"></div>`;
+      }).join('');
+      const avgDisplay = card.avg === Infinity ? '—' : card.avg.toFixed(1);
+      return `<div class="cmp-row">
+        <div class="cmp-rank-avg">${avgDisplay}</div>
+        <div class="cmp-name" title="${escHtml(card.name)}">${escHtml(card.name)}</div>
+        <div class="cmp-bar-wrap">${dots}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderH2H() {
+    const type = document.getElementById('compare-type-sel').value;
+    const lists = Object.values(listsCache).filter(l => l.type === type && l.state?.tiers);
+    const selA = document.getElementById('h2h-sel-a');
+    const selB = document.getElementById('h2h-sel-b');
+    const prevA = selA.value, prevB = selB.value;
+    const opts = lists.map(l => `<option value="${l.id}">${escHtml(l.name)}</option>`).join('');
+    selA.innerHTML = opts; selB.innerHTML = opts;
+    if (lists.find(l => l.id === prevA)) selA.value = prevA;
+    if (lists.find(l => l.id === prevB)) selB.value = prevB;
+    else if (lists.length > 1) selB.value = lists[1].id;
+    renderH2HColumns();
+  }
+
+  function renderH2HColumns() {
+    const listA = listsCache[document.getElementById('h2h-sel-a').value];
+    const listB = listsCache[document.getElementById('h2h-sel-b').value];
+    const cols = document.getElementById('h2h-columns');
+    if (!listA || !listB) { cols.innerHTML = ''; return; }
+
+    const top10 = list => {
+      const cards = [];
+      for (const tier of ['S','A','B','C','F'])
+        for (const card of (list.state?.tiers?.[tier] || [])) {
+          cards.push(card);
+          if (cards.length === 10) return cards;
+        }
+      return cards;
+    };
+
+    const renderCol = (list, cards) => `
+      <div class="h2h-col">
+        <div class="h2h-col-header">${escHtml(list.name)}${list.creator ? ` <span style="font-weight:400;color:#555">by ${escHtml(list.creator)}</span>` : ''}</div>
+        ${cards.map((c, i) => `<div class="h2h-card-row"><div class="h2h-num">${i + 1}</div><div class="h2h-card-name" title="${escHtml(c)}">${escHtml(c)}</div></div>`).join('')}
+      </div>`;
+
+    cols.innerHTML = renderCol(listA, top10(listA)) + renderCol(listB, top10(listB));
+  }
+
+  document.getElementById('compare-btn').addEventListener('click', showCompare);
+  document.getElementById('compare-back-btn').addEventListener('click', hideCompare);
+
+  document.querySelectorAll('.compare-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.compare-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('compare-rankings').style.display = btn.dataset.tab === 'rankings' ? 'flex' : 'none';
+      document.getElementById('compare-h2h').style.display     = btn.dataset.tab === 'h2h'      ? 'flex' : 'none';
+      renderCompare();
+    });
+  });
+
+  document.getElementById('compare-type-sel').addEventListener('change', renderCompare);
+  document.getElementById('h2h-sel-a').addEventListener('change', renderH2HColumns);
+  document.getElementById('h2h-sel-b').addEventListener('change', renderH2HColumns);
+
 </script>
 </body>
 </html>
