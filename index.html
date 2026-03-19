@@ -1125,10 +1125,29 @@
         #1e1e1e 72%,
         rgba(140,60,60,0.18) 100%);
     }
+    .cmp-bar-wrap { overflow: visible; }
     .cmp-dot {
       width: 8px; height: 8px; border-radius: 50%;
-      position: absolute; top: 50%; transform: translate(-50%, -50%); cursor: default;
+      position: absolute; top: 50%; transform: translate(-50%, -50%);
+      cursor: default; z-index: 1;
     }
+    .cmp-dot::after {
+      content: attr(data-rank);
+      position: absolute;
+      bottom: calc(100% + 3px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18,18,18,0.95);
+      color: #ddd;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.65rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+    .cmp-dot:hover::after { opacity: 1; }
 
     /* Head to Head */
     #h2h-controls {
@@ -1149,11 +1168,14 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .h2h-card-row {
-      display: flex; align-items: center; gap: 8px;
-      padding: 4px 0; border-bottom: 1px solid #1a1a1a; font-size: 0.82rem;
+      display: flex; align-items: flex-start; gap: 6px;
+      padding: 5px 0; border-bottom: 1px solid #1a1a1a;
     }
-    .h2h-num { width: 20px; color: #555; font-size: 0.75rem; flex-shrink: 0; }
-    .h2h-card-name { color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .h2h-num { width: 18px; color: #555; font-size: 0.72rem; flex-shrink: 0; padding-top: 5px; }
+    .h2h-card-img {
+      width: 100%; max-width: 160px; border-radius: 6px; display: block;
+      flex: 1; min-width: 0;
+    }
   </style>
 </head>
 <body>
@@ -1819,9 +1841,10 @@
   });
 
   // ── Card loading per list type ─────────────────────────────────
+  let vcData = {};   // module-level so compare views can resolve card image URLs
+
   async function loadVintageCubeCards() {
     // Load pre-downloaded metadata; fall back to Scryfall on individual cards if absent
-    let vcData = {};
     try {
       const resp = await fetch('vc_cards.json');
       if (resp.ok) vcData = await resp.json();
@@ -2971,7 +2994,7 @@
         const r = card.pts[i];
         if (r == null) return '';
         const pct = N > 1 ? ((r - 1) / (N - 1)) * 100 : 50;
-        return `<div class="cmp-dot" style="left:${pct.toFixed(1)}%;background:${m.color}" title="${escHtml(m.list.name)}: #${r}"></div>`;
+        return `<div class="cmp-dot" data-rank="${r}" style="left:${pct.toFixed(1)}%;background:${m.color}" title="${escHtml(m.list.name)}: #${r}"></div>`;
       }).join('');
       const avgDisplay = card.avg === Infinity ? '—' : card.avg.toFixed(1);
       return `<div class="cmp-row">
@@ -3000,6 +3023,15 @@
     renderH2HColumns();
   }
 
+  function vcCardImgSrc(name) {
+    // Prefer the already-loaded vcData metadata; derive filename the same way download_vc_cards.js does
+    const meta = vcData[name];
+    if (meta) return `cards/vc/${meta.file}`;
+    const firstFace = name.split(' // ')[0].trim();
+    const file = firstFace.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.jpg';
+    return `cards/vc/${file}`;
+  }
+
   function renderH2HColumns() {
     const listA = listsCache[document.getElementById('h2h-sel-a').value];
     const listB = listsCache[document.getElementById('h2h-sel-b').value];
@@ -3019,7 +3051,11 @@
     const renderCol = (list, cards) => `
       <div class="h2h-col">
         <div class="h2h-col-header">${escHtml(list.name)}${list.creator ? ` <span style="font-weight:400;color:#555">by ${escHtml(list.creator)}</span>` : ''}</div>
-        ${cards.map((c, i) => `<div class="h2h-card-row"><div class="h2h-num">${i + 1}</div><div class="h2h-card-name" title="${escHtml(c)}">${escHtml(c)}</div></div>`).join('')}
+        ${cards.map((c, i) => `
+          <div class="h2h-card-row">
+            <div class="h2h-num">${i + 1}</div>
+            <img class="h2h-card-img" src="${vcCardImgSrc(c)}" alt="${escHtml(c)}" title="${escHtml(c)}" loading="lazy" />
+          </div>`).join('')}
       </div>`;
 
     cols.innerHTML = renderCol(listA, top10(listA)) + renderCol(listB, top10(listB));
