@@ -90,6 +90,14 @@
     }
     #lb-saved.visible { opacity: 1; }
 
+    #logout-btn {
+      margin-left: 8px; padding: 4px 10px; font-size: 0.73rem;
+      background: none; border: 1px solid #333; color: #555;
+      border-radius: 4px; cursor: pointer; white-space: nowrap;
+      flex-shrink: 0; transition: color 0.12s, border-color 0.12s;
+    }
+    #logout-btn:hover { color: #aaa; border-color: #555; }
+
     /* ── Button wrapper for popovers ── */
     .lb-btn-wrap { position: relative; }
 
@@ -1308,6 +1316,7 @@
   <div id="lb-divider"></div>
   <div id="lb-status">No list selected</div>
   <div id="lb-saved">✓ Saved</div>
+  <button id="logout-btn" title="Switch user">⎋ Logout</button>
 </div>
 
 <div id="tier-actions">
@@ -1350,7 +1359,6 @@
 <div id="compare-section" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
 
   <div id="compare-toolbar">
-    <button id="compare-back-btn" class="lb-btn">← Back</button>
     <div id="compare-tabs">
       <button class="compare-tab active" data-tab="rankings">Compare Cards</button>
       <button class="compare-tab" data-tab="h2h">Head to Head</button>
@@ -1893,10 +1901,18 @@
   }
 
   // ── Lock / Unlock ─────────────────────────────────────────────
+  function isListEditable(list) {
+    if (list.locked) return false;
+    if (!list.creator) return true;           // unowned — anyone can edit
+    return list.creator === getCurrentUser();
+  }
+
   function updateLockBtn() {
     const id = getActiveListId();
     const list = id && listsCache[id];
     if (!list) { lockBtn.style.display = 'none'; return; }
+    // Only the list owner can lock/unlock
+    if (list.creator && list.creator !== getCurrentUser()) { lockBtn.style.display = 'none'; return; }
     lockBtn.style.display = '';
     lockBtn.textContent = list.locked ? '🔓 Unlock List' : '🔒 Lock List';
     lockBtn.classList.toggle('locked', !!list.locked);
@@ -1905,7 +1921,7 @@
   function updateLockedState() {
     const id = getActiveListId();
     const list = id && listsCache[id];
-    const locked = !!(list && list.locked);
+    const locked = list ? !isListEditable(list) : false;
     window.tierLocked = locked;
     document.querySelectorAll('.tier-sort-btn, .sort-btn, .vc-sort-btn').forEach(b => {
       b.disabled = locked; b.classList.toggle('btn-locked', locked);
@@ -2117,7 +2133,7 @@
     openDeleteModal(id);
   }
 
-  let loadTypeFilter = 'agricola';
+  let loadTypeFilter = 'vintage_cube';
 
   function buildLoadDropdown() {
     const lists    = getLists();
@@ -2182,6 +2198,7 @@
   newListBtn.addEventListener('click', e => {
     e.stopPropagation();
     loadDropdown.classList.remove('open');
+    nlpType.value = 'vintage_cube';
     newListPop.classList.toggle('open');
     if (newListPop.classList.contains('open')) nlpName.focus();
   });
@@ -3086,6 +3103,12 @@
   }
 
   function showCompare() {
+    // Clear the active list — compare is a read-only view, not tied to any loaded list
+    setActiveListId(null);
+    setTierAreaVisible(false);
+    updateListBar();
+    updateLockBtn();
+    updateLockedState();
     document.getElementById('main').style.display = 'none';
     document.getElementById('tier-actions').style.display = 'none';
     document.getElementById('compare-section').style.display = 'flex';
@@ -3113,13 +3136,13 @@
 
   function populateCompareTypeSelector() {
     const sel = document.getElementById('compare-type-sel');
-    const types = [...new Set(Object.values(listsCache).map(l => l.type).filter(Boolean))];
+    const types = [...new Set(Object.values(listsCache).map(l => l.type).filter(Boolean))]
+      .sort(a => a === 'vintage_cube' ? -1 : 1);
     sel.innerHTML = types.map(t =>
       `<option value="${t}">${t === 'vintage_cube' ? 'Vintage Cube' : 'Agricola'}</option>`
     ).join('');
-    const activeId = getActiveListId();
-    const active = activeId && listsCache[activeId];
-    if (active?.type && types.includes(active.type)) sel.value = active.type;
+    // Always default to vintage_cube — compare opens fresh with no active list
+    if (types.includes('vintage_cube')) sel.value = 'vintage_cube';
   }
 
   function renderCompare() {
@@ -3332,7 +3355,17 @@
   }
 
   document.getElementById('compare-btn').addEventListener('click', showCompare);
-  document.getElementById('compare-back-btn').addEventListener('click', hideCompare);
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    setCurrentUser('');
+    setActiveListId(null);
+    hideCompare();
+    setTierAreaVisible(false);
+    updateListBar();
+    updateLockBtn();
+    updateLockedState();
+    openUserModal();
+  });
 
   document.querySelectorAll('.compare-tab').forEach(btn => {
     btn.addEventListener('click', () => {
