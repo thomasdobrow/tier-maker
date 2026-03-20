@@ -852,6 +852,10 @@
     #normalize-table td.norm-gain  { color: #7dcc7d; }
     #normalize-table td.norm-loss  { color: #e08080; }
     #normalize-table td.norm-same  { color: #888; }
+    #normalize-warning {
+      font-size: 0.77rem; color: #998866; margin: 10px 0 4px;
+      line-height: 1.45; border-left: 2px solid #665533; padding-left: 8px;
+    }
     #normalize-actions {
       display: flex;
       justify-content: flex-end;
@@ -1112,6 +1116,17 @@
       display: flex; align-items: center; gap: 10px;
       padding: 3px 0; border-bottom: 1px solid #1e1e1e; font-size: 0.82rem;
     }
+    #cmp-color-filter {
+      padding: 6px 16px; display: flex; flex-wrap: wrap; gap: 5px;
+      border-bottom: 1px solid #222; flex-shrink: 0;
+    }
+    .cmp-color-btn {
+      background: #1c1c1c; color: #777; border: 1px solid #333;
+      border-radius: 4px; padding: 3px 9px; font-size: 0.75rem;
+      cursor: pointer; transition: background 0.1s, color 0.1s;
+    }
+    .cmp-color-btn:hover { background: #2a2a2a; color: #bbb; }
+    .cmp-color-btn.active { background: #333; color: #eee; border-color: #666; }
     .cmp-rank-avg { width: 36px; text-align: right; color: #555; flex-shrink: 0; font-size: 0.75rem; }
     .cmp-name { width: 180px; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
     .cmp-bar-outer { display: flex; align-items: center; flex: 1; gap: 5px; min-width: 0; }
@@ -1300,14 +1315,25 @@
   <div id="compare-toolbar">
     <button id="compare-back-btn" class="lb-btn">← Back</button>
     <div id="compare-tabs">
-      <button class="compare-tab active" data-tab="rankings">All Cards</button>
+      <button class="compare-tab active" data-tab="rankings">Compare Cards</button>
       <button class="compare-tab" data-tab="h2h">Head to Head</button>
     </div>
     <select id="compare-type-sel"></select>
   </div>
 
-  <!-- All Cards view -->
+  <!-- Compare Cards view -->
   <div id="compare-rankings" class="compare-view">
+    <div id="cmp-color-filter">
+      <button class="cmp-color-btn active" data-color="">All</button>
+      <button class="cmp-color-btn" data-color="W">W</button>
+      <button class="cmp-color-btn" data-color="U">U</button>
+      <button class="cmp-color-btn" data-color="B">B</button>
+      <button class="cmp-color-btn" data-color="R">R</button>
+      <button class="cmp-color-btn" data-color="G">G</button>
+      <button class="cmp-color-btn" data-color="colorless">Colorless</button>
+      <button class="cmp-color-btn" data-color="multi">Multi</button>
+      <button class="cmp-color-btn" data-color="land">Lands</button>
+    </div>
     <div id="cmp-legend"></div>
     <div id="cmp-cards"></div>
   </div>
@@ -1345,6 +1371,7 @@
       <thead><tr><th>Tier</th><th>Before</th><th></th><th>After</th></tr></thead>
       <tbody id="normalize-tbody"></tbody>
     </table>
+    <p id="normalize-warning">⚠ Normalization fills tiers by position, not value — cards shifted into or out of a tier are simply the ones at the boundary, not necessarily the best or worst cards across adjacent tiers.</p>
     <div id="normalize-actions">
       <button id="normalize-cancel">Cancel</button>
       <button id="normalize-apply">Apply</button>
@@ -2212,7 +2239,7 @@
     // Flash the chosen side green
     const choiceEl = document.getElementById(side === 'left' ? 'sort-choice-left' : 'sort-choice-right');
     choiceEl.classList.add('sort-chosen');
-    setTimeout(() => choiceEl.classList.remove('sort-chosen'), 550);
+    setTimeout(() => choiceEl.classList.remove('sort-chosen'), 440);
 
     const mid = sortWizardState.currentMid;
     if (side === 'left') {
@@ -2234,7 +2261,7 @@
         comparison.classList.remove('sort-fading');
         sortPickLocked = false;
       }));
-    }, 500);
+    }, 400);
   }
 
   function placeCurrentCard() {
@@ -2282,7 +2309,7 @@
   document.getElementById('sort-choice-right').addEventListener('click', () => pickSortCard('right'));
   document.getElementById('sort-cancel').addEventListener('click', closeSortWizard);
   document.getElementById('sort-resort-all').addEventListener('click', resortAll);
-  document.getElementById('sort-modal').addEventListener('click', closeSortWizard);
+  document.getElementById('sort-modal').addEventListener('dblclick', closeSortWizard);
 
   // ── How-to modal ──────────────────────────────────────────────
   const howtoModal = document.getElementById('howto-modal');
@@ -2674,7 +2701,7 @@
     scheduleHighlightRemoval();
   }
 
-  zoomOverlay.addEventListener('click', closeZoom);
+  zoomOverlay.addEventListener('dblclick', closeZoom);
   document.addEventListener('keydown', e => {
     // Sort wizard takes priority
     if (sortWizardState && document.getElementById('sort-modal').classList.contains('open')) {
@@ -2993,11 +3020,26 @@
     else renderH2H();
   }
 
+  function cardColorCategory(name) {
+    const meta = vcData[name];
+    if (!meta) return '';
+    const colors = meta.colors || [];
+    const type   = meta.typeLine || '';
+    if (type.includes('Land'))  return 'land';
+    if (colors.length === 0)    return 'colorless';
+    if (colors.length > 1)      return 'multi';
+    return colors[0]; // 'W' | 'U' | 'B' | 'R' | 'G'
+  }
+
   function renderRankings() {
     const type = document.getElementById('compare-type-sel').value;
     const lists = Object.values(listsCache).filter(l => l.type === type && isComparable(l));
     const legend = document.getElementById('cmp-legend');
     const container = document.getElementById('cmp-cards');
+
+    // Color filter bar: only meaningful for vintage_cube
+    const filterBar = document.getElementById('cmp-color-filter');
+    filterBar.style.display = type === 'vintage_cube' ? '' : 'none';
 
     if (!lists.length) {
       legend.innerHTML = '';
@@ -3011,7 +3053,11 @@
     ).join('');
 
     const allRankings = listMeta.map(m => ({ ...m, ranks: computeRankings(m.list) }));
-    const allCards = [...new Set(allRankings.flatMap(m => Object.keys(m.ranks)))];
+    const allCardsUnfiltered = [...new Set(allRankings.flatMap(m => Object.keys(m.ranks)))];
+    const activeColor = document.querySelector('.cmp-color-btn.active')?.dataset.color ?? '';
+    const allCards = activeColor
+      ? allCardsUnfiltered.filter(name => cardColorCategory(name) === activeColor)
+      : allCardsUnfiltered;
     const N = Math.max(...allRankings.map(m => Object.keys(m.ranks).length));
 
     const cardData = allCards.map(name => {
@@ -3194,6 +3240,14 @@
   document.getElementById('h2h-sel-a').addEventListener('change', renderH2HColumns);
   document.getElementById('h2h-sel-b').addEventListener('change', renderH2HColumns);
   document.getElementById('h2h-count').addEventListener('change', renderH2HColumns);
+
+  document.querySelectorAll('.cmp-color-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cmp-color-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRankings();
+    });
+  });
 
 </script>
 </body>
