@@ -872,6 +872,47 @@
     #normalize-cancel:hover { background: #333; }
     #normalize-apply:hover  { background: #2a4a2a; }
 
+    /* ── User login modal ── */
+    #user-modal {
+      display: none; position: fixed; inset: 0; z-index: 13000;
+      background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+    }
+    #user-modal.open { display: flex; }
+    #user-dialog {
+      background: #1c1c1c; border: 1px solid #444; border-radius: 8px;
+      padding: 24px 28px; width: min(340px, 92vw);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+    }
+    #user-title {
+      font-size: 1.05rem; font-weight: 600; color: #eee; margin-bottom: 18px;
+    }
+    .user-label {
+      font-size: 0.78rem; color: #666; margin-bottom: 4px; display: block;
+    }
+    #user-existing-section, #user-new-section {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    #user-select {
+      background: #161616; color: #ccc; border: 1px solid #444;
+      padding: 7px 10px; border-radius: 4px; font-size: 0.88rem; width: 100%;
+    }
+    #user-continue-btn, #user-new-btn {
+      background: #1e3a1e; color: #7dcc7d; border: 1px solid #3a6a3a;
+      padding: 7px 18px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
+      align-self: flex-end;
+    }
+    #user-continue-btn:hover, #user-new-btn:hover { background: #2a4a2a; }
+    #user-divider {
+      text-align: center; color: #444; font-size: 0.78rem; padding: 12px 0;
+    }
+    #user-new-row { display: flex; gap: 8px; }
+    #user-new-input {
+      flex: 1; background: #161616; color: #ccc; border: 1px solid #444;
+      padding: 7px 10px; border-radius: 4px; font-size: 0.88rem; outline: none;
+    }
+    #user-new-input:focus { border-color: #666; }
+    #user-new-input.err   { border-color: #c05050; }
+
     /* ── Tier sort button ── */
     .tier-sort-btn {
       background: rgba(0,0,0,0.25);
@@ -1244,13 +1285,9 @@
           <option value="agricola">Agricola</option>
         </select>
       </div>
-      <div class="nlp-row">
+      <div class="nlp-row" style="margin-bottom:0">
         <label for="nlp-name">List Name</label>
         <input id="nlp-name" class="nlp-input" type="text" placeholder="e.g. My Draft Rankings" />
-      </div>
-      <div class="nlp-row" style="margin-bottom:0">
-        <label for="nlp-creator">Creator</label>
-        <input id="nlp-creator" class="nlp-input" type="text" placeholder="Your name (optional)" />
       </div>
       <div class="nlp-actions">
         <button id="nlp-cancel">Cancel</button>
@@ -1362,6 +1399,25 @@
   <img id="zoom-img" alt="" />
   <div id="zoom-tier-btns"></div>
   <div id="zoom-label"></div>
+</div>
+
+<div id="user-modal">
+  <div id="user-dialog" onclick="event.stopPropagation()">
+    <div id="user-title">Who are you?</div>
+    <div id="user-existing-section">
+      <label class="user-label">Select existing user</label>
+      <select id="user-select"></select>
+      <button id="user-continue-btn">Continue →</button>
+    </div>
+    <div id="user-divider">— or —</div>
+    <div id="user-new-section">
+      <label class="user-label">Create new user</label>
+      <div id="user-new-row">
+        <input id="user-new-input" type="text" placeholder="Your name" autocomplete="off" />
+        <button id="user-new-btn">Create</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="normalize-modal">
@@ -1686,6 +1742,10 @@
   // Active list ID stays in localStorage (it's just UI state, not data).
   // All list data lives in lists.json via the local server API.
   const ACTIVE_KEY = 'agricola_active_list';
+  const USER_KEY   = 'tier_maker_user';
+  function getCurrentUser()  { return localStorage.getItem(USER_KEY) || ''; }
+  function setCurrentUser(u) { if (u) localStorage.setItem(USER_KEY, u); else localStorage.removeItem(USER_KEY); }
+  function listLabel(list)   { return list.creator ? `${list.name} (${list.creator})` : list.name; }
 
   let listsCache = {};            // in-memory source of truth
   function getLists() { return listsCache; }
@@ -1791,7 +1851,6 @@
   const loadBtn      = document.getElementById('load-btn');
   const loadDropdown = document.getElementById('load-dropdown');
   const nlpName      = document.getElementById('nlp-name');
-  const nlpCreator   = document.getElementById('nlp-creator');
   const nlpType      = document.getElementById('nlp-type');
   const lockBtn      = document.getElementById('lock-btn');
 
@@ -1813,8 +1872,7 @@
       lbStatus.innerHTML = 'No list selected — <em>create or load a list to save progress</em>';
       return;
     }
-    const creator = list.creator ? ` <em>by ${escHtml(list.creator)}</em>` : '';
-    lbStatus.innerHTML = `<strong>${escHtml(list.name)}</strong>${creator}`;
+    lbStatus.innerHTML = `<strong>${escHtml(listLabel(list))}</strong>`;
   }
 
   let saveFlashTimer = null;
@@ -2097,13 +2155,12 @@
 
       const info = document.createElement('div');
       info.className = 'ld-info';
-      const datePart    = new Date(list.updatedAt).toLocaleDateString();
-      const creatorPart = list.creator ? ` · by ${escHtml(list.creator)}` : '';
-      const tierCount   = Object.values(list.state?.tiers || {}).reduce((s, a) => s + a.length, 0);
-      const lockIcon    = list.locked ? ' 🔒' : '';
+      const datePart  = new Date(list.updatedAt).toLocaleDateString();
+      const tierCount = Object.values(list.state?.tiers || {}).reduce((s, a) => s + a.length, 0);
+      const lockIcon  = list.locked ? ' 🔒' : '';
       info.innerHTML = `
-        <div class="ld-name">${escHtml(list.name)}${lockIcon}</div>
-        <div class="ld-meta">${datePart}${creatorPart} · ${tierCount} card${tierCount !== 1 ? 's' : ''} ranked</div>`;
+        <div class="ld-name">${escHtml(listLabel(list))}${lockIcon}</div>
+        <div class="ld-meta">${datePart} · ${tierCount} card${tierCount !== 1 ? 's' : ''} ranked</div>`;
 
       const del = document.createElement('button');
       del.className = 'ld-delete';
@@ -2136,13 +2193,12 @@
   document.getElementById('nlp-create').addEventListener('click', () => {
     const name = nlpName.value.trim();
     if (!name) { nlpName.classList.add('err'); nlpName.focus(); return; }
-    createNewList(name, nlpCreator.value.trim(), nlpType.value);
+    createNewList(name, getCurrentUser(), nlpType.value);
     nlpName.value = '';
-    nlpCreator.value = '';
     newListPop.classList.remove('open');
   });
 
-  [nlpName, nlpCreator].forEach(inp => {
+  [nlpName].forEach(inp => {
     inp.addEventListener('input', () => inp.classList.remove('err'));
     inp.addEventListener('keydown', e => {
       if (e.key === 'Enter')  document.getElementById('nlp-create').click();
@@ -2418,6 +2474,52 @@
     } catch (e) {}
   }
 
+  // ── User modal ─────────────────────────────────────────────────
+  function openUserModal() {
+    const users = [...new Set(
+      Object.values(listsCache).map(l => l.creator).filter(Boolean)
+    )].sort();
+    const sel = document.getElementById('user-select');
+    const existingSection = document.getElementById('user-existing-section');
+    const divider = document.getElementById('user-divider');
+    if (users.length) {
+      sel.innerHTML = users.map(u => `<option value="${escHtml(u)}">${escHtml(u)}</option>`).join('');
+      existingSection.style.display = '';
+      divider.style.display = '';
+    } else {
+      existingSection.style.display = 'none';
+      divider.style.display = 'none';
+    }
+    document.getElementById('user-modal').classList.add('open');
+    if (!users.length) document.getElementById('user-new-input').focus();
+  }
+
+  function closeUserModal(name) {
+    setCurrentUser(name);
+    document.getElementById('user-modal').classList.remove('open');
+  }
+
+  document.getElementById('user-continue-btn').addEventListener('click', () => {
+    const val = document.getElementById('user-select').value.trim();
+    if (val) closeUserModal(val);
+  });
+
+  document.getElementById('user-new-btn').addEventListener('click', () => {
+    const input = document.getElementById('user-new-input');
+    const val = input.value.trim();
+    if (!val) { input.classList.add('err'); input.focus(); return; }
+    input.classList.remove('err');
+    closeUserModal(val);
+  });
+
+  document.getElementById('user-new-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('user-new-btn').click();
+  });
+
+  document.getElementById('user-new-input').addEventListener('input', e => {
+    e.target.classList.remove('err');
+  });
+
   // Load lists from server; always start with no active list
   (async () => {
     await initPersistence();
@@ -2431,6 +2533,8 @@
     if (Object.keys(vcData).length === 0) {
       fetch('vc_cards.json').then(r => r.ok ? r.json() : null).then(d => { if (d) vcData = d; }).catch(() => {});
     }
+    // Show user selection if no user stored yet
+    if (!getCurrentUser()) openUserModal();
   })();
 
   document.querySelectorAll('.deck-btn').forEach(btn => {
@@ -3053,7 +3157,7 @@
 
     const listMeta = lists.map((l, i) => ({ list: l, color: CMP_COLORS[i % CMP_COLORS.length] }));
     legend.innerHTML = listMeta.map(m =>
-      `<div class="cmp-legend-item"><div class="cmp-legend-dot" style="background:${m.color}"></div><span>${escHtml(m.list.name)}</span></div>`
+      `<div class="cmp-legend-item"><div class="cmp-legend-dot" style="background:${m.color}"></div><span>${escHtml(listLabel(m.list))}</span></div>`
     ).join('');
 
     const allRankings = listMeta.map(m => ({ ...m, ranks: computeRankings(m.list) }));
@@ -3200,7 +3304,7 @@
 
     const renderCol = (list, cards, otherRankings) => `
       <div class="h2h-col">
-        <div class="h2h-col-header">${escHtml(list.name)}${list.creator ? ` <span style="font-weight:400;color:#555">by ${escHtml(list.creator)}</span>` : ''}</div>
+        <div class="h2h-col-header">${escHtml(listLabel(list))}</div>
         <div class="h2h-grid">
           ${cards.map((c, i) => `
             <div class="h2h-card-item">
