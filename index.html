@@ -2427,6 +2427,10 @@
     updateLockBtn();
     updateLockedState();
     deckFilters.style.display = 'none';
+    // Pre-load vc metadata so color filters work in compare view without opening a list first
+    if (Object.keys(vcData).length === 0) {
+      fetch('vc_cards.json').then(r => r.ok ? r.json() : null).then(d => { if (d) vcData = d; }).catch(() => {});
+    }
   })();
 
   document.querySelectorAll('.deck-btn').forEach(btn => {
