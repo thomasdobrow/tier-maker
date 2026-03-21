@@ -1945,11 +1945,27 @@
     'Urborg, Tomb of Yawgmoth','Urza\'s Saga','Wasteland',
   ];
 
-  // Land names start at the '// Lands' section — everything from 'Dryad Arbor' onward.
-  // Used to exclude lands from rank mode without depending on vcData being loaded.
+  // All land names (Dryad Arbor onward) — used as fallback in isLandCard() for draft sort.
   const VINTAGE_CUBE_LAND_NAMES = new Set(VINTAGE_CUBE_CARDS.slice(
     VINTAGE_CUBE_CARDS.indexOf('Dryad Arbor')
   ));
+
+  // The 36 redundant cycle lands excluded from rank mode (one representative kept per cycle).
+  // Excluded: 9 duals (keep Badlands), 9 fetches (keep Arid Mesa),
+  //           9 shocks (keep Blood Crypt), 9 triomes (keep Xander's Lounge).
+  const DRAFT_ONLY_LAND_NAMES = new Set([
+    // Duals (excl. Badlands)
+    'Bayou','Plateau','Savannah','Scrubland','Taiga','Tropical Island','Tundra','Underground Sea','Volcanic Island',
+    // Fetches (excl. Arid Mesa)
+    'Bloodstained Mire','Flooded Strand','Marsh Flats','Misty Rainforest','Polluted Delta',
+    'Scalding Tarn','Verdant Catacombs','Windswept Heath','Wooded Foothills',
+    // Shocks (excl. Blood Crypt)
+    'Breeding Pool','Godless Shrine','Hallowed Fountain','Overgrown Tomb','Sacred Foundry',
+    'Steam Vents','Stomping Ground','Temple Garden','Watery Grave',
+    // Triomes (excl. Xander\'s Lounge)
+    'Indatha Triome',"Jetmir's Garden",'Ketria Triome',"Raffine's Tower",'Raugrin Triome',
+    'Savai Triome',"Spara's Headquarters",'Zagoth Triome',"Ziatora's Proving Ground",
+  ]);
 
   // ── Build tier rows ──────────────────────────────────────────
   const tierList = document.getElementById('tier-list');
@@ -2234,7 +2250,7 @@
     } catch (e) { console.warn('vc_cards.json not found — images will load from Scryfall', e); }
 
     for (const name of VINTAGE_CUBE_CARDS) {
-      if (VINTAGE_CUBE_LAND_NAMES.has(name)) continue; // lands are draft-only
+      if (DRAFT_ONLY_LAND_NAMES.has(name)) continue; // redundant cycle lands are draft-only
       const meta = vcData[name];
       const src  = meta
         ? `cards/vc/${meta.file}`
