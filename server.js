@@ -13,6 +13,41 @@ const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const USE_REDIS     = !!(UPSTASH_URL && UPSTASH_TOKEN);
 const LISTS_FILE    = path.join(process.env.DATA_DIR || BASE_DIR, 'lists.json');
 
+// ── Discord ────────────────────────────────────────────────────
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const DISCORD_IDS = {
+  'Tom':    '226884154610941952',
+  'Dan':    '525384290591047701',
+  'Joe':    '195063835416199168',
+  'Kellen': '419855833086558208',
+  'Arye':   '195313553341808642',
+  'Sam':    '137441389783810048',
+  'David':  '163132966535561216',
+  'John':   '177182020345135105',
+  'Jack':   '695462993919606855',
+};
+
+async function sendDraftStartedPing(draft) {
+  if (!DISCORD_WEBHOOK_URL) return;
+  const mentions = (draft.players || [])
+    .filter(p => p !== draft.creator)
+    .map(p => DISCORD_IDS[p] ? `<@${DISCORD_IDS[p]}>` : null)
+    .filter(Boolean);
+  if (!mentions.length) return;
+  const firstPlayer = (draft.turnOrder || [])[0] || draft.creator;
+  try {
+    await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: `${mentions.join(' ')} The rotisserie draft has started — ${firstPlayer} picks first!`,
+      }),
+    });
+  } catch (e) {
+    console.error('Discord ping failed:', e.message);
+  }
+}
+
 const MIME = {
   '.html':  'text/html; charset=utf-8',
   '.css':   'text/css',
@@ -83,6 +118,36 @@ async function removeList(id) {
   ]);
 }
 
+// ── Drafts I/O (file-only, no Redis) ─────────────────────────
+const DRAFTS_FILE = path.join(process.env.DATA_DIR || BASE_DIR, 'drafts.json');
+
+async function readDrafts() {
+  try {
+    if (!fs.existsSync(DRAFTS_FILE)) return {};
+    return JSON.parse(fs.readFileSync(DRAFTS_FILE, 'utf8'));
+  } catch { return {}; }
+}
+async function saveDraft(id, data) {
+  const drafts = await readDrafts();
+  drafts[id] = data;
+  fs.writeFileSync(DRAFTS_FILE, JSON.stringify(drafts, null, 2), 'utf8');
+}
+async function removeDraft(id) {
+  const drafts = await readDrafts();
+  delete drafts[id];
+  fs.writeFileSync(DRAFTS_FILE, JSON.stringify(drafts, null, 2), 'utf8');
+}
+
+// ── SSE broadcast ─────────────────────────────────────────────
+const sseClients = new Set();
+
+function broadcastDraft(type, payload) {
+  const msg = `data: ${JSON.stringify({ type, ...payload })}\n\n`;
+  for (const res of sseClients) {
+    try { res.write(msg); } catch { sseClients.delete(res); }
+  }
+}
+
 // ── HTTP server ───────────────────────────────────────────────
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url);
@@ -135,6 +200,69 @@ const server = http.createServer(async (req, res) => {
       }
       return;
     }
+  }
+
+  // ── GET /api/drafts/events — SSE stream ────────────────────
+  if (pathname === '/api/drafts/events' && req.method === 'GET') {
+    res.writeHead(200, {
+      'Content-Type':  'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection':    'keep-alive',
+    });
+    res.write(':\n\n'); // initial ping to confirm connection
+    sseClients.add(res);
+    req.on('close', () => sseClients.delete(res));
+    return;
+  }
+
+  // ── GET /api/drafts — return all drafts ────────────────────
+  if (pathname === '/api/drafts' && req.method === 'GET') {
+    try {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(await readDrafts()));
+    } catch (e) { res.writeHead(500); res.end('Server error'); }
+    return;
+  }
+
+  // ── POST /api/drafts/:id — save one draft ──────────────────
+  // ── DELETE /api/drafts/:id — remove one draft ──────────────
+  const draftMatch = pathname.match(/^\/api\/drafts\/([^/]+)$/);
+  if (draftMatch) {
+    const id = draftMatch[1];
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', async () => {
+        try {
+          const draft    = JSON.parse(body);
+          const existing = (await readDrafts())[id];
+          const justStarted = draft.status === 'active' && existing?.status !== 'active';
+          await saveDraft(id, draft);
+          broadcastDraft('draft_update', { draft });
+          if (justStarted) sendDraftStartedPing(draft);
+          res.writeHead(200).end('{"ok":true}');
+        } catch { res.writeHead(400).end('Bad request'); }
+      });
+      return;
+    }
+    if (req.method === 'DELETE') {
+      try {
+        await removeDraft(id);
+        broadcastDraft('draft_delete', { id });
+        res.writeHead(200).end('{"ok":true}');
+      } catch { res.writeHead(500).end('Server error'); }
+      return;
+    }
+  }
+
+  // ── Client-side routing — serve index.html for /draft/:id ──
+  const clientRouteMatch = pathname.match(/^\/draft\/([^/]+)$/);
+  if (clientRouteMatch && req.method === 'GET') {
+    const htmlFile = path.join(BASE_DIR, 'index.html');
+    const htmlStat = fs.statSync(htmlFile);
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': htmlStat.size });
+    fs.createReadStream(htmlFile).pipe(res);
+    return;
   }
 
   // ── Static files ───────────────────────────────────────────

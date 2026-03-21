@@ -110,8 +110,22 @@ const VINTAGE_CUBE_CARDS = [
   'Dryad Arbor','Celestial Colonnade','Creeping Tar Pit',
   'Blazemire Verge','Raging Ravine','Thornspire Verge','Horizon Canopy',
   'Bleachbone Verge','Fiery Islet','Riverpyre Verge',
-  'Scalding Tarn','Steam Vents','Thundering Falls','Volcanic Island',
-  'Nurturing Peatland','Wastewood Verge','Xander\'s Lounge','Waterlogged Grove',
+  // Original Duals
+  'Badlands','Bayou','Plateau','Savannah','Scrubland',
+  'Taiga','Tropical Island','Tundra','Underground Sea','Volcanic Island',
+  // Fetchlands
+  'Arid Mesa','Bloodstained Mire','Flooded Strand','Marsh Flats','Misty Rainforest',
+  'Polluted Delta','Scalding Tarn','Verdant Catacombs','Windswept Heath','Wooded Foothills',
+  // Shocklands
+  'Blood Crypt','Breeding Pool','Godless Shrine','Hallowed Fountain','Overgrown Tomb',
+  'Sacred Foundry','Steam Vents','Stomping Ground','Temple Garden','Watery Grave',
+  // New Duals
+  'Thundering Falls',
+  // Triomes
+  'Indatha Triome','Jetmir\'s Garden','Ketria Triome','Raffine\'s Tower','Raugrin Triome',
+  'Savai Triome','Spara\'s Headquarters','Xander\'s Lounge','Zagoth Triome','Ziatora\'s Proving Ground',
+  // Other lands
+  'Nurturing Peatland','Wastewood Verge','Waterlogged Grove',
   'Mana Confluence','Multiversal Passage','Prismatic Vista','Starting Town',
   'Ancient Tomb','Arena of Glory','Bazaar of Baghdad','Boseiju, Who Endures',
   'City of Traitors','Dark Depths','Gaea\'s Cradle','Karakas','Library of Alexandria',

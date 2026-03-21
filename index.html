@@ -62,23 +62,16 @@
     }
     .lb-btn.primary:hover { background: #2a4a2a; }
 
-    #lb-divider {
-      width: 1px;
-      height: 18px;
-      background: #333;
-      flex-shrink: 0;
-    }
-
-    #lb-status {
-      flex: 1;
-      color: #666;
-      font-size: 0.8rem;
+    #lb-active-list {
+      padding: 5px 16px 2px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ccc;
+      min-height: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    #lb-status strong { color: #ccc; }
-    #lb-status em { font-style: italic; color: #555; }
 
     #lb-saved {
       font-size: 0.73rem;
@@ -90,8 +83,14 @@
     }
     #lb-saved.visible { opacity: 1; }
 
+    #header-right {
+      margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    #header-username {
+      font-size: 0.78rem; color: #777; white-space: nowrap;
+    }
     #logout-btn {
-      margin-left: 8px; padding: 4px 10px; font-size: 0.73rem;
+      padding: 4px 10px; font-size: 0.73rem;
       background: none; border: 1px solid #333; color: #555;
       border-radius: 4px; cursor: pointer; white-space: nowrap;
       flex-shrink: 0; transition: color 0.12s, border-color 0.12s;
@@ -1049,7 +1048,6 @@
 
     /* ── How-to button ── */
     #howto-btn {
-      margin-left: auto;
       background: #252525;
       border: 1px solid #555;
       color: #aaa;
@@ -1258,6 +1256,182 @@
       font-size: 0.6rem; font-weight: 700; line-height: 1;
       padding: 2px 4px; border-radius: 3px; pointer-events: none;
     }
+
+    /* ── Rotisserie ─────────────────────────────────────────────── */
+    #rot-toolbar {
+      padding: 8px 16px; background: #0e0e0e; border-bottom: 1px solid #2a2a2a;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    #rot-title { font-size: 0.9rem; font-weight: 600; color: #aaa; flex: 1; }
+    #rot-body { display: flex; flex: 1; overflow: hidden; }
+    #rot-create-panel {
+      width: 220px; flex-shrink: 0; padding: 20px 18px; background: #111;
+      border-right: 1px solid #2a2a2a; display: flex; flex-direction: column; gap: 14px;
+    }
+    .rot-panel-title {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: #555;
+    }
+    .rot-field { display: flex; flex-direction: column; gap: 5px; }
+    .rot-field label { font-size: 0.72rem; color: #888; text-transform: uppercase; letter-spacing: 0.04em; }
+    #rot-drafts-panel {
+      flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+    }
+    #rot-drafts-grid { display: flex; flex-wrap: wrap; gap: 14px; align-content: flex-start; }
+    .rot-empty { color: #444; font-size: 0.85rem; padding: 12px 0; }
+    .rot-card {
+      background: #1c1c1c; border: 1px solid #333; border-radius: 8px; padding: 14px 16px;
+      width: 220px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s;
+    }
+    .rot-card:hover { border-color: #555; }
+    .rot-card-header { font-size: 0.8rem; font-weight: 600; color: #bbb; }
+    .rot-card-date { font-size: 0.72rem; color: #555; }
+    .rot-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rot-slot {
+      width: 34px; height: 28px; border-radius: 5px; border: 2px solid #333;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; font-weight: 700; overflow: hidden; flex-shrink: 0;
+    }
+    .rot-slot.filled { background: #1e3a1e; border-color: #3a6a3a; color: #7dcc7d; }
+    .rot-slot.empty  { background: #151515; border-color: #2a2a2a; color: #333; }
+    .rot-slot.is-you { border-color: #7dcc7d; box-shadow: 0 0 0 1px #3a6a3a; }
+    .rot-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rot-you-badge {
+      font-size: 0.72rem; color: #7dcc7d; background: #1e3a1e;
+      border: 1px solid #3a6a3a; border-radius: 3px; padding: 2px 8px;
+    }
+    .rot-full-badge {
+      font-size: 0.72rem; color: #888; background: #1c1c1c;
+      border: 1px solid #333; border-radius: 3px; padding: 2px 8px;
+    }
+    .rot-join-btn {
+      padding: 5px 14px; background: #1e3a1e; border: 1px solid #3a6a3a; border-radius: 4px;
+      color: #7dcc7d; font-size: 0.82rem; cursor: pointer; transition: background 0.12s;
+    }
+    .rot-join-btn:hover { background: #2a4a2a; }
+
+    /* ── Draft detail view ── */
+    #rot-draft-detail { flex-direction: column; flex: 1; overflow: hidden; }
+    #rot-detail-toolbar {
+      padding: 8px 16px; background: #0e0e0e; border-bottom: 1px solid #2a2a2a;
+      display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+    }
+    #rot-detail-title { font-size: 0.88rem; font-weight: 600; color: #bbb; }
+    #rot-detail-slots { display: flex; gap: 6px; margin-left: auto; }
+    /* waiting state body */
+    #rot-detail-body {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px; padding: 30px;
+    }
+    /* active draft body overrides the above */
+    #rot-detail-body.active {
+      align-items: stretch; justify-content: flex-start; overflow: hidden; padding: 0; gap: 0;
+    }
+    .rot-waiting-msg { font-size: 1rem; color: #888; text-align: center; line-height: 1.6; }
+    .rot-waiting-msg strong { color: #bbb; }
+    .rot-detail-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .rot-start-btn {
+      padding: 8px 24px; background: #1e3a1e; border: 1px solid #3a6a3a; border-radius: 5px;
+      color: #7dcc7d; font-size: 0.9rem; cursor: pointer; transition: background 0.12s;
+    }
+    .rot-start-btn:hover { background: #2a4a2a; }
+    .rot-cancel-btn, .rot-leave-btn {
+      padding: 8px 20px; background: #2a1616; border: 1px solid #6a2a2a; border-radius: 5px;
+      color: #cc7777; font-size: 0.9rem; cursor: pointer; transition: background 0.12s;
+    }
+    .rot-cancel-btn:hover, .rot-leave-btn:hover { background: #3a1616; }
+    /* active draft layout */
+    .rot-turn-bar {
+      display: flex; align-items: center; gap: 12px; padding: 8px 16px;
+      background: #111; border-bottom: 1px solid #222; flex-shrink: 0; flex-wrap: wrap;
+    }
+    .rot-turn-label { font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+    .rot-turn-label.is-you { color: #7dcc7d; }
+    .rot-turn-label.is-other { color: #ccc; }
+    .rot-order-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-left: auto; }
+    .rot-order-pill {
+      font-size: 0.72rem; padding: 2px 8px; border-radius: 10px;
+      background: #1e1e1e; color: #555; border: 1px solid #2a2a2a;
+    }
+    .rot-order-pill.active { background: #1e3a1e; color: #7dcc7d; border-color: #3a6a3a; font-weight: 600; }
+    .rot-picks-section {
+      padding: 8px 16px; display: flex; flex-direction: column; gap: 4px;
+      border-bottom: 1px solid #222; flex-shrink: 0; max-height: 140px; overflow-y: auto;
+    }
+    .rot-pick-row { display: flex; align-items: center; gap: 8px; min-height: 46px; }
+    .rot-pick-player {
+      font-size: 0.75rem; font-weight: 600; color: #666; width: 72px;
+      flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rot-pick-player.is-you { color: #7dcc7d; }
+    .rot-pick-player.is-turn { color: #ffe; }
+    .rot-pick-cards { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+    .rot-pick-card-img { height: 40px; border-radius: 3px; flex-shrink: 0; cursor: pointer; }
+    .rot-pick-card-img:hover { opacity: 0.82; }
+    .rot-pick-empty { font-size: 0.7rem; color: #333; font-style: italic; }
+    .rot-order-bar {
+      display: flex; align-items: center; gap: 8px; padding: 5px 16px;
+      background: #111; border-bottom: 1px solid #222; flex-shrink: 0;
+    }
+    .rot-order-bar label { font-size: 0.84rem; color: #666; }
+    .rot-order-bar select {
+      background: #1e1e1e; color: #aaa; border: 1px solid #2a2a2a;
+      border-radius: 4px; padding: 3px 8px; font-size: 0.84rem; cursor: pointer;
+    }
+    .rot-card-pool { flex: 1; overflow-y: auto; padding: 12px 16px; }
+    .rot-card-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px;
+    }
+    .rot-card-grid img {
+      width: 100%; border-radius: 4px; display: block; cursor: pointer;
+      border: 1px solid #2a2a2a; transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .rot-card-grid img:hover { transform: scale(1.04); box-shadow: 0 4px 14px rgba(0,0,0,0.7); }
+    .zoom-pick-btn {
+      padding: 10px 24px; background: #1e3a1e; border: 1px solid #4a9a4a;
+      color: #7dcc7d; border-radius: 6px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.12s; display: block; white-space: nowrap;
+    }
+    .zoom-pick-btn:hover { background: #2a5a2a; }
+    .zoom-pick-status { font-size: 1.05rem; font-weight: 600; color: #888; text-align: center; padding: 8px; white-space: nowrap; }
+    /* Picks viewer modal */
+    #picks-viewer-modal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82);
+      align-items: center; justify-content: center; z-index: 6000;
+    }
+    #picks-viewer-modal.open { display: flex; }
+    #picks-viewer-dialog {
+      background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+      max-width: 88vw; max-height: 84vh; display: flex; flex-direction: column;
+      overflow: hidden; min-width: 260px;
+    }
+    #picks-viewer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid #2a2a2a; flex-shrink: 0;
+    }
+    #picks-viewer-title { font-size: 0.95rem; font-weight: 600; color: #ccc; }
+    #picks-viewer-close {
+      background: none; border: none; color: #555; font-size: 1.4rem;
+      cursor: pointer; padding: 0 2px; line-height: 1;
+    }
+    #picks-viewer-close:hover { color: #aaa; }
+    #picks-viewer-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 8px; padding: 16px; overflow-y: auto;
+    }
+    .pv-card-wrap { position: relative; }
+    .pv-card-num {
+      position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.72);
+      color: #aaa; font-size: 0.62rem; padding: 1px 5px; border-radius: 3px;
+      pointer-events: none;
+    }
+    #picks-viewer-grid img { width: 100%; border-radius: 6px; cursor: pointer; display: block; }
+    #picks-viewer-grid img:hover { opacity: 0.88; }
+    .rot-view-picks-btn {
+      background: none; border: 1px solid #2a2a2a; color: #555; border-radius: 3px;
+      font-size: 0.65rem; padding: 1px 6px; cursor: pointer; flex-shrink: 0;
+      line-height: 1.5; transition: border-color 0.1s, color 0.1s; white-space: nowrap;
+    }
+    .rot-view-picks-btn:hover { border-color: #555; color: #aaa; }
   </style>
 </head>
 <body>
@@ -1278,7 +1452,11 @@
     <button class="deck-btn" data-deck="E">E</button>
   </div>
   <button id="lock-btn" style="display:none">🔒 Lock List</button>
-  <button id="howto-btn" title="How to use">?</button>
+  <div id="header-right">
+    <span id="header-username"></span>
+    <button id="logout-btn" title="Switch user">⎋ Logout</button>
+    <button id="howto-btn" title="How to use">?</button>
+  </div>
 </div>
 
 <!-- List management bar -->
@@ -1305,7 +1483,7 @@
   </div>
 
   <div class="lb-btn-wrap">
-    <button class="lb-btn" id="load-btn">Load ▾</button>
+    <button class="lb-btn" id="load-btn">Load List ▾</button>
     <div id="load-dropdown"></div>
   </div>
 
@@ -1313,11 +1491,13 @@
     <button class="lb-btn" id="compare-btn">Compare ↔</button>
   </div>
 
-  <div id="lb-divider"></div>
-  <div id="lb-status">No list selected</div>
+  <div class="lb-btn-wrap">
+    <button class="lb-btn" id="rotisserie-btn">Rotisserie Draft</button>
+  </div>
+
   <div id="lb-saved">✓ Saved</div>
-  <button id="logout-btn" title="Switch user">⎋ Logout</button>
 </div>
+<div id="lb-active-list"></div>
 
 <div id="tier-actions">
   <button class="ta-btn" id="normalize-btn" style="display:none">⚖ Normalize Tier Counts</button>
@@ -1401,6 +1581,35 @@
 
 </div>
 
+<div id="rotisserie-section" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+  <div id="rot-toolbar">
+    <span id="rot-title">Rotisserie Draft</span>
+  </div>
+  <div id="rot-body">
+    <div id="rot-create-panel">
+      <div class="rot-panel-title">New Draft</div>
+      <div class="rot-field">
+        <label for="rot-player-count">Players (2–8)</label>
+        <input id="rot-player-count" type="number" min="2" max="8" value="4" class="nlp-input" style="width:72px" />
+        <div id="rot-player-count-error" style="display:none;color:#cc7777;font-size:0.75rem;margin-top:4px"></div>
+      </div>
+      <button id="rot-create-btn" class="lb-btn primary">Create Draft</button>
+    </div>
+    <div id="rot-drafts-panel">
+      <div class="rot-panel-title">Active Drafts</div>
+      <div id="rot-drafts-grid"></div>
+    </div>
+  </div>
+  <div id="rot-draft-detail" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+    <div id="rot-detail-toolbar">
+      <button id="rot-detail-back" class="lb-btn">← Home</button>
+      <span id="rot-detail-title"></span>
+      <div id="rot-detail-slots"></div>
+    </div>
+    <div id="rot-detail-body"></div>
+  </div>
+</div>
+
 <img id="drag-ghost" alt="" />
 
 <div id="zoom-overlay">
@@ -1425,6 +1634,16 @@
         <button id="user-new-btn">Create</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="picks-viewer-modal">
+  <div id="picks-viewer-dialog" onclick="event.stopPropagation()">
+    <div id="picks-viewer-header">
+      <span id="picks-viewer-title"></span>
+      <button id="picks-viewer-close">×</button>
+    </div>
+    <div id="picks-viewer-grid"></div>
   </div>
 </div>
 
@@ -1539,6 +1758,18 @@
           <li><b>Head to Head</b> — pick two lists from the dropdowns to compare their top 10 cards as card-image thumbnails side by side.</li>
         </ul>
         <p>Click <b>← Back</b> to return to your tier list. Loading any list also returns you automatically.</p>
+      </section>
+      <section>
+        <h3>Rotisserie Draft</h3>
+        <p>Click <b>Rotisserie Draft</b> to create or join a shared draft with friends. All 500 Vintage Cube cards are in the pool.</p>
+        <ul>
+          <li>The creator sets the player count (2–8) and clicks <b>Start Draft</b> once everyone has joined</li>
+          <li>Turn order is randomized at start and follows a <b>snake</b> pattern — A B C … C B A A B C …</li>
+          <li>On your turn, click any card or search for it, then click <b>✓ Confirm Pick</b> in the zoom view</li>
+          <li>Use the <b>Sort undrafted cards by:</b> dropdown to order the pool by one of your saved tier lists</li>
+          <li>Each player's picks are visible in real time — click <b>View</b> next to a player to see their full draft order</li>
+          <li>Non-creator players are pinged on Discord when the draft begins</li>
+        </ul>
       </section>
       <section>
         <h3>Other Controls</h3>
@@ -1686,17 +1917,26 @@
     'Uro, Titan of Nature\'s Wrath','Tamiyo, Collector of Tales','Thopter Foundry',
     'Loot, the Pathfinder','Aragorn, King of Gondor','Leovold, Emissary of Trest',
     'Omnath, Locus of Creation','Atraxa, Grand Unifier',
-    // Lands — cycles reduced to one representative each:
-    //   Original Duals → Volcanic Island
-    //   Fetchlands     → Scalding Tarn
-    //   Shocklands     → Steam Vents
-    //   New Duals      → Thundering Falls
-    //   Triomes        → Xander's Lounge
+    // Lands
     'Dryad Arbor','Celestial Colonnade','Creeping Tar Pit',
     'Blazemire Verge','Raging Ravine','Thornspire Verge','Horizon Canopy',
     'Bleachbone Verge','Fiery Islet','Riverpyre Verge',
-    'Scalding Tarn','Steam Vents','Thundering Falls','Volcanic Island',
-    'Nurturing Peatland','Wastewood Verge','Xander\'s Lounge','Waterlogged Grove',
+    // Original Duals
+    'Badlands','Bayou','Plateau','Savannah','Scrubland',
+    'Taiga','Tropical Island','Tundra','Underground Sea','Volcanic Island',
+    // Fetchlands
+    'Arid Mesa','Bloodstained Mire','Flooded Strand','Marsh Flats','Misty Rainforest',
+    'Polluted Delta','Scalding Tarn','Verdant Catacombs','Windswept Heath','Wooded Foothills',
+    // Shocklands
+    'Blood Crypt','Breeding Pool','Godless Shrine','Hallowed Fountain','Overgrown Tomb',
+    'Sacred Foundry','Steam Vents','Stomping Ground','Temple Garden','Watery Grave',
+    // New Duals
+    'Thundering Falls',
+    // Triomes
+    'Indatha Triome','Jetmir\'s Garden','Ketria Triome','Raffine\'s Tower','Raugrin Triome',
+    'Savai Triome','Spara\'s Headquarters','Xander\'s Lounge','Zagoth Triome','Ziatora\'s Proving Ground',
+    // Other lands
+    'Nurturing Peatland','Wastewood Verge','Waterlogged Grove',
     'Mana Confluence','Multiversal Passage','Prismatic Vista','Starting Town',
     'Ancient Tomb','Arena of Glory','Bazaar of Baghdad','Boseiju, Who Endures',
     'City of Traitors','Dark Depths','Gaea\'s Cradle','Karakas','Library of Alexandria',
@@ -1749,10 +1989,20 @@
   // ── Persistence ───────────────────────────────────────────────
   // Active list ID stays in localStorage (it's just UI state, not data).
   // All list data lives in lists.json via the local server API.
-  const ACTIVE_KEY = 'agricola_active_list';
-  const USER_KEY   = 'tier_maker_user';
+  const ACTIVE_KEY      = 'agricola_active_list';
+  const USER_KEY        = 'tier_maker_user';
+  const KNOWN_USERS_KEY = 'tier_maker_known_users';
   function getCurrentUser()  { return localStorage.getItem(USER_KEY) || ''; }
   function setCurrentUser(u) { if (u) localStorage.setItem(USER_KEY, u); else localStorage.removeItem(USER_KEY); }
+  function getKnownUsers()   {
+    try { return JSON.parse(localStorage.getItem(KNOWN_USERS_KEY) || '[]'); } catch { return []; }
+  }
+  function addKnownUser(name) {
+    if (!name) return;
+    const s = new Set(getKnownUsers());
+    s.add(name);
+    localStorage.setItem(KNOWN_USERS_KEY, JSON.stringify([...s].sort()));
+  }
   function listLabel(list)   { return list.creator ? `${list.name} (${list.creator})` : list.name; }
 
   let listsCache = {};            // in-memory source of truth
@@ -1852,7 +2102,7 @@
   }
 
   // ── List bar UI ───────────────────────────────────────────────
-  const lbStatus     = document.getElementById('lb-status');
+  const lbActiveList = document.getElementById('lb-active-list');
   const lbSaved      = document.getElementById('lb-saved');
   const newListBtn   = document.getElementById('new-list-btn');
   const newListPop   = document.getElementById('new-list-popover');
@@ -1870,17 +2120,10 @@
 
   function updateListBar() {
     const id = getActiveListId();
-    if (!id) {
-      lbStatus.innerHTML = 'No list selected — <em>create or load a list to save progress</em>';
-      return;
-    }
+    if (!id) { lbActiveList.textContent = ''; return; }
     const list = getLists()[id];
-    if (!list) {
-      setActiveListId(null);
-      lbStatus.innerHTML = 'No list selected — <em>create or load a list to save progress</em>';
-      return;
-    }
-    lbStatus.innerHTML = `<strong>${escHtml(listLabel(list))}</strong>`;
+    if (!list) { setActiveListId(null); lbActiveList.textContent = ''; return; }
+    lbActiveList.textContent = listLabel(list);
   }
 
   let saveFlashTimer = null;
@@ -2058,6 +2301,7 @@
     const list = listsCache[id];
     if (!list) return;
     hideCompare();
+    hideRotisserie();
     setActiveListId(id);
     setTierAreaVisible(true);
     await loadCardsForType(list.type || 'agricola');
@@ -2493,9 +2737,10 @@
 
   // ── User modal ─────────────────────────────────────────────────
   function openUserModal() {
-    const users = [...new Set(
-      Object.values(listsCache).map(l => l.creator).filter(Boolean)
-    )].sort();
+    const users = [...new Set([
+      ...getKnownUsers(),
+      ...Object.values(listsCache).map(l => l.creator).filter(Boolean),
+    ])].sort();
     const sel = document.getElementById('user-select');
     const existingSection = document.getElementById('user-existing-section');
     const divider = document.getElementById('user-divider');
@@ -2511,9 +2756,15 @@
     if (!users.length) document.getElementById('user-new-input').focus();
   }
 
+  function updateHeaderUser() {
+    document.getElementById('header-username').textContent = getCurrentUser() || '';
+  }
+
   function closeUserModal(name) {
     setCurrentUser(name);
+    addKnownUser(name);
     document.getElementById('user-modal').classList.remove('open');
+    updateHeaderUser();
   }
 
   document.getElementById('user-continue-btn').addEventListener('click', () => {
@@ -2540,6 +2791,8 @@
   // Load lists from server; always start with no active list
   (async () => {
     await initPersistence();
+    await initDrafts();
+    initDraftSSE();
     setActiveListId(null);
     setTierAreaVisible(false);
     updateListBar();
@@ -2550,8 +2803,16 @@
     if (Object.keys(vcData).length === 0) {
       fetch('vc_cards.json').then(r => r.ok ? r.json() : null).then(d => { if (d) vcData = d; }).catch(() => {});
     }
-    // Show user selection if no user stored yet
+    // Show username in header; prompt if not set yet
+    updateHeaderUser();
     if (!getCurrentUser()) openUserModal();
+    // Handle direct navigation to /draft/:id
+    const draftUrlMatch = window.location.pathname.match(/^\/draft\/([^/]+)$/);
+    if (draftUrlMatch) {
+      const id = draftUrlMatch[1];
+      if (draftsCache[id]) { showRotisserie(); enterDraftDetail(id); }
+      else history.replaceState(null, '', '/');
+    }
   })();
 
   document.querySelectorAll('.deck-btn').forEach(btn => {
@@ -2756,6 +3017,35 @@
     zoomTierBtns.innerHTML = '';
     if (!id) return;
 
+    // Draft pick mode — replace tier buttons with pick action
+    const draftCtx = activeDraftId ? draftsCache[activeDraftId] : null;
+    if (draftCtx && draftCtx.status === 'complete') {
+      const lbl = document.createElement('div');
+      lbl.className = 'zoom-pick-status';
+      lbl.textContent = 'Draft Complete';
+      zoomTierBtns.appendChild(lbl);
+      return;
+    }
+    if (draftCtx && draftCtx.status === 'active') {
+      const ctxUser   = getCurrentUser();
+      const ctxPlayer = getSnakeDraftPlayer(draftCtx.turnOrder, draftCtx.currentTurnIdx);
+      const isMyTurn  = ctxPlayer === ctxUser;
+      const available = (draftCtx.undraftedCards || []).includes(id);
+      if (isMyTurn && available) {
+        const btn = document.createElement('button');
+        btn.className = 'zoom-pick-btn';
+        btn.textContent = '✓ Confirm Pick';
+        btn.addEventListener('click', e => { e.stopPropagation(); pickCard(id); });
+        zoomTierBtns.appendChild(btn);
+      } else {
+        const lbl = document.createElement('div');
+        lbl.className = 'zoom-pick-status';
+        lbl.textContent = !available ? 'Already Drafted' : `${ctxPlayer}'s Turn`;
+        zoomTierBtns.appendChild(lbl);
+      }
+      return;
+    }
+
     const currentTier = findCardTier(id);
 
     TIERS.forEach(tier => {
@@ -2842,6 +3132,9 @@
       if (document.getElementById('normalize-modal').classList.contains('open')) {
         closeNormalizeModal(); return;
       }
+      if (document.getElementById('picks-viewer-modal').classList.contains('open')) {
+        document.getElementById('picks-viewer-modal').classList.remove('open'); return;
+      }
       closeZoom(); return;
     }
     if (!zoomCardId) return;
@@ -2862,33 +3155,63 @@
 
     let rows = [];
 
-    if (currentListType === 'vintage_cube') {
-      // Search cards by title (card name) from the live DOM
-      rows = [...document.querySelectorAll('.img-card')]
-        .filter(c => c.title.toLowerCase().includes(q))
-        .slice(0, 14)
-        .map(card => {
-          const name = card.title;
-          const tier = findCardTier(name);
-          const tierData = tier ? TIERS.find(t => t.label === tier) : null;
-          const row = document.createElement('div');
-          row.className = 'sr';
-          row.dataset.id = name;
-          const thumb = document.createElement('img');
-          thumb.className = 'sr-thumb';
-          thumb.src = cardSrc(card);
-          const info = document.createElement('div');
-          info.className = 'sr-info';
-          info.innerHTML = `<div class="sr-name">${name}</div>`;
-          const badge = document.createElement('div');
-          badge.className = 'sr-tier';
-          badge.textContent = tier || 'Unassigned';
-          badge.style.background = tierData ? tierData.color + '33' : '#333';
-          badge.style.color      = tierData ? tierData.color        : '#888';
-          row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
-          row.addEventListener('pointerdown', ev => { ev.preventDefault(); selectResult(name); });
-          return row;
-        });
+    const activeDraftStatus = activeDraftId ? draftsCache[activeDraftId]?.status : null;
+    if (currentListType === 'vintage_cube' || activeDraftStatus === 'active' || activeDraftStatus === 'complete') {
+      const domCards = [...document.querySelectorAll('.img-card')];
+      if (domCards.length > 0) {
+        // Normal tier list view — search live DOM cards
+        rows = domCards
+          .filter(c => c.title.toLowerCase().includes(q))
+          .slice(0, 14)
+          .map(card => {
+            const name = card.title;
+            const tier = findCardTier(name);
+            const tierData = tier ? TIERS.find(t => t.label === tier) : null;
+            const row = document.createElement('div');
+            row.className = 'sr';
+            row.dataset.id = name;
+            const thumb = document.createElement('img');
+            thumb.className = 'sr-thumb';
+            thumb.src = cardSrc(card);
+            const info = document.createElement('div');
+            info.className = 'sr-info';
+            info.innerHTML = `<div class="sr-name">${name}</div>`;
+            const badge = document.createElement('div');
+            badge.className = 'sr-tier';
+            badge.textContent = tier || 'Unassigned';
+            badge.style.background = tierData ? tierData.color + '33' : '#333';
+            badge.style.color      = tierData ? tierData.color        : '#888';
+            row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
+            row.addEventListener('pointerdown', ev => { ev.preventDefault(); selectResult(name); });
+            return row;
+          });
+      } else {
+        // Draft view (no .img-card DOM) — search VINTAGE_CUBE_CARDS directly
+        rows = VINTAGE_CUBE_CARDS
+          .filter(name => name.toLowerCase().includes(q))
+          .slice(0, 14)
+          .map(name => {
+            const draft = activeDraftId ? draftsCache[activeDraftId] : null;
+            const isUndrafted = !draft || (draft.undraftedCards || []).includes(name);
+            const row = document.createElement('div');
+            row.className = 'sr';
+            row.dataset.id = name;
+            const thumb = document.createElement('img');
+            thumb.className = 'sr-thumb';
+            thumb.src = vcCardImgSrc(name);
+            const info = document.createElement('div');
+            info.className = 'sr-info';
+            info.innerHTML = `<div class="sr-name">${name}</div>`;
+            const badge = document.createElement('div');
+            badge.className = 'sr-tier';
+            badge.textContent = isUndrafted ? 'Available' : 'Picked';
+            badge.style.background = isUndrafted ? '#1e2a1e' : '#2a1e1e';
+            badge.style.color      = isUndrafted ? '#7dcc7d' : '#cc7777';
+            row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
+            row.addEventListener('pointerdown', ev => { ev.preventDefault(); selectResult(name); });
+            return row;
+          });
+      }
     } else {
       rows = Object.entries(cardNames)
         .filter(([id, name]) =>
@@ -2927,7 +3250,9 @@
     searchDropdown.classList.remove('open');
     searchInput.value = '';
     highlightCard(id);
-    if (currentListType === 'vintage_cube') {
+    if (activeDraftId) {
+      openZoom(vcCardImgSrc(id), id);
+    } else if (currentListType === 'vintage_cube') {
       const card = document.querySelector(`.img-card[title="${id}"]`);
       if (card) openZoom(cardSrc(card), id);
     } else {
@@ -3111,6 +3436,8 @@
     updateLockedState();
     document.getElementById('main').style.display = 'none';
     document.getElementById('tier-actions').style.display = 'none';
+    document.getElementById('rotisserie-section').style.display = 'none';
+    document.getElementById('list-bar').style.display = '';
     document.getElementById('compare-section').style.display = 'flex';
     populateCompareTypeSelector();
     renderCompare();
@@ -3237,10 +3564,10 @@
   function vcCardImgSrc(name) {
     // Prefer the already-loaded vcData metadata; derive filename the same way download_vc_cards.js does
     const meta = vcData[name];
-    if (meta) return `cards/vc/${meta.file}`;
+    if (meta) return `/cards/vc/${meta.file}`;
     const firstFace = name.split(' // ')[0].trim();
     const file = firstFace.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '.jpg';
-    return `cards/vc/${file}`;
+    return `/cards/vc/${file}`;
   }
 
   // Bucket system: ranks 1-15 get individual buckets, then pairs/groups up to 400+
@@ -3360,10 +3687,12 @@
     setCurrentUser('');
     setActiveListId(null);
     hideCompare();
+    hideRotisserie();
     setTierAreaVisible(false);
     updateListBar();
     updateLockBtn();
     updateLockedState();
+    updateHeaderUser();
     openUserModal();
   });
 
@@ -3388,6 +3717,578 @@
       btn.classList.add('active');
       renderRankings();
     });
+  });
+
+  // ── Rotisserie ────────────────────────────────────────────────
+
+  let draftsCache   = {};
+  let activeDraftId = null;
+
+  async function initDrafts() {
+    try {
+      const r = await fetch('/api/drafts');
+      if (r.ok) draftsCache = await r.json();
+    } catch { draftsCache = {}; }
+  }
+
+  function initDraftSSE() {
+    const es = new EventSource('/api/drafts/events');
+    es.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'draft_update') {
+        draftsCache[msg.draft.id] = msg.draft;
+        if (activeDraftId === msg.draft.id &&
+            document.getElementById('rot-draft-detail').style.display !== 'none') {
+          renderDraftDetail();
+        }
+      } else if (msg.type === 'draft_delete') {
+        delete draftsCache[msg.id];
+        if (activeDraftId === msg.id) exitDraftDetail();
+      }
+      if (document.getElementById('rot-body').style.display !== 'none' &&
+          document.getElementById('rotisserie-section').style.display !== 'none') {
+        renderDrafts();
+      }
+    };
+    es.onerror = () => {};
+  }
+
+  function persistDraft(draft) {
+    fetch(`/api/drafts/${draft.id}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(draft),
+    }).catch(e => console.warn('persistDraft:', e));
+  }
+
+  function showRotisserie() {
+    setActiveListId(null);
+    setTierAreaVisible(false);
+    updateListBar();
+    updateLockBtn();
+    updateLockedState();
+    document.getElementById('main').style.display = 'none';
+    document.getElementById('tier-actions').style.display = 'none';
+    document.getElementById('compare-section').style.display = 'none';
+    document.getElementById('rotisserie-section').style.display = 'flex';
+    renderDrafts();
+  }
+
+  function hideRotisserie() {
+    document.getElementById('rotisserie-section').style.display = 'none';
+    document.getElementById('list-bar').style.display = '';
+    document.getElementById('main').style.display = '';
+    document.getElementById('tier-actions').style.display = '';
+  }
+
+  function createDraft() {
+    const maxPlayers = parseInt(document.getElementById('rot-player-count').value, 10);
+    const errEl = document.getElementById('rot-player-count-error');
+    if (isNaN(maxPlayers) || maxPlayers < 2 || maxPlayers > 8) {
+      errEl.textContent = isNaN(maxPlayers) ? 'Enter a number.' : 'Must be between 2 and 8.';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+    const user  = getCurrentUser();
+    const id    = generateId();
+    const draft = {
+      id, maxPlayers, creator: user || '', status: 'waiting',
+      players: user ? [user] : [], createdAt: new Date().toISOString(),
+    };
+    draftsCache[id] = draft;
+    persistDraft(draft);
+    renderDrafts();
+    enterDraftDetail(id);
+  }
+
+  function joinDraft(id) {
+    const draft = draftsCache[id];
+    const user  = getCurrentUser();
+    if (!draft || !user) return;
+    if (draft.players.includes(user)) return;
+    if (draft.players.length >= draft.maxPlayers) return;
+    draft.players.push(user);
+    persistDraft(draft);
+    renderDrafts();
+  }
+
+  function slotInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 4).toUpperCase();
+    return (parts[0].slice(0, 2) + parts[parts.length - 1].slice(0, 2)).toUpperCase();
+  }
+
+  function renderDraftCard(draft) {
+    const user   = getCurrentUser();
+    const isIn   = user && draft.players.includes(user);
+    const isFull = draft.players.length >= draft.maxPlayers;
+    const creatorTag = draft.creator ? `by ${draft.creator}` : '';
+    let dateLabel;
+    if (draft.status === 'complete' && draft.startedAt) {
+      const d = new Date(draft.startedAt);
+      const time = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                 + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      dateLabel = creatorTag ? `${creatorTag} · ${time}` : time;
+    } else if (draft.status === 'active' && draft.startedAt) {
+      const d = new Date(draft.startedAt);
+      const time = 'Started ' + d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                 + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      dateLabel = creatorTag ? `${creatorTag} · ${time}` : time;
+    } else {
+      dateLabel = creatorTag ? `${creatorTag} · Not yet started` : 'Not yet started';
+    }
+
+    const slotCount = (draft.status === 'active' || draft.status === 'complete') ? draft.players.length : draft.maxPlayers;
+    const slots = Array.from({ length: slotCount }, (_, i) => {
+      const player = draft.players[i];
+      const filled = !!player;
+      const isYou  = filled && player === user;
+      const cls    = 'rot-slot ' + (filled ? 'filled' : 'empty') + (isYou ? ' is-you' : '');
+      return `<div class="${cls}" title="${escHtml(player || 'Open')}">${escHtml(filled ? slotInitials(player) : '')}</div>`;
+    }).join('');
+
+    const footer = draft.status === 'complete'
+                 ? `<span class="rot-full-badge" style="color:#7dcc7d;background:#1e3a1e;border-color:#3a6a3a">Complete</span>`
+                 : isIn   ? `<span class="rot-you-badge">You're in</span>`
+                 : isFull ? `<span class="rot-full-badge">Full</span>`
+                          : `<button class="rot-join-btn" data-id="${escHtml(draft.id)}">Join</button>`;
+
+    const card = document.createElement('div');
+    card.className = 'rot-card';
+    card.innerHTML = `
+      <div class="rot-card-header">${slotCount}-Player Draft</div>
+      <div class="rot-card-date">${escHtml(dateLabel)}</div>
+      <div class="rot-slots">${slots}</div>
+      <div class="rot-card-footer">${footer}</div>`;
+    card.querySelector('.rot-join-btn')?.addEventListener('click', () => joinDraft(draft.id));
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', e => {
+      if (e.target.closest('.rot-join-btn')) return;
+      showRotisserie();
+      enterDraftDetail(draft.id);
+    });
+    return card;
+  }
+
+  function renderDrafts() {
+    const grid = document.getElementById('rot-drafts-grid');
+    grid.innerHTML = '';
+    const items = Object.values(draftsCache).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (!items.length) {
+      grid.innerHTML = '<div class="rot-empty">No drafts yet — create one to get started.</div>';
+      return;
+    }
+    items.forEach(d => grid.appendChild(renderDraftCard(d)));
+  }
+
+  document.getElementById('rotisserie-btn').addEventListener('click', showRotisserie);
+  document.getElementById('rot-create-btn').addEventListener('click', createDraft);
+  document.getElementById('rot-player-count').addEventListener('input', function () {
+    const errEl = document.getElementById('rot-player-count-error');
+    errEl.style.display = 'none';
+  });
+
+  // ── Draft detail view ──────────────────────────────────────
+
+  function enterDraftDetail(id) {
+    activeDraftId = id;
+    if (Object.keys(vcData).length === 0) {
+      fetch('vc_cards.json').then(r => r.ok ? r.json() : null).then(d => { if (d) vcData = d; }).catch(() => {});
+    }
+    history.pushState({ draftId: id }, '', `/draft/${id}`);
+    document.getElementById('list-bar').style.display = 'none';
+    document.getElementById('rot-body').style.display = 'none';
+    document.getElementById('rot-draft-detail').style.display = 'flex';
+    renderDraftDetail();
+  }
+
+  function exitDraftDetail() {
+    activeDraftId = null;
+    history.pushState(null, '', '/');
+    document.getElementById('list-bar').style.display = '';
+    document.getElementById('rot-draft-detail').style.display = 'none';
+    document.getElementById('rot-body').style.display = 'flex';
+    renderDrafts();
+  }
+
+  function renderDraftDetail() {
+    const draft = draftsCache[activeDraftId];
+    if (!draft) { exitDraftDetail(); return; }
+    const user      = getCurrentUser();
+    const isCreator = draft.creator ? draft.creator === user : draft.players[0] === user;
+    const status    = draft.status || 'waiting';
+
+    const detailCreator = draft.creator ? `by ${draft.creator}` : '';
+    let detailDateLabel;
+    if (draft.status === 'complete' && draft.startedAt) {
+      const d = new Date(draft.startedAt);
+      detailDateLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                      + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    } else if (draft.status === 'active' && draft.startedAt) {
+      const d = new Date(draft.startedAt);
+      detailDateLabel = 'Started ' + d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                      + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    } else {
+      detailDateLabel = 'Not yet started';
+    }
+    const detailMeta = [detailCreator, detailDateLabel].filter(Boolean).join(' · ');
+
+    document.getElementById('rot-detail-title').textContent =
+      (status === 'active' || status === 'complete')
+        ? detailMeta
+        : `${draft.maxPlayers}-Player Draft · ${draft.players.length}/${draft.maxPlayers} joined · ${detailMeta}`;
+    const slotsEl = document.getElementById('rot-detail-slots');
+    const slotCount = (status === 'active' || status === 'complete') ? 0 : draft.maxPlayers;
+    slotsEl.innerHTML = Array.from({ length: slotCount }, (_, i) => {
+      const player = draft.players[i];
+      const filled = !!player;
+      const isYou  = filled && player === user;
+      const cls    = 'rot-slot ' + (filled ? 'filled' : 'empty') + (isYou ? ' is-you' : '');
+      return `<div class="${cls}" title="${escHtml(player || 'Open')}">${escHtml(filled ? slotInitials(player) : '')}</div>`;
+    }).join('');
+
+    const body = document.getElementById('rot-detail-body');
+    body.innerHTML = '';
+
+    if (status === 'active' || status === 'complete') {
+      body.classList.add('active');
+
+      // ── Turn bar (or Complete banner) ─────────────────────────
+      const turnOrder      = draft.turnOrder || draft.players;
+      const currentTurnIdx = draft.currentTurnIdx || 0;
+      const currentPlayer  = getSnakeDraftPlayer(turnOrder, currentTurnIdx);
+      const isMyTurn       = currentPlayer === user;
+
+      const turnBar = document.createElement('div');
+      turnBar.className = 'rot-turn-bar';
+      const turnLabel = document.createElement('span');
+      if (status === 'complete') {
+        turnLabel.className = 'rot-turn-label';
+        turnLabel.style.color = '#7dcc7d';
+        turnLabel.textContent = '✓ Draft Complete';
+      } else {
+        turnLabel.className = 'rot-turn-label ' + (isMyTurn ? 'is-you' : 'is-other');
+        turnLabel.textContent = isMyTurn ? '▶ Your turn to pick' : `▶ ${currentPlayer}'s turn`;
+      }
+      turnBar.appendChild(turnLabel);
+      body.appendChild(turnBar);
+
+      // ── Picks section ─────────────────────────────────────────
+      const picksSection = document.createElement('div');
+      picksSection.className = 'rot-picks-section';
+      turnOrder.forEach(player => {
+        const row = document.createElement('div');
+        row.className = 'rot-pick-row';
+        const nameEl = document.createElement('div');
+        const isYouPick = player === user;
+        const isTurnNow = player === currentPlayer;
+        nameEl.className = 'rot-pick-player' + (isYouPick ? ' is-you' : '') + (isTurnNow ? ' is-turn' : '');
+        nameEl.textContent = (isTurnNow ? '▶ ' : '') + player;
+        nameEl.title = player;
+        const viewBtn = document.createElement('button');
+        viewBtn.className = 'rot-view-picks-btn';
+        viewBtn.textContent = 'View';
+        viewBtn.addEventListener('click', () => openPicksViewer(player, (draft.picks || {})[player] || []));
+        const cardsEl = document.createElement('div');
+        cardsEl.className = 'rot-pick-cards';
+        const playerPicks = (draft.picks || {})[player] || [];
+        if (playerPicks.length === 0) {
+          const empty = document.createElement('span');
+          empty.className = 'rot-pick-empty';
+          empty.textContent = 'no picks yet';
+          cardsEl.appendChild(empty);
+        } else {
+          playerPicks.forEach(cardName => {
+            const img = document.createElement('img');
+            img.className = 'rot-pick-card-img';
+            img.src = vcCardImgSrc(cardName);
+            img.alt = cardName;
+            img.title = cardName;
+            img.addEventListener('click', () => openZoom(vcCardImgSrc(cardName), cardName));
+            img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
+            cardsEl.appendChild(img);
+          });
+        }
+        row.append(nameEl, viewBtn, cardsEl);
+        picksSection.appendChild(row);
+      });
+      body.appendChild(picksSection);
+
+      // ── Ordering bar ──────────────────────────────────────────
+      const savedOrderId = localStorage.getItem(ROT_ORDER_KEY) || '';
+      const myLists = Object.values(getLists()).filter(
+        l => l.creator === user && (l.type || 'agricola') === 'vintage_cube'
+      ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+      const orderBar = document.createElement('div');
+      orderBar.className = 'rot-order-bar';
+      const orderLabel = document.createElement('label');
+      orderLabel.textContent = 'Sort undrafted cards by:';
+      const orderSelect = document.createElement('select');
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.textContent = 'Default';
+      orderSelect.appendChild(defaultOpt);
+      myLists.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.id;
+        opt.textContent = l.name;
+        if (l.id === savedOrderId) opt.selected = true;
+        orderSelect.appendChild(opt);
+      });
+      orderSelect.addEventListener('change', () => {
+        localStorage.setItem(ROT_ORDER_KEY, orderSelect.value);
+        renderDraftDetail();
+      });
+      orderBar.append(orderLabel, orderSelect);
+      body.appendChild(orderBar);
+
+      // ── Card pool ─────────────────────────────────────────────
+      const pool = document.createElement('div');
+      pool.className = 'rot-card-pool';
+      const grid = document.createElement('div');
+      grid.className = 'rot-card-grid';
+      const orderedCards = getOrderedUndrafted(draft, orderSelect.value);
+      orderedCards.forEach(name => {
+        const img = document.createElement('img');
+        img.src   = vcCardImgSrc(name);
+        img.alt   = name;
+        img.title = name;
+        img.loading = 'lazy';
+        img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
+        img.addEventListener('click', () => openZoom(vcCardImgSrc(name), name));
+        grid.appendChild(img);
+      });
+      pool.appendChild(grid);
+
+      if (isCreator) {
+        const destroyBtn = document.createElement('button');
+        destroyBtn.className = 'rot-cancel-btn';
+        destroyBtn.textContent = 'Destroy Draft';
+        destroyBtn.style.cssText = 'margin: 20px auto 12px; display: block;';
+        destroyBtn.addEventListener('click', () => {
+          const input = window.prompt('Type "destroy" to permanently end this draft:');
+          if (input === 'destroy') cancelDraft(draft.id);
+        });
+        pool.appendChild(destroyBtn);
+      }
+      body.appendChild(pool);
+      return;
+    }
+    body.classList.remove('active');
+
+    const actions = document.createElement('div');
+    actions.className = 'rot-detail-actions';
+    const isIn = draft.players.includes(user);
+
+    if (isCreator) {
+      const msg = document.createElement('div');
+      msg.className = 'rot-waiting-msg';
+      msg.innerHTML = `<strong>You created this draft.</strong><br>${draft.players.length}/${draft.maxPlayers} players have joined.`;
+      body.appendChild(msg);
+      const startBtn = document.createElement('button');
+      startBtn.className = 'rot-start-btn';
+      startBtn.textContent = 'Start Draft ▶';
+      startBtn.addEventListener('click', startDraft);
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'rot-cancel-btn';
+      cancelBtn.textContent = 'Cancel Draft';
+      cancelBtn.addEventListener('click', () => cancelDraft(draft.id));
+      actions.append(startBtn, cancelBtn);
+    } else if (isIn) {
+      const creator = draft.creator || draft.players[0] || 'the creator';
+      const msg = document.createElement('div');
+      msg.className = 'rot-waiting-msg';
+      msg.innerHTML = `<strong style="color:#7dcc7d">✓ You're in this draft!</strong><br>Waiting for <strong>${escHtml(creator)}</strong> to start\u2026`;
+      body.appendChild(msg);
+      const leaveBtn = document.createElement('button');
+      leaveBtn.className = 'rot-leave-btn';
+      leaveBtn.textContent = 'Leave Draft';
+      leaveBtn.addEventListener('click', () => leaveDraft(draft.id));
+      actions.appendChild(leaveBtn);
+    } else {
+      const isFull = draft.players.length >= draft.maxPlayers;
+      const msg = document.createElement('div');
+      msg.className = 'rot-waiting-msg';
+      msg.innerHTML = isFull
+        ? `<strong style="color:#cc7777">This draft is full.</strong><br>You are not in this draft.`
+        : `<strong style="color:#aaa">You haven't joined this draft yet.</strong><br>${draft.players.length}/${draft.maxPlayers} players have joined.`;
+      body.appendChild(msg);
+      if (!isFull) {
+        const joinBtn = document.createElement('button');
+        joinBtn.className = 'rot-start-btn';
+        joinBtn.textContent = 'Join Draft';
+        joinBtn.addEventListener('click', () => {
+          joinDraft(draft.id);
+          renderDraftDetail();
+        });
+        actions.appendChild(joinBtn);
+      }
+    }
+    body.appendChild(actions);
+  }
+
+  function startDraft() {
+    const draft = draftsCache[activeDraftId];
+    if (!draft) return;
+    const turnOrder = [...draft.players].sort(() => Math.random() - 0.5);
+    const picks     = Object.fromEntries(draft.players.map(p => [p, []]));
+    const updated   = {
+      ...draft,
+      status: 'active',
+      startedAt: new Date().toISOString(),
+      turnOrder,
+      currentTurnIdx: 0,
+      picks,
+      undraftedCards: [...VINTAGE_CUBE_CARDS],
+    };
+    draftsCache[updated.id] = updated;
+    persistDraft(updated);
+  }
+
+  const ROT_ORDER_KEY = 'rot_order_list_id';
+
+  function getSnakeDraftPlayer(turnOrder, idx) {
+    const n = turnOrder.length;
+    const round = Math.floor(idx / n);
+    const pos   = idx % n;
+    return turnOrder[round % 2 === 0 ? pos : n - 1 - pos];
+  }
+
+  function openPicksViewer(playerName, picks) {
+    document.getElementById('picks-viewer-title').textContent = `${playerName}'s picks (${picks.length})`;
+    const grid = document.getElementById('picks-viewer-grid');
+    grid.innerHTML = '';
+    if (!picks.length) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'color:#555; font-style:italic; padding:8px; grid-column:1/-1;';
+      empty.textContent = 'No picks yet';
+      grid.appendChild(empty);
+    } else {
+      picks.forEach((name, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'pv-card-wrap';
+        const num = document.createElement('div');
+        num.className = 'pv-card-num';
+        num.textContent = i + 1;
+        const img = document.createElement('img');
+        img.src = vcCardImgSrc(name);
+        img.alt = name;
+        img.title = name;
+        img.addEventListener('click', () => openZoom(vcCardImgSrc(name), name));
+        img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
+        wrap.append(num, img);
+        grid.appendChild(wrap);
+      });
+    }
+    document.getElementById('picks-viewer-modal').classList.add('open');
+  }
+
+  document.getElementById('picks-viewer-close').addEventListener('click', () => {
+    document.getElementById('picks-viewer-modal').classList.remove('open');
+  });
+  document.getElementById('picks-viewer-modal').addEventListener('click', () => {
+    document.getElementById('picks-viewer-modal').classList.remove('open');
+  });
+
+  const PICKS_PER_PLAYER = 40;
+
+  function pickCard(cardName) {
+    const draft = draftsCache[activeDraftId];
+    if (!draft || draft.status !== 'active') return;
+    const user = getCurrentUser();
+    const currentPlayer = getSnakeDraftPlayer(draft.turnOrder, draft.currentTurnIdx);
+    if (currentPlayer !== user) return;
+    if (!(draft.undraftedCards || []).includes(cardName)) return;
+    const picks = { ...draft.picks };
+    picks[user] = [...(picks[user] || []), cardName];
+    const undraftedCards = draft.undraftedCards.filter(c => c !== cardName);
+    const isDone = draft.turnOrder.every(p => (picks[p] || []).length >= PICKS_PER_PLAYER);
+    const updated = {
+      ...draft, picks, undraftedCards,
+      currentTurnIdx: draft.currentTurnIdx + 1,
+      ...(isDone ? { status: 'complete' } : {}),
+    };
+    draftsCache[updated.id] = updated;
+    persistDraft(updated);
+    closeZoom();
+    renderDraftDetail();
+  }
+
+  function isLandCard(name) {
+    const tl = vcData[name]?.typeLine || '';
+    return tl.includes('Land');
+  }
+
+  function sortLandsLast(arr) {
+    const nonLands = arr.filter(c => !isLandCard(c));
+    const lands    = arr.filter(c =>  isLandCard(c));
+    return [...nonLands, ...lands];
+  }
+
+  function getOrderedUndrafted(draft, orderListId) {
+    // Build the undrafted set; fall back gracefully for old-format drafts
+    let undrafted;
+    if (Array.isArray(draft.undraftedCards)) {
+      undrafted = new Set(draft.undraftedCards);
+    } else {
+      // Legacy draft: show everything not already in picks
+      const allPicked = new Set(Object.values(draft.picks || {}).flat());
+      undrafted = new Set(VINTAGE_CUBE_CARDS.filter(c => !allPicked.has(c)));
+    }
+    if (!orderListId) return sortLandsLast(VINTAGE_CUBE_CARDS.filter(c => undrafted.has(c)));
+    const list = getLists()[orderListId];
+    if (!list?.state?.tiers) return sortLandsLast(VINTAGE_CUBE_CARDS.filter(c => undrafted.has(c)));
+    const result = [];
+    for (const tier of ['S', 'A', 'B', 'C', 'F']) {
+      for (const card of (list.state.tiers[tier] || [])) {
+        if (undrafted.has(card)) result.push(card);
+      }
+    }
+    const ranked = new Set(result);
+    for (const card of VINTAGE_CUBE_CARDS) {
+      if (undrafted.has(card) && !ranked.has(card)) result.push(card);
+    }
+    return sortLandsLast(result);
+  }
+
+  function cancelDraft(id) {
+    fetch(`/api/drafts/${id}`, { method: 'DELETE' }).catch(() => {});
+    delete draftsCache[id];
+    exitDraftDetail();
+  }
+
+  function leaveDraft(id) {
+    const draft = draftsCache[id];
+    const user  = getCurrentUser();
+    if (!draft || !user) return;
+    const updated = { ...draft, players: draft.players.filter(p => p !== user) };
+    draftsCache[id] = updated;
+    persistDraft(updated);
+    exitDraftDetail();
+  }
+
+  document.getElementById('rot-detail-back').addEventListener('click', () => {
+    exitDraftDetail();
+    hideRotisserie();
+  });
+
+  window.addEventListener('popstate', () => {
+    const m = window.location.pathname.match(/^\/draft\/([^/]+)$/);
+    if (m && draftsCache[m[1]]) {
+      activeDraftId = m[1];
+      document.getElementById('list-bar').style.display = 'none';
+      document.getElementById('rot-body').style.display = 'none';
+      document.getElementById('rot-draft-detail').style.display = 'flex';
+      renderDraftDetail();
+    } else if (activeDraftId) {
+      activeDraftId = null;
+      document.getElementById('list-bar').style.display = '';
+      document.getElementById('rot-draft-detail').style.display = 'none';
+      document.getElementById('rot-body').style.display = 'flex';
+      renderDrafts();
+    }
   });
 
 </script>

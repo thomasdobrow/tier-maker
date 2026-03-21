@@ -210,5 +210,28 @@
       },
       "sortedAt": {}
     }
+  },
+  "mmzs7rmtab4ve": {
+    "id": "mmzs7rmtab4ve",
+    "name": "Sorted",
+    "creator": "Tom",
+    "type": "vintage_cube",
+    "locked": true,
+    "createdAt": "2026-03-21T03:42:09.317Z",
+    "updatedAt": "2026-03-21T03:42:20.533Z",
+    "state": {
+      "tiers": {
+        "S": [
+          "Brain Freeze"
+        ],
+        "A": [],
+        "B": [],
+        "C": [],
+        "F": [
+          "Oust"
+        ]
+      },
+      "sortedAt": {}
+    }
   }
 }

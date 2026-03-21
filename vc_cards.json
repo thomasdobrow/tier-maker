@@ -3282,11 +3282,161 @@
     "colors": [],
     "typeLine": "Land"
   },
+  "Badlands": {
+    "file": "badlands.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Mountain"
+  },
+  "Bayou": {
+    "file": "bayou.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Forest"
+  },
+  "Plateau": {
+    "file": "plateau.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Plains"
+  },
+  "Savannah": {
+    "file": "savannah.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Plains"
+  },
+  "Scrubland": {
+    "file": "scrubland.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Plains Swamp"
+  },
+  "Taiga": {
+    "file": "taiga.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Forest"
+  },
+  "Tropical Island": {
+    "file": "tropical-island.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Island"
+  },
+  "Tundra": {
+    "file": "tundra.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Plains Island"
+  },
+  "Underground Sea": {
+    "file": "underground-sea.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Swamp"
+  },
+  "Volcanic Island": {
+    "file": "volcanic-island.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Mountain"
+  },
+  "Arid Mesa": {
+    "file": "arid-mesa.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Bloodstained Mire": {
+    "file": "bloodstained-mire.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Flooded Strand": {
+    "file": "flooded-strand.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Marsh Flats": {
+    "file": "marsh-flats.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Misty Rainforest": {
+    "file": "misty-rainforest.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Polluted Delta": {
+    "file": "polluted-delta.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
   "Scalding Tarn": {
     "file": "scalding-tarn.jpg",
     "cmc": 0,
     "colors": [],
     "typeLine": "Land"
+  },
+  "Verdant Catacombs": {
+    "file": "verdant-catacombs.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Windswept Heath": {
+    "file": "windswept-heath.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Wooded Foothills": {
+    "file": "wooded-foothills.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land"
+  },
+  "Blood Crypt": {
+    "file": "blood-crypt.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Mountain"
+  },
+  "Breeding Pool": {
+    "file": "breeding-pool.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Island"
+  },
+  "Godless Shrine": {
+    "file": "godless-shrine.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Plains Swamp"
+  },
+  "Hallowed Fountain": {
+    "file": "hallowed-fountain.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Plains Island"
+  },
+  "Overgrown Tomb": {
+    "file": "overgrown-tomb.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Forest"
+  },
+  "Sacred Foundry": {
+    "file": "sacred-foundry.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Plains"
   },
   "Steam Vents": {
     "file": "steam-vents.jpg",
@@ -3294,17 +3444,89 @@
     "colors": [],
     "typeLine": "Land — Island Mountain"
   },
+  "Stomping Ground": {
+    "file": "stomping-ground.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Forest"
+  },
+  "Temple Garden": {
+    "file": "temple-garden.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Plains"
+  },
+  "Watery Grave": {
+    "file": "watery-grave.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Swamp"
+  },
   "Thundering Falls": {
     "file": "thundering-falls.jpg",
     "cmc": 0,
     "colors": [],
     "typeLine": "Land — Island Mountain"
   },
-  "Volcanic Island": {
-    "file": "volcanic-island.jpg",
+  "Indatha Triome": {
+    "file": "indatha-triome.jpg",
     "cmc": 0,
     "colors": [],
-    "typeLine": "Land — Island Mountain"
+    "typeLine": "Land — Plains Swamp Forest"
+  },
+  "Jetmir's Garden": {
+    "file": "jetmirs-garden.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Forest Plains"
+  },
+  "Ketria Triome": {
+    "file": "ketria-triome.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Island Mountain"
+  },
+  "Raffine's Tower": {
+    "file": "raffines-tower.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Plains Island Swamp"
+  },
+  "Raugrin Triome": {
+    "file": "raugrin-triome.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Mountain Plains"
+  },
+  "Savai Triome": {
+    "file": "savai-triome.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Plains Swamp"
+  },
+  "Spara's Headquarters": {
+    "file": "sparas-headquarters.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Plains Island"
+  },
+  "Xander's Lounge": {
+    "file": "xanders-lounge.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Swamp Mountain"
+  },
+  "Zagoth Triome": {
+    "file": "zagoth-triome.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Forest Island"
+  },
+  "Ziatora's Proving Ground": {
+    "file": "ziatoras-proving-ground.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Mountain Forest"
   },
   "Nurturing Peatland": {
     "file": "nurturing-peatland.jpg",
@@ -3317,12 +3539,6 @@
     "cmc": 0,
     "colors": [],
     "typeLine": "Land"
-  },
-  "Xander's Lounge": {
-    "file": "xanders-lounge.jpg",
-    "cmc": 0,
-    "colors": [],
-    "typeLine": "Land — Island Swamp Mountain"
   },
   "Waterlogged Grove": {
     "file": "waterlogged-grove.jpg",
