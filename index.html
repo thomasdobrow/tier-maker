@@ -3756,6 +3756,25 @@
 
   function initDraftSSE() {
     const es = new EventSource('/api/drafts/events');
+    // Re-sync cache on every (re)connect so missed draft_delete events don't leave stale state.
+    es.addEventListener('open', async () => {
+      try {
+        const r = await fetch('/api/drafts');
+        if (!r.ok) return;
+        const fresh = await r.json();
+        let changed = false;
+        for (const id of Object.keys(draftsCache)) {
+          if (!fresh[id]) { delete draftsCache[id]; changed = true; }
+        }
+        for (const [id, d] of Object.entries(fresh)) draftsCache[id] = d;
+        if (activeDraftId && !draftsCache[activeDraftId]) { exitDraftDetail(); return; }
+        if (changed &&
+            document.getElementById('rot-body').style.display !== 'none' &&
+            document.getElementById('rotisserie-section').style.display !== 'none') {
+          renderDrafts();
+        }
+      } catch {}
+    });
     es.onmessage = e => {
       const msg = JSON.parse(e.data);
       if (msg.type === 'draft_update') {

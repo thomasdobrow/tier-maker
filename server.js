@@ -275,6 +275,12 @@ const server = http.createServer(async (req, res) => {
           const draft     = JSON.parse(body);
           const allDrafts = await readDrafts();
           const existing  = allDrafts[id];
+          // Guard: refuse to resurrect a deleted draft that was already active/complete.
+          // New 'waiting' drafts are always allowed through (they're being created fresh).
+          if (!existing && draft.status !== 'waiting') {
+            res.writeHead(409).end('{"error":"draft deleted"}');
+            return;
+          }
           const justStarted = draft.status === 'active' && existing?.status !== 'active';
           allDrafts[id] = draft;
           fs.writeFileSync(DRAFTS_FILE, JSON.stringify(allDrafts, null, 2), 'utf8');
