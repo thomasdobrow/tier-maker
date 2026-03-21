@@ -1,8 +1,9 @@
 'use strict';
 // ── Production user migration ──────────────────────────────────
-// - Delete all lists owned by 'Dan'
+// - Keep Danny's list (just leave it as-is with creator "Danny")
 // - Reassign all lists owned by 'John B' to 'John'
-// - Delete all drafts created by or only containing 'Dan' / 'John B'
+// - Remove Dan from all drafts in drafts.json
+// - Rename John B → John in all drafts
 //
 // Run with:
 //   UPSTASH_REDIS_REST_URL=... UPSTASH_REDIS_REST_TOKEN=... node migrate_users.js
@@ -39,22 +40,13 @@ async function main() {
                    .filter(l => l.data);
 
   // ── 2. Report what we found ─────────────────────────────────
-  const danLists   = lists.filter(l => l.data.creator === 'Dan');
   const johnBLists = lists.filter(l => l.data.creator === 'John B');
-  const otherUsers = [...new Set(lists.map(l => l.data.creator).filter(Boolean))];
+  const allCreators = [...new Set(lists.map(l => l.data.creator).filter(Boolean))];
 
-  console.log(`\nDan's lists (${danLists.length}):`, danLists.map(l => l.data.name));
+  console.log(`\nAll creators found:`, allCreators.sort());
   console.log(`John B's lists (${johnBLists.length}):`, johnBLists.map(l => l.data.name));
-  console.log(`All creators found:`, otherUsers.sort());
 
-  // ── 3. Delete Dan's lists ────────────────────────────────────
-  for (const { id, data } of danLists) {
-    await redis('DEL', `tm:list:${id}`);
-    await redis('HDEL', 'tm:index', id);
-    console.log(`  ✗ Deleted Dan's list: "${data.name}" (${id})`);
-  }
-
-  // ── 4. Reassign John B's lists to John ───────────────────────
+  // ── 3. Reassign John B's lists to John ───────────────────────
   for (const { id, data } of johnBLists) {
     const updated = { ...data, creator: 'John' };
     await redis('SET', `tm:list:${id}`, JSON.stringify(updated));
@@ -62,7 +54,7 @@ async function main() {
     console.log(`  ✎ Reassigned "${data.name}" (${id}) → John`);
   }
 
-  // ── 5. Check drafts.json for dangling references ─────────────
+  // ── 4. Check drafts.json for dangling references ─────────────
   const DRAFTS_FILE = path.join(__dirname, 'drafts.json');
   if (fs.existsSync(DRAFTS_FILE)) {
     const drafts = JSON.parse(fs.readFileSync(DRAFTS_FILE, 'utf8'));
@@ -87,18 +79,14 @@ async function main() {
         console.log(`  ✎ Renamed John B → John in draft ${draftId}`);
       }
 
-      // Remove Dan from waiting/active drafts
+      // Remove Dan from all drafts (they are test/placeholder data)
       if (hasDan) {
-        if (draft.status === 'waiting' || draft.status === 'active') {
-          draft.players = (draft.players || []).filter(p => p !== 'Dan');
-          if (draft.turnOrder) draft.turnOrder = draft.turnOrder.filter(p => p !== 'Dan');
-          if (draft.picks) delete draft.picks['Dan'];
-          if (draft.creator === 'Dan') draft.creator = draft.players[0] || '';
-          draftsChanged = true;
-          console.log(`  ✎ Removed Dan from draft ${draftId} (was ${draft.status})`);
-        } else {
-          console.log(`  ⚠ Dan in completed/finished draft ${draftId} — left intact`);
-        }
+        draft.players = (draft.players || []).filter(p => p !== 'Dan');
+        if (draft.turnOrder) draft.turnOrder = draft.turnOrder.filter(p => p !== 'Dan');
+        if (draft.picks) delete draft.picks['Dan'];
+        if (draft.creator === 'Dan') draft.creator = draft.players[0] || '';
+        draftsChanged = true;
+        console.log(`  ✎ Removed Dan from draft ${draftId} (status=${draft.status})`);
       }
     }
     if (draftsChanged) {
@@ -109,7 +97,7 @@ async function main() {
     console.log('\nNo local drafts.json found (production uses file on Koyeb).');
   }
 
-  // ── 6. Final creator roster ──────────────────────────────────
+  // ── 5. Final creator roster ──────────────────────────────────
   const finalIds  = await redis('HKEYS', 'tm:index');
   const finalVals = finalIds.length ? await redis('MGET', ...finalIds.map(id => `tm:list:${id}`)) : [];
   const finalCreators = [...new Set(
@@ -117,7 +105,7 @@ async function main() {
   )].sort();
   console.log('\n✓ Final creator roster:', finalCreators);
 
-  const DISCORD_IDS = ['Tom','Joe','Kellen','Arye','Sam','David','John','Jack'];
+  const DISCORD_IDS = ['Tom', 'Joe', 'Kellen', 'Arye', 'Sam', 'David', 'John', 'Jack'];
   const missing = finalCreators.filter(u => !DISCORD_IDS.includes(u));
   if (missing.length) {
     console.log('⚠ Users WITHOUT Discord ID mapping:', missing);

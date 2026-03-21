@@ -2,20 +2,17 @@
   "mn006mwoge5km": {
     "id": "mn006mwoge5km",
     "maxPlayers": 4,
-    "creator": "Dan",
+    "creator": "Tom",
     "status": "active",
     "players": [
-      "Dan",
       "Tom"
     ],
     "createdAt": "2026-03-21T07:25:13.464Z",
     "turnOrder": [
-      "Dan",
       "Tom"
     ],
     "currentTurnIdx": 0,
     "picks": {
-      "Dan": [],
       "Tom": []
     },
     "undraftedCards": [
@@ -527,13 +524,11 @@
     "creator": "Tom",
     "status": "active",
     "players": [
-      "Tom",
-      "Dan"
+      "Tom"
     ],
     "createdAt": "2026-03-21T15:35:41.293Z",
     "startedAt": "2026-03-21T15:35:53.707Z",
     "turnOrder": [
-      "Dan",
       "Tom"
     ],
     "currentTurnIdx": 4,
@@ -541,10 +536,6 @@
       "Tom": [
         "Swords to Plowshares",
         "Balance"
-      ],
-      "Dan": [
-        "Ajani, Nacatl Pariah",
-        "Black Lotus"
       ]
     },
     "undraftedCards": [
@@ -1049,20 +1040,14 @@
   "mn0iihh1au67o": {
     "id": "mn0iihh1au67o",
     "maxPlayers": 3,
-    "creator": "Dan",
+    "creator": "",
     "status": "active",
-    "players": [
-      "Dan"
-    ],
+    "players": [],
     "createdAt": "2026-03-21T15:58:19.381Z",
     "startedAt": "2026-03-21T15:58:22.226Z",
-    "turnOrder": [
-      "Dan"
-    ],
+    "turnOrder": [],
     "currentTurnIdx": 0,
-    "picks": {
-      "Dan": []
-    },
+    "picks": {},
     "undraftedCards": [
       "Esper Sentinel",
       "Giver of Runes",
@@ -1569,21 +1554,18 @@
   "mn0j3nkho6go4": {
     "id": "mn0j3nkho6go4",
     "maxPlayers": 5,
-    "creator": "Dan",
+    "creator": "Tom",
     "status": "active",
     "players": [
-      "Dan",
       "Tom"
     ],
     "createdAt": "2026-03-21T16:14:47.057Z",
     "startedAt": "2026-03-21T16:14:53.387Z",
     "turnOrder": [
-      "Dan",
       "Tom"
     ],
     "currentTurnIdx": 0,
     "picks": {
-      "Dan": [],
       "Tom": []
     },
     "undraftedCards": [
@@ -2102,11 +2084,9 @@
   "mn0jg16dmqxhk": {
     "id": "mn0jg16dmqxhk",
     "maxPlayers": 5,
-    "creator": "Dan",
+    "creator": "",
     "status": "waiting",
-    "players": [
-      "Dan"
-    ],
+    "players": [],
     "createdAt": "2026-03-21T16:24:24.565Z"
   },
   "mn0jow4r8gixk": {

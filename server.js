@@ -119,6 +119,39 @@ async function removeList(id) {
 // ── Drafts I/O (file-only, no Redis) ─────────────────────────
 const DRAFTS_FILE = path.join(process.env.DATA_DIR || BASE_DIR, 'drafts.json');
 
+// One-time startup cleanup: remove Dan, rename John B → John in all drafts
+function migrateOldUsers() {
+  if (!fs.existsSync(DRAFTS_FILE)) return;
+  try {
+    const drafts = JSON.parse(fs.readFileSync(DRAFTS_FILE, 'utf8'));
+    let changed = false;
+    for (const d of Object.values(drafts)) {
+      if ((d.players || []).includes('Dan') || d.creator === 'Dan') {
+        d.players = (d.players || []).filter(p => p !== 'Dan');
+        if (d.turnOrder) d.turnOrder = d.turnOrder.filter(p => p !== 'Dan');
+        if (d.picks) delete d.picks['Dan'];
+        if (d.creator === 'Dan') d.creator = d.players[0] || '';
+        changed = true;
+      }
+      if ((d.players || []).includes('John B') || d.creator === 'John B') {
+        d.players = (d.players || []).map(p => p === 'John B' ? 'John' : p);
+        if (d.turnOrder) d.turnOrder = d.turnOrder.map(p => p === 'John B' ? 'John' : p);
+        if (d.picks?.['John B']) {
+          d.picks['John'] = (d.picks['John'] || []).concat(d.picks['John B']);
+          delete d.picks['John B'];
+        }
+        if (d.creator === 'John B') d.creator = 'John';
+        changed = true;
+      }
+    }
+    if (changed) {
+      fs.writeFileSync(DRAFTS_FILE, JSON.stringify(drafts, null, 2), 'utf8');
+      console.log('migrateOldUsers: drafts.json patched');
+    }
+  } catch (e) { console.error('migrateOldUsers failed:', e.message); }
+}
+migrateOldUsers();
+
 async function readDrafts() {
   try {
     if (!fs.existsSync(DRAFTS_FILE)) return {};
