@@ -144,6 +144,13 @@ function migrateOldUsers() {
         changed = true;
       }
     }
+    for (const [id, d] of Object.entries(drafts)) {
+      if ((d.players || []).length === 0) {
+        delete drafts[id];
+        changed = true;
+        console.log(`migrateOldUsers: deleted empty draft ${id}`);
+      }
+    }
     if (changed) {
       fs.writeFileSync(DRAFTS_FILE, JSON.stringify(drafts, null, 2), 'utf8');
       console.log('migrateOldUsers: drafts.json patched');

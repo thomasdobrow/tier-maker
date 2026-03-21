@@ -1945,6 +1945,12 @@
     'Urborg, Tomb of Yawgmoth','Urza\'s Saga','Wasteland',
   ];
 
+  // Land names start at the '// Lands' section — everything from 'Dryad Arbor' onward.
+  // Used to exclude lands from rank mode without depending on vcData being loaded.
+  const VINTAGE_CUBE_LAND_NAMES = new Set(VINTAGE_CUBE_CARDS.slice(
+    VINTAGE_CUBE_CARDS.indexOf('Dryad Arbor')
+  ));
+
   // ── Build tier rows ──────────────────────────────────────────
   const tierList = document.getElementById('tier-list');
   TIERS.forEach(tier => {
@@ -2228,6 +2234,7 @@
     } catch (e) { console.warn('vc_cards.json not found — images will load from Scryfall', e); }
 
     for (const name of VINTAGE_CUBE_CARDS) {
+      if (VINTAGE_CUBE_LAND_NAMES.has(name)) continue; // lands are draft-only
       const meta = vcData[name];
       const src  = meta
         ? `cards/vc/${meta.file}`
@@ -4218,7 +4225,7 @@
 
   function isLandCard(name) {
     const tl = vcData[name]?.typeLine || '';
-    return tl.includes('Land');
+    return tl.includes('Land') || VINTAGE_CUBE_LAND_NAMES.has(name);
   }
 
   function sortLandsLast(arr) {
@@ -4264,6 +4271,10 @@
     const user  = getCurrentUser();
     if (!draft || !user) return;
     const updated = { ...draft, players: draft.players.filter(p => p !== user) };
+    if (updated.players.length === 0) {
+      cancelDraft(id);
+      return;
+    }
     draftsCache[id] = updated;
     persistDraft(updated);
     exitDraftDetail();
