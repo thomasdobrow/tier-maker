@@ -17,7 +17,6 @@ const LISTS_FILE    = path.join(process.env.DATA_DIR || BASE_DIR, 'lists.json');
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const DISCORD_IDS = {
   'Tom':    '226884154610941952',
-  'Dan':    '525384290591047701',
   'Joe':    '195063835416199168',
   'Kellen': '419855833086558208',
   'Arye':   '195313553341808642',
@@ -31,8 +30,7 @@ async function sendDraftStartedPing(draft) {
   if (!DISCORD_WEBHOOK_URL) return;
   const mentions = (draft.players || [])
     .filter(p => p !== draft.creator)
-    .map(p => DISCORD_IDS[p] ? `<@${DISCORD_IDS[p]}>` : null)
-    .filter(Boolean);
+    .map(p => DISCORD_IDS[p] ? `<@${DISCORD_IDS[p]}>` : `**${p}**`);
   if (!mentions.length) return;
   const firstPlayer = (draft.turnOrder || [])[0] || draft.creator;
   try {
@@ -234,10 +232,12 @@ const server = http.createServer(async (req, res) => {
       req.on('data', chunk => { body += chunk; });
       req.on('end', async () => {
         try {
-          const draft    = JSON.parse(body);
-          const existing = (await readDrafts())[id];
+          const draft     = JSON.parse(body);
+          const allDrafts = await readDrafts();
+          const existing  = allDrafts[id];
           const justStarted = draft.status === 'active' && existing?.status !== 'active';
-          await saveDraft(id, draft);
+          allDrafts[id] = draft;
+          fs.writeFileSync(DRAFTS_FILE, JSON.stringify(allDrafts, null, 2), 'utf8');
           broadcastDraft('draft_update', { draft });
           if (justStarted) sendDraftStartedPing(draft);
           res.writeHead(200).end('{"ok":true}');
