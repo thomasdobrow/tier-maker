@@ -2889,6 +2889,14 @@
     if (colors.length > 1)      return 6; // Multi-color
     return ({ W:0, U:1, B:2, R:3, G:4 })[colors[0]] ?? 5;
   }
+  // Same ordering but takes a card name string and reads from vcData
+  function vcColorPriorityByName(name) {
+    const meta   = vcData[name];
+    const colors = meta?.colors || [];
+    if (colors.length === 0) return 5; // Colorless / Artifact
+    if (colors.length > 1)   return 6; // Multi-color
+    return ({ W:0, U:1, B:2, R:3, G:4 })[colors[0]] ?? 5;
+  }
 
   // CMC sort key: Lands first, then 0-cost non-lands, then ascending CMC
   function vcCmcSortKey(card) {
@@ -4275,7 +4283,8 @@
       const stack = document.createElement('div');
       stack.className = 'pv-cmc-stack';
 
-      for (const name of cards) {
+      const sorted = [...cards].sort((a, b) => vcColorPriorityByName(a) - vcColorPriorityByName(b));
+      for (const name of sorted) {
         const img = document.createElement('img');
         img.src = vcCardImgSrc(name);
         img.alt = name;
