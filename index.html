@@ -4224,7 +4224,13 @@
     return turnOrder[round % 2 === 0 ? pos : n - 1 - pos];
   }
 
-  function openPicksViewer(playerName, picks) {
+  async function openPicksViewer(playerName, picks) {
+    if (Object.keys(vcData).length === 0) {
+      try {
+        const r = await fetch('vc_cards.json');
+        if (r.ok) vcData = await r.json();
+      } catch {}
+    }
     document.getElementById('picks-viewer-title').textContent = `${playerName}'s picks (${picks.length})`;
     const grid = document.getElementById('picks-viewer-grid');
     grid.innerHTML = '';
