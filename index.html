@@ -4230,6 +4230,12 @@
     else if (Object.keys(vcData).length === 0) {
       try { const r = await fetch('vc_cards.json'); if (r.ok) vcData = await r.json(); } catch {}
     }
+    // TEMP DIAGNOSTIC — remove after confirming root cause
+    document.getElementById('picks-viewer-title').textContent =
+      `[dbg] keys:${Object.keys(vcData).length} solring:${vcData['Sol Ring']?.cmc ?? 'MISSING'}`;
+    document.getElementById('picks-viewer-modal').classList.add('open');
+    return;
+    // END DIAGNOSTIC
     document.getElementById('picks-viewer-title').textContent = `${playerName}'s picks (${picks.length})`;
     const grid = document.getElementById('picks-viewer-grid');
     grid.innerHTML = '';
