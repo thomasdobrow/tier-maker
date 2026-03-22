@@ -1359,7 +1359,7 @@
     }
     .rot-pick-row { display: flex; align-items: center; gap: 8px; min-height: 46px; }
     .rot-pick-player {
-      font-size: 0.75rem; font-weight: 600; color: #666; width: 72px;
+      font-size: 0.75rem; font-weight: 600; color: #666; width: 90px;
       flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .rot-pick-player.is-you { color: #7dcc7d; }
@@ -4042,7 +4042,8 @@
         const isYouPick = player === user;
         const isTurnNow = player === currentPlayer;
         nameEl.className = 'rot-pick-player' + (isYouPick ? ' is-you' : '') + (isTurnNow ? ' is-turn' : '');
-        nameEl.textContent = (isTurnNow ? '▶ ' : '') + player;
+        const pickCount = ((draft.picks || {})[player] || []).length;
+        nameEl.textContent = (isTurnNow ? '▶ ' : '') + player + ' (' + pickCount + ')';
         nameEl.title = player;
         const viewBtn = document.createElement('button');
         viewBtn.className = 'rot-view-picks-btn';
