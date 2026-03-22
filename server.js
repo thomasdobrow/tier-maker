@@ -51,6 +51,45 @@ async function sendDraftStartedPing(draft) {
   }
 }
 
+async function sendIdleTurnPing(draft, currentPlayer) {
+  console.log('[discord] sendIdleTurnPing called, player:', currentPlayer, 'webhook set:', !!DISCORD_WEBHOOK_URL);
+  if (!DISCORD_WEBHOOK_URL) { console.log('[discord] no webhook URL, skipping'); return; }
+  const mention = DISCORD_IDS[currentPlayer] ? `<@${DISCORD_IDS[currentPlayer]}>` : `**${currentPlayer}**`;
+  const content = `${mention} It's your pick in the rotisserie draft — you've been up for 12+ hours!`;
+  console.log('[discord] sending idle ping:', content);
+  try {
+    const r = await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    console.log('[discord] idle ping response status:', r.status);
+    if (!r.ok) console.error('[discord] idle ping error body:', await r.text());
+  } catch (e) { console.error('[discord] idle ping fetch threw:', e.message); }
+}
+
+const IDLE_PING_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+async function checkIdleTurns() {
+  try {
+    const drafts = await readDrafts();
+    for (const draft of Object.values(drafts)) {
+      if (draft.status !== 'active') continue;
+      const currentPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);
+      if ((draft.bots || []).includes(currentPlayer)) continue; // bot's turn — skip
+      if (!draft.lastTurnStartedAt) continue;                   // old draft without timestamp — skip
+      if (draft.lastIdlePingAt) continue;                       // already pinged this turn
+      const elapsed = Date.now() - new Date(draft.lastTurnStartedAt).getTime();
+      if (elapsed < IDLE_PING_MS) continue;
+      console.log(`[idle] pinging ${currentPlayer} for draft ${draft.id} (${Math.round(elapsed / 3600000)}h elapsed)`);
+      await sendIdleTurnPing(draft, currentPlayer);
+      const updated = { ...draft, lastIdlePingAt: new Date().toISOString() };
+      await saveDraft(draft.id, updated);
+      broadcastDraft('draft_update', { draft: updated });
+    }
+  } catch (e) { console.error('checkIdleTurns error:', e.message); }
+}
+
 const MIME = {
   '.html':  'text/html; charset=utf-8',
   '.css':   'text/css',
@@ -235,6 +274,8 @@ async function makeBotPick(draftId) {
     const updated = {
       ...draft, picks, undraftedCards,
       currentTurnIdx: draft.currentTurnIdx + 1,
+      lastTurnStartedAt: new Date().toISOString(),
+      lastIdlePingAt: null,
       ...(isDone ? { status: 'complete', completedAt: new Date().toISOString() } : {}),
     };
     await saveDraft(draftId, updated);
@@ -265,6 +306,8 @@ async function recoverBotPicks() {
   } catch (e) { console.error('recoverBotPicks error:', e.message); }
 }
 recoverBotPicks();
+checkIdleTurns();                                       // check immediately on startup (handles restarts mid-turn)
+setInterval(checkIdleTurns, 60 * 60 * 1000);            // then every hour
 
 async function readDrafts() {
   if (USE_REDIS) {
@@ -458,6 +501,18 @@ const server = http.createServer(async (req, res) => {
           if (justStarted && draft.bots?.length) {
             const lists = await readLists();
             botRankingCache.set(id, computeBotRanking(lists, draft.undraftedCards));
+          }
+          // Stamp turn start time so idle checker knows when the current player's turn began
+          if (justStarted) {
+            draft.lastTurnStartedAt = new Date().toISOString();
+            draft.lastIdlePingAt = null;
+          }
+          const turnAdvanced = draft.status === 'active'
+            && existing
+            && draft.currentTurnIdx !== existing.currentTurnIdx;
+          if (turnAdvanced) {
+            draft.lastTurnStartedAt = new Date().toISOString();
+            draft.lastIdlePingAt = null;
           }
           await saveDraft(id, draft);
           broadcastDraft('draft_update', { draft });
