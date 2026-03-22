@@ -56,6 +56,8 @@ const MIME = {
   '.css':   'text/css',
   '.js':    'application/javascript',
   '.json':  'application/json',
+  '.jpg':   'image/jpeg',
+  '.jpeg':  'image/jpeg',
   '.png':   'image/png',
   '.webp':  'image/webp',
   '.gif':   'image/gif',
@@ -233,7 +235,7 @@ async function makeBotPick(draftId) {
     const updated = {
       ...draft, picks, undraftedCards,
       currentTurnIdx: draft.currentTurnIdx + 1,
-      ...(isDone ? { status: 'complete' } : {}),
+      ...(isDone ? { status: 'complete', completedAt: new Date().toISOString() } : {}),
     };
     await saveDraft(draftId, updated);
     broadcastDraft('draft_update', { draft: updated });

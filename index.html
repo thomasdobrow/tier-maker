@@ -2260,7 +2260,7 @@
       if (DRAFT_ONLY_LAND_NAMES.has(name)) continue; // redundant cycle lands are draft-only
       const meta = vcData[name];
       const src  = meta
-        ? `cards/vc/${meta.file}`
+        ? `/cards/vc/${meta.file}`
         : `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&format=image&version=normal`;
       const card = makeCard(src, name);
       if (meta) {
@@ -3064,11 +3064,7 @@
     // Draft pick mode — replace tier buttons with pick action
     const draftCtx = activeDraftId ? draftsCache[activeDraftId] : null;
     if (draftCtx && draftCtx.status === 'complete') {
-      const lbl = document.createElement('div');
-      lbl.className = 'zoom-pick-status';
-      lbl.textContent = 'Draft Complete';
-      zoomTierBtns.appendChild(lbl);
-      return;
+      return; // draft is done — show image only, no buttons or labels
     }
     if (draftCtx && draftCtx.status === 'active') {
       const ctxUser   = getCurrentUser();
@@ -3192,7 +3188,7 @@
   const searchDropdown = document.getElementById('search-dropdown');
   let activeResultIdx  = -1;
 
-  function buildDropdown(query) {
+  async function buildDropdown(query) {
     const q = query.toLowerCase();
     searchDropdown.innerHTML = '';
     activeResultIdx = -1;
@@ -3231,6 +3227,8 @@
           });
       } else {
         // Draft view (no .img-card DOM) — search VINTAGE_CUBE_CARDS directly
+        // Ensure vcData is loaded so vcCardImgSrc uses the correct filename (not the derived fallback)
+        if (vcDataPromise) await vcDataPromise;
         rows = VINTAGE_CUBE_CARDS
           .filter(name => name.toLowerCase().includes(q))
           .slice(0, 14)
@@ -3889,18 +3887,21 @@
     const isFull = draft.players.length >= draft.maxPlayers;
     const creatorTag = draft.creator ? `by ${draft.creator}` : '';
     let dateLabel;
-    if (draft.status === 'complete' && draft.startedAt) {
-      const d = new Date(draft.startedAt);
-      const time = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-                 + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+           + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    }
+    if (draft.status === 'complete') {
+      const ts = draft.completedAt || draft.startedAt;
+      const time = ts ? 'Completed at ' + fmtDate(ts) : 'Completed';
       dateLabel = creatorTag ? `${creatorTag} · ${time}` : time;
     } else if (draft.status === 'active' && draft.startedAt) {
-      const d = new Date(draft.startedAt);
-      const time = 'Started ' + d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-                 + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      const time = 'Started at ' + fmtDate(draft.startedAt);
       dateLabel = creatorTag ? `${creatorTag} · ${time}` : time;
     } else {
-      dateLabel = creatorTag ? `${creatorTag} · Not yet started` : 'Not yet started';
+      const time = draft.createdAt ? 'Created at ' + fmtDate(draft.createdAt) : 'Not yet started';
+      dateLabel = creatorTag ? `${creatorTag} · ${time}` : time;
     }
 
     const slotCount = (draft.status === 'active' || draft.status === 'complete') ? draft.players.length : draft.maxPlayers;
@@ -3938,7 +3939,18 @@
   function renderDrafts() {
     const grid = document.getElementById('rot-drafts-grid');
     grid.innerHTML = '';
-    const items = Object.values(draftsCache).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const statusOrder = { active: 0, waiting: 1, complete: 2 };
+    const items = Object.values(draftsCache).sort((a, b) => {
+      const sa = statusOrder[a.status] ?? 1;
+      const sb = statusOrder[b.status] ?? 1;
+      if (sa !== sb) return sa - sb;
+      // Active: oldest startedAt first (longest running at top)
+      if (a.status === 'active') return new Date(a.startedAt) - new Date(b.startedAt);
+      // Waiting: newest createdAt first
+      if (a.status === 'waiting') return new Date(b.createdAt) - new Date(a.createdAt);
+      // Complete: newest completedAt/startedAt first
+      return new Date(b.completedAt || b.startedAt) - new Date(a.completedAt || a.startedAt);
+    });
     if (!items.length) {
       grid.innerHTML = '<div class="rot-empty">No drafts yet — create one to get started.</div>';
       return;
@@ -4325,7 +4337,7 @@
     const updated = {
       ...draft, picks, undraftedCards,
       currentTurnIdx: draft.currentTurnIdx + 1,
-      ...(isDone ? { status: 'complete' } : {}),
+      ...(isDone ? { status: 'complete', completedAt: new Date().toISOString() } : {}),
     };
     draftsCache[updated.id] = updated;
     persistDraft(updated);
