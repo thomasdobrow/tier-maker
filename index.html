@@ -4284,9 +4284,11 @@
   }
 
   function sortLandsLast(arr) {
-    const nonLands = arr.filter(c => !isLandCard(c));
-    const lands    = arr.filter(c =>  isLandCard(c));
-    return [...nonLands, ...lands];
+    // Only the 36 redundant cycle lands (no rank, draft-only) go to the bottom.
+    // Representative lands (Badlands, Strip Mine, etc.) stay in their ranked position.
+    const normal   = arr.filter(c => !DRAFT_ONLY_LAND_NAMES.has(c));
+    const draftOnly = arr.filter(c =>  DRAFT_ONLY_LAND_NAMES.has(c));
+    return [...normal, ...draftOnly];
   }
 
   function getOrderedUndrafted(draft, orderListId) {

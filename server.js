@@ -27,23 +27,27 @@ const DISCORD_IDS = {
 };
 
 async function sendDraftStartedPing(draft) {
-  if (!DISCORD_WEBHOOK_URL) return;
+  console.log('[discord] sendDraftStartedPing called, players:', draft.players, 'bots:', draft.bots, 'webhook set:', !!DISCORD_WEBHOOK_URL);
+  if (!DISCORD_WEBHOOK_URL) { console.log('[discord] no webhook URL, skipping'); return; }
   const bots = new Set(draft.bots || []);
   const mentions = (draft.players || [])
     .filter(p => !bots.has(p))
     .map(p => DISCORD_IDS[p] ? `<@${DISCORD_IDS[p]}>` : `**${p}**`);
-  if (!mentions.length) return;
-  const firstPlayer = (draft.turnOrder || [])[0] || draft.creator;
+  console.log('[discord] mentions:', mentions);
+  if (!mentions.length) { console.log('[discord] no mentions, skipping'); return; }
+  const firstHuman = (draft.turnOrder || []).find(p => !bots.has(p)) || draft.creator;
+  const content = `${mentions.join(' ')} The rotisserie draft has started — ${firstHuman} picks first (among humans)!`;
+  console.log('[discord] sending:', content);
   try {
-    await fetch(DISCORD_WEBHOOK_URL, {
+    const r = await fetch(DISCORD_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: `${mentions.join(' ')} The rotisserie draft has started — ${firstPlayer} picks first!`,
-      }),
+      body: JSON.stringify({ content }),
     });
+    console.log('[discord] response status:', r.status);
+    if (!r.ok) console.error('[discord] error body:', await r.text());
   } catch (e) {
-    console.error('Discord ping failed:', e.message);
+    console.error('[discord] fetch threw:', e.message);
   }
 }
 
@@ -361,6 +365,26 @@ const server = http.createServer(async (req, res) => {
       }
       return;
     }
+  }
+
+  // ── GET /api/test-discord — fire a test ping ───────────────
+  if (pathname === '/api/test-discord' && req.method === 'GET') {
+    const result = { webhookSet: !!DISCORD_WEBHOOK_URL };
+    if (DISCORD_WEBHOOK_URL) {
+      try {
+        const r = await fetch(DISCORD_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: '🧪 Discord webhook test from tier maker server' }),
+        });
+        result.status = r.status;
+        result.ok = r.ok;
+        if (!r.ok) result.body = await r.text();
+      } catch (e) { result.error = e.message; }
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(result));
+    return;
   }
 
   // ── GET /api/users — list registered users ─────────────────
