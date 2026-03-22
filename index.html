@@ -1355,7 +1355,7 @@
     .rot-order-pill.active { background: #1e3a1e; color: #7dcc7d; border-color: #3a6a3a; font-weight: 600; }
     .rot-picks-section {
       padding: 8px 16px; display: flex; flex-direction: column; gap: 4px;
-      border-bottom: 1px solid #222; flex-shrink: 0; max-height: 140px; overflow-y: auto;
+      border-bottom: 1px solid #222; flex-shrink: 0; max-height: 212px; overflow-y: auto;
     }
     .rot-pick-row { display: flex; align-items: center; gap: 8px; min-height: 46px; }
     .rot-pick-player {
@@ -1415,17 +1415,22 @@
     }
     #picks-viewer-close:hover { color: #aaa; }
     #picks-viewer-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 8px; padding: 16px; overflow-y: auto;
+      display: flex; flex-direction: row; gap: 10px; padding: 16px;
+      overflow-x: auto; overflow-y: auto; align-items: flex-start;
+      flex: 1; min-height: 0;
     }
-    .pv-card-wrap { position: relative; }
-    .pv-card-num {
-      position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.72);
-      color: #aaa; font-size: 0.62rem; padding: 1px 5px; border-radius: 3px;
-      pointer-events: none;
+    .pv-cmc-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+    .pv-cmc-label {
+      font-size: 0.7rem; color: #666; margin-bottom: 6px;
+      font-weight: 600; letter-spacing: 0.04em;
     }
-    #picks-viewer-grid img { width: 100%; border-radius: 6px; cursor: pointer; display: block; }
-    #picks-viewer-grid img:hover { opacity: 0.88; }
+    .pv-cmc-stack { display: flex; flex-direction: column; }
+    .pv-stack-card {
+      width: 120px; border-radius: 6px; cursor: pointer;
+      display: block; flex-shrink: 0; transition: opacity 0.1s;
+    }
+    .pv-stack-card:not(:first-child) { margin-top: -131px; }
+    .pv-stack-card:hover { opacity: 0.82; position: relative; z-index: 10; }
     .rot-view-picks-btn {
       background: none; border: 1px solid #2a2a2a; color: #555; border-radius: 3px;
       font-size: 0.65rem; padding: 1px 6px; cursor: pointer; flex-shrink: 0;
@@ -4222,28 +4227,63 @@
     document.getElementById('picks-viewer-title').textContent = `${playerName}'s picks (${picks.length})`;
     const grid = document.getElementById('picks-viewer-grid');
     grid.innerHTML = '';
+
     if (!picks.length) {
       const empty = document.createElement('div');
-      empty.style.cssText = 'color:#555; font-style:italic; padding:8px; grid-column:1/-1;';
+      empty.style.cssText = 'color:#555; font-style:italic; padding:8px;';
       empty.textContent = 'No picks yet';
       grid.appendChild(empty);
-    } else {
-      picks.forEach((name, i) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'pv-card-wrap';
-        const num = document.createElement('div');
-        num.className = 'pv-card-num';
-        num.textContent = i + 1;
+      document.getElementById('picks-viewer-modal').classList.add('open');
+      return;
+    }
+
+    // Bucket picks by CMC; lands get their own column
+    const buckets = {};
+    for (const name of picks) {
+      const meta = vcData[name];
+      let key;
+      if ((meta?.typeLine || '').includes('Land')) {
+        key = 'land';
+      } else {
+        const cmc = meta?.cmc ?? 0;
+        key = cmc >= 7 ? '7+' : String(Math.floor(cmc));
+      }
+      (buckets[key] = buckets[key] || []).push(name);
+    }
+
+    const COL_ORDER  = ['land', '0', '1', '2', '3', '4', '5', '6', '7+'];
+    const COL_LABELS = { land: '🌳', '0': '0', '1': '1', '2': '2', '3': '3',
+                         '4': '4', '5': '5', '6': '6', '7+': '7+' };
+
+    for (const key of COL_ORDER) {
+      const cards = buckets[key];
+      if (!cards?.length) continue;
+
+      const col = document.createElement('div');
+      col.className = 'pv-cmc-col';
+
+      const label = document.createElement('div');
+      label.className = 'pv-cmc-label';
+      label.textContent = COL_LABELS[key];
+
+      const stack = document.createElement('div');
+      stack.className = 'pv-cmc-stack';
+
+      for (const name of cards) {
         const img = document.createElement('img');
         img.src = vcCardImgSrc(name);
         img.alt = name;
         img.title = name;
+        img.className = 'pv-stack-card';
         img.addEventListener('click', () => openZoom(vcCardImgSrc(name), name));
         img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
-        wrap.append(num, img);
-        grid.appendChild(wrap);
-      });
+        stack.appendChild(img);
+      }
+
+      col.append(label, stack);
+      grid.appendChild(col);
     }
+
     document.getElementById('picks-viewer-modal').classList.add('open');
   }
 
