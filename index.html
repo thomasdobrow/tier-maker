@@ -1197,7 +1197,7 @@
       cursor: default; z-index: 1;
     }
     .cmp-dot::after {
-      content: attr(data-rank);
+      content: attr(data-tip);
       position: absolute;
       bottom: calc(100% + 3px);
       left: 50%;
@@ -3575,7 +3575,7 @@
         const r = card.pts[i];
         if (r == null) return '';
         const pct = N > 1 ? ((r - 1) / (N - 1)) * 100 : 50;
-        return `<div class="cmp-dot" data-rank="${r}" style="left:${pct.toFixed(1)}%;background:${m.color}" title="${escHtml(m.list.name)}: #${r}"></div>`;
+        return `<div class="cmp-dot" data-rank="${r}" data-tip="${escHtml(m.list.name)}: #${r}" style="left:${pct.toFixed(1)}%;background:${m.color}"></div>`;
       }).join('');
       const avgDisplay = card.avg === Infinity ? '—' : card.avg.toFixed(1);
       return `<div class="cmp-row">
