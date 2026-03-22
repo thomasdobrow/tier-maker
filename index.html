@@ -3480,7 +3480,8 @@
   }
 
   function totalCardsForType(type) {
-    if (type === 'vintage_cube') return VINTAGE_CUBE_CARDS.length;
+    // Draft-only lands are excluded from rank mode, so they can never appear in tier state.
+    if (type === 'vintage_cube') return VINTAGE_CUBE_CARDS.length - DRAFT_ONLY_LAND_NAMES.size;
     return null; // agricola loaded dynamically — unsupported for now
   }
 
