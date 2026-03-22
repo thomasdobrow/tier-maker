@@ -2024,6 +2024,7 @@
     const s = new Set(getKnownUsers());
     s.add(name);
     localStorage.setItem(KNOWN_USERS_KEY, JSON.stringify([...s].sort()));
+    fetch(`/api/users/${encodeURIComponent(name)}`, { method: 'POST' }).catch(() => {});
   }
   function listLabel(list)   { return list.creator ? `${list.name} (${list.creator})` : list.name; }
 
@@ -2759,8 +2760,14 @@
   }
 
   // ── User modal ─────────────────────────────────────────────────
-  function openUserModal() {
+  async function openUserModal() {
+    let serverUsers = [];
+    try {
+      const r = await fetch('/api/users');
+      if (r.ok) serverUsers = await r.json();
+    } catch {}
     const users = [...new Set([
+      ...serverUsers,
       ...getKnownUsers(),
       ...Object.values(listsCache).map(l => l.creator).filter(Boolean),
     ])].sort();

@@ -116,11 +116,12 @@ async function removeList(id) {
   ]);
 }
 
-// ── Drafts I/O (file-only, no Redis) ─────────────────────────
+// ── Drafts I/O (Redis when available, file fallback for local dev) ──
 const DRAFTS_FILE = path.join(process.env.DATA_DIR || BASE_DIR, 'drafts.json');
 
-// One-time startup cleanup: remove Dan, rename John B → John in all drafts
+// One-time startup cleanup (file-based only — Redis was already cleaned in production)
 function migrateOldUsers() {
+  if (USE_REDIS) return; // production Redis already migrated
   if (!fs.existsSync(DRAFTS_FILE)) return;
   try {
     const drafts = JSON.parse(fs.readFileSync(DRAFTS_FILE, 'utf8'));
@@ -160,17 +161,39 @@ function migrateOldUsers() {
 migrateOldUsers();
 
 async function readDrafts() {
+  if (USE_REDIS) {
+    const ids = await redis('HKEYS', 'tm:draft-index').catch(() => []);
+    if (!ids || !ids.length) return {};
+    const vals = await redis('MGET', ...ids.map(id => `tm:draft:${id}`));
+    const out = {};
+    ids.forEach((id, i) => { if (vals[i]) out[id] = JSON.parse(vals[i]); });
+    return out;
+  }
   try {
     if (!fs.existsSync(DRAFTS_FILE)) return {};
     return JSON.parse(fs.readFileSync(DRAFTS_FILE, 'utf8'));
   } catch { return {}; }
 }
 async function saveDraft(id, data) {
+  if (USE_REDIS) {
+    await Promise.all([
+      redis('SET', `tm:draft:${id}`, JSON.stringify(data)),
+      redis('HSET', 'tm:draft-index', id, data.createdAt || id),
+    ]);
+    return;
+  }
   const drafts = await readDrafts();
   drafts[id] = data;
   fs.writeFileSync(DRAFTS_FILE, JSON.stringify(drafts, null, 2), 'utf8');
 }
 async function removeDraft(id) {
+  if (USE_REDIS) {
+    await Promise.all([
+      redis('DEL', `tm:draft:${id}`),
+      redis('HDEL', 'tm:draft-index', id),
+    ]);
+    return;
+  }
   const drafts = await readDrafts();
   delete drafts[id];
   fs.writeFileSync(DRAFTS_FILE, JSON.stringify(drafts, null, 2), 'utf8');
@@ -240,6 +263,29 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // ── GET /api/users — list registered users ─────────────────
+  if (pathname === '/api/users' && req.method === 'GET') {
+    try {
+      const users = USE_REDIS
+        ? (await redis('SMEMBERS', 'tm:users').catch(() => []))
+        : [];
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(users.sort()));
+    } catch (e) { res.writeHead(500); res.end('Server error'); }
+    return;
+  }
+
+  // ── POST /api/users/:name — register a user ─────────────────
+  const userMatch = pathname.match(/^\/api\/users\/([^/]+)$/);
+  if (userMatch && req.method === 'POST') {
+    const name = userMatch[1];
+    try {
+      if (USE_REDIS && name) await redis('SADD', 'tm:users', name);
+      res.writeHead(200).end('{"ok":true}');
+    } catch { res.writeHead(500).end('Server error'); }
+    return;
+  }
+
   // ── GET /api/drafts/events — SSE stream ────────────────────
   if (pathname === '/api/drafts/events' && req.method === 'GET') {
     res.writeHead(200, {
@@ -282,8 +328,7 @@ const server = http.createServer(async (req, res) => {
             return;
           }
           const justStarted = draft.status === 'active' && existing?.status !== 'active';
-          allDrafts[id] = draft;
-          fs.writeFileSync(DRAFTS_FILE, JSON.stringify(allDrafts, null, 2), 'utf8');
+          await saveDraft(id, draft);
           broadcastDraft('draft_update', { draft });
           if (justStarted) sendDraftStartedPing(draft);
           res.writeHead(200).end('{"ok":true}');
