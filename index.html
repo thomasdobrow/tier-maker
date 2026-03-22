@@ -4018,8 +4018,11 @@
         turnLabel.style.color = '#7dcc7d';
         turnLabel.textContent = '✓ Draft Complete';
       } else {
+        const isBot = (draft.bots || []).includes(currentPlayer);
         turnLabel.className = 'rot-turn-label ' + (isMyTurn ? 'is-you' : 'is-other');
-        turnLabel.textContent = isMyTurn ? '▶ Your turn to pick' : `▶ ${currentPlayer}'s turn`;
+        turnLabel.textContent = isBot
+          ? `🤖 ${currentPlayer} is picking…`
+          : (isMyTurn ? '▶ Your turn to pick' : `▶ ${currentPlayer}'s turn`);
       }
       turnBar.appendChild(turnLabel);
       body.appendChild(turnBar);
@@ -4145,7 +4148,16 @@
       cancelBtn.className = 'rot-cancel-btn';
       cancelBtn.textContent = 'Cancel Draft';
       cancelBtn.addEventListener('click', () => cancelDraft(draft.id));
-      actions.append(startBtn, cancelBtn);
+      if (draft.players.length < draft.maxPlayers) {
+        const fillBtn = document.createElement('button');
+        fillBtn.className = 'rot-start-btn';
+        fillBtn.textContent = 'Fill with Bots 🤖';
+        fillBtn.style.background = '#2a3a4a';
+        fillBtn.addEventListener('click', fillWithBots);
+        actions.append(fillBtn, startBtn, cancelBtn);
+      } else {
+        actions.append(startBtn, cancelBtn);
+      }
     } else if (isIn) {
       const creator = draft.creator || draft.players[0] || 'the creator';
       const msg = document.createElement('div');
@@ -4301,6 +4313,24 @@
       if (undrafted.has(card) && !ranked.has(card)) result.push(card);
     }
     return sortLandsLast(result);
+  }
+
+  function fillWithBots() {
+    const draft = draftsCache[activeDraftId];
+    if (!draft || draft.status !== 'waiting') return;
+    const existingBots = draft.bots || [];
+    const slotsToFill = draft.maxPlayers - draft.players.length;
+    if (slotsToFill <= 0) return;
+    const newBots = Array.from({ length: slotsToFill },
+      (_, i) => `Bot ${existingBots.length + i + 1}`);
+    const updated = {
+      ...draft,
+      players: [...draft.players, ...newBots],
+      bots: [...existingBots, ...newBots],
+    };
+    draftsCache[updated.id] = updated;
+    persistDraft(updated);
+    renderDraftDetail();
   }
 
   function cancelDraft(id) {

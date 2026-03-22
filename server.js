@@ -28,8 +28,9 @@ const DISCORD_IDS = {
 
 async function sendDraftStartedPing(draft) {
   if (!DISCORD_WEBHOOK_URL) return;
+  const bots = new Set(draft.bots || []);
   const mentions = (draft.players || [])
-    .filter(p => p !== draft.creator)
+    .filter(p => !bots.has(p))
     .map(p => DISCORD_IDS[p] ? `<@${DISCORD_IDS[p]}>` : `**${p}**`);
   if (!mentions.length) return;
   const firstPlayer = (draft.turnOrder || [])[0] || draft.creator;
@@ -159,6 +160,105 @@ function migrateOldUsers() {
   } catch (e) { console.error('migrateOldUsers failed:', e.message); }
 }
 migrateOldUsers();
+
+// ── Bot draft logic ────────────────────────────────────────────
+
+function getSnakeDraftPlayerServer(turnOrder, idx) {
+  const n = turnOrder.length;
+  const pos = idx % n;
+  return turnOrder[Math.floor(idx / n) % 2 === 0 ? pos : n - 1 - pos];
+}
+
+function computeBotRanking(lists, undraftedCards) {
+  const TIERS = ['S', 'A', 'B', 'C', 'F'];
+  const rankSums = {}, rankCounts = {};
+  const vcLists = Object.values(lists).filter(
+    l => (l.type || 'agricola') === 'vintage_cube' && l.state?.tiers
+  );
+  for (const list of vcLists) {
+    let rank = 1;
+    for (const tier of TIERS)
+      for (const card of (list.state.tiers[tier] || []))
+        { rankSums[card] = (rankSums[card] || 0) + rank; rankCounts[card] = (rankCounts[card] || 0) + 1; rank++; }
+  }
+  const ranked = Object.keys(rankSums).sort((a, b) =>
+    rankSums[a] / rankCounts[a] - rankSums[b] / rankCounts[b]
+  );
+  const rankedSet = new Set(ranked);
+  const unranked = (undraftedCards || []).filter(c => !rankedSet.has(c));
+  return [...ranked, ...unranked];
+}
+
+const botRankingCache = new Map(); // draftId → string[]
+const pendingBotPicks = new Map(); // draftId → timeoutId
+
+function scheduleBotPick(draftId, delayMs = 2000) {
+  if (pendingBotPicks.has(draftId)) clearTimeout(pendingBotPicks.get(draftId));
+  const tid = setTimeout(() => { pendingBotPicks.delete(draftId); makeBotPick(draftId); }, delayMs);
+  pendingBotPicks.set(draftId, tid);
+}
+
+async function makeBotPick(draftId) {
+  try {
+    const allDrafts = await readDrafts();
+    const draft = allDrafts[draftId];
+    if (!draft || draft.status !== 'active') return;
+    const currentPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);
+    if (!(draft.bots || []).includes(currentPlayer)) return;
+
+    if (!botRankingCache.has(draftId)) {
+      const lists = await readLists();
+      botRankingCache.set(draftId, computeBotRanking(lists, draft.undraftedCards));
+    }
+    const ranking = botRankingCache.get(draftId);
+    const undraftedSet = new Set(draft.undraftedCards);
+    const topCards = ranking.filter(c => undraftedSet.has(c)).slice(0, 10);
+    if (!topCards.length) return;
+
+    // Log-backoff weights: 2^(N-1), 2^(N-2), ..., 1
+    const weights = topCards.map((_, i) => Math.pow(2, topCards.length - 1 - i));
+    const total = weights.reduce((a, b) => a + b, 0);
+    let rnd = Math.random() * total;
+    let pick = topCards[topCards.length - 1];
+    for (let i = 0; i < topCards.length; i++) { rnd -= weights[i]; if (rnd <= 0) { pick = topCards[i]; break; } }
+
+    const picks = { ...draft.picks };
+    picks[currentPlayer] = [...(picks[currentPlayer] || []), pick];
+    const undraftedCards = draft.undraftedCards.filter(c => c !== pick);
+    const isDone = draft.turnOrder.every(p => (picks[p] || []).length >= 40);
+    const updated = {
+      ...draft, picks, undraftedCards,
+      currentTurnIdx: draft.currentTurnIdx + 1,
+      ...(isDone ? { status: 'complete' } : {}),
+    };
+    await saveDraft(draftId, updated);
+    broadcastDraft('draft_update', { draft: updated });
+
+    if (!isDone) {
+      const nextPlayer = getSnakeDraftPlayerServer(updated.turnOrder, updated.currentTurnIdx);
+      if ((updated.bots || []).includes(nextPlayer)) scheduleBotPick(draftId);
+    } else {
+      botRankingCache.delete(draftId);
+    }
+  } catch (e) { console.error('makeBotPick error:', e.message); }
+}
+
+async function recoverBotPicks() {
+  try {
+    const drafts = await readDrafts();
+    const lists  = await readLists();
+    for (const draft of Object.values(drafts)) {
+      if (draft.status !== 'active' || !(draft.bots?.length)) continue;
+      const currentPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);
+      if (draft.bots.includes(currentPlayer)) {
+        botRankingCache.set(draft.id, computeBotRanking(lists, draft.undraftedCards));
+        scheduleBotPick(draft.id, 3000);
+        console.log(`recoverBotPicks: scheduled pick for ${currentPlayer} in draft ${draft.id}`);
+      }
+    }
+  } catch (e) { console.error('recoverBotPicks error:', e.message); }
+}
+recoverBotPicks();
 
 async function readDrafts() {
   if (USE_REDIS) {
@@ -328,9 +428,19 @@ const server = http.createServer(async (req, res) => {
             return;
           }
           const justStarted = draft.status === 'active' && existing?.status !== 'active';
+          // On draft start: seed bot ranking cache if there are bots
+          if (justStarted && draft.bots?.length) {
+            const lists = await readLists();
+            botRankingCache.set(id, computeBotRanking(lists, draft.undraftedCards));
+          }
           await saveDraft(id, draft);
           broadcastDraft('draft_update', { draft });
           if (justStarted) sendDraftStartedPing(draft);
+          // Schedule bot pick if it's currently a bot's turn
+          if (draft.status === 'active' && draft.bots?.length) {
+            const nextPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);
+            if (draft.bots.includes(nextPlayer)) scheduleBotPick(id);
+          }
           res.writeHead(200).end('{"ok":true}');
         } catch { res.writeHead(400).end('Bad request'); }
       });
@@ -340,6 +450,9 @@ const server = http.createServer(async (req, res) => {
       try {
         await removeDraft(id);
         broadcastDraft('draft_delete', { id });
+        // Clean up any pending bot state for this draft
+        if (pendingBotPicks.has(id)) { clearTimeout(pendingBotPicks.get(id)); pendingBotPicks.delete(id); }
+        botRankingCache.delete(id);
         res.writeHead(200).end('{"ok":true}');
       } catch { res.writeHead(500).end('Server error'); }
       return;
