@@ -3645,8 +3645,24 @@
       return `background:rgb(${r},${g},40);color:#fff;font-weight:600;`;
     };
 
+    // Precompute row averages
+    const rowAvg = lists.map((_, i) => {
+      const vals = lists.map((__, j) => pct(i, j)).filter(p => p !== null);
+      return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+    });
+    const avgMin = Math.min(...rowAvg.filter(v => v !== null));
+    const avgMax = Math.max(...rowAvg.filter(v => v !== null));
+    const avgRange = avgMax - avgMin || 1;
+    const avgCellStyle = p => {
+      if (p === null) return 'background:#1e1e1e;';
+      const t = (p - avgMin) / avgRange;
+      const g = Math.round(50 + t * 180);
+      const r = Math.round(230 - t * 180);
+      return `background:rgb(${r},${g},40);color:#fff;font-weight:600;`;
+    };
+
     const label = l => escHtml(listLabel(l));
-    const header = `<tr><th></th>${lists.map(l => `<th style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;font-size:11px;text-align:left;">${label(l)}</th>`).join('')}</tr>`;
+    const header = `<tr><th></th>${lists.map(l => `<th style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;font-size:11px;text-align:left;">${label(l)}</th>`).join('')}<th style="padding:6px 10px;font-size:11px;color:#aaa;">Avg</th></tr>`;
     const rows = lists.map((l, i) =>
       `<tr>
         <td style="padding:6px 10px;font-size:11px;white-space:nowrap;">${label(l)}</td>
@@ -3654,6 +3670,7 @@
           const p = pct(i, j);
           return `<td style="text-align:center;padding:6px 12px;${cellStyle(p)}">${p === null ? '—' : p + '%'}</td>`;
         }).join('')}
+        <td style="text-align:center;padding:6px 12px;border-left:1px solid #333;${avgCellStyle(rowAvg[i])}">${rowAvg[i] === null ? '—' : rowAvg[i] + '%'}</td>
       </tr>`
     ).join('');
 
