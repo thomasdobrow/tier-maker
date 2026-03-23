@@ -70,10 +70,11 @@ async function sendIdleTurnPing(draft, currentPlayer) {
   } catch (e) { console.error('[discord] idle ping fetch threw:', e.message); }
 }
 
-async function sendTurnPing(draft, player) {
+async function sendTurnPing(draft, player, prevPlayer, pickedCard) {
   if (!DISCORD_WEBHOOK_URL) return;
   const mention = DISCORD_IDS[player] ? `<@${DISCORD_IDS[player]}>` : `**${player}**`;
-  const content = `${mention} It's your pick in the rotisserie draft!\n${APP_URL}/draft/${draft.id}`;
+  const prevLine = (prevPlayer && pickedCard) ? `${prevPlayer} took ${pickedCard}.\n` : '';
+  const content = `${prevLine}${mention} It's your pick in the rotisserie draft!\n${APP_URL}/draft/${draft.id}`;
   console.log('[discord] sending turn ping for', player);
   try {
     const r = await fetch(DISCORD_WEBHOOK_URL, {
@@ -315,7 +316,7 @@ async function makeBotPick(draftId) {
       if ((updated.bots || []).includes(nextPlayer)) {
         scheduleBotPick(draftId);
       } else {
-        sendTurnPing(updated, nextPlayer);
+        sendTurnPing(updated, nextPlayer, currentPlayer, pick);
       }
     } else {
       botRankingCache.delete(draftId);
@@ -555,7 +556,12 @@ const server = http.createServer(async (req, res) => {
             const bots = new Set(draft.bots || []);
             const prevPlayer = getSnakeDraftPlayerServer(existing.turnOrder, existing.currentTurnIdx);
             const nextPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);
-            if (!bots.has(nextPlayer) && nextPlayer !== prevPlayer) sendTurnPing(draft, nextPlayer);
+            if (!bots.has(nextPlayer) && nextPlayer !== prevPlayer) {
+              const prevPicks  = existing.picks?.[prevPlayer] || [];
+              const newPicks   = draft.picks?.[prevPlayer]    || [];
+              const pickedCard = newPicks.find(c => !prevPicks.includes(c)) || null;
+              sendTurnPing(draft, nextPlayer, prevPlayer, pickedCard);
+            }
           }
           // Schedule bot pick if it's currently a bot's turn
           if (draft.status === 'active' && draft.bots?.length) {
