@@ -1549,6 +1549,7 @@
       <button class="compare-tab" data-tab="h2h">Head to Head</button>
       <button class="compare-tab" data-tab="similarities">List Similarities</button>
       <button class="compare-tab" data-tab="hottakes">Hot Takes</button>
+      <button class="compare-tab" data-tab="lva">List vs Average</button>
     </div>
     <select id="compare-type-sel"></select>
   </div>
@@ -1594,6 +1595,16 @@
   <!-- Hot Takes view -->
   <div id="compare-hottakes" class="compare-view" style="display:none; overflow:auto; padding:12px;">
     <div id="ht-wrap"></div>
+  </div>
+
+  <!-- List vs Average view -->
+  <div id="compare-lva" class="compare-view" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+    <div id="lva-controls" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #222; flex-shrink:0;">
+      <select id="lva-sel"></select>
+    </div>
+    <div id="lva-col" style="overflow:auto; padding:12px 16px; flex:1;">
+      <div id="lva-grid" class="h2h-grid"></div>
+    </div>
   </div>
 
 </div>
@@ -3533,6 +3544,7 @@
     else if (tab === 'h2h') renderH2H();
     else if (tab === 'similarities') renderSimilarities();
     else if (tab === 'hottakes') renderHotTakes();
+    else if (tab === 'lva') renderListVsAvg();
   }
 
   function cardColorCategory(name) {
@@ -3759,6 +3771,51 @@
     }).join('');
   }
 
+  function renderListVsAvg() {
+    const type = document.getElementById('compare-type-sel').value;
+    const lists = Object.values(listsCache).filter(l => l.type === type && isComparable(l));
+    const sel  = document.getElementById('lva-sel');
+    const grid = document.getElementById('lva-grid');
+
+    // Populate dropdown, preserve selection
+    const prev = sel.value;
+    sel.innerHTML = lists.map(l => `<option value="${l.id}">${escHtml(listLabel(l))}</option>`).join('');
+    if (lists.find(l => l.id === prev)) sel.value = prev;
+
+    const list = listsCache[sel.value];
+    if (!list || lists.length < 2) {
+      grid.innerHTML = '<div style="color:#555;padding:20px;">Need at least 2 comparable lists.</div>';
+      return;
+    }
+
+    // Compute average rank per card across all comparable lists
+    const avgRank = {}, cardCounts = {};
+    for (const rankings of lists.map(l => computeRankings(l))) {
+      for (const [card, rank] of Object.entries(rankings)) {
+        avgRank[card]    = (avgRank[card]    || 0) + rank;
+        cardCounts[card] = (cardCounts[card] || 0) + 1;
+      }
+    }
+    for (const card of Object.keys(avgRank)) avgRank[card] /= cardCounts[card];
+
+    // Sort this list's cards by delta (avgRank − thisRank) descending
+    // Positive = this list rates it higher than average → appears first
+    const thisRankings = computeRankings(list);
+    const cards = Object.keys(thisRankings).sort((a, b) =>
+      ((avgRank[b] ?? 0) - thisRankings[b]) - ((avgRank[a] ?? 0) - thisRankings[a])
+    );
+
+    grid.innerHTML = cards.map(card => {
+      const thisRank = thisRankings[card];
+      const arrow = avgRank[card] != null ? h2hArrow(thisRank, Math.round(avgRank[card])) : '';
+      return `
+        <div class="h2h-card-item">
+          <div class="h2h-num">${thisRank}${arrow}</div>
+          <img class="h2h-card-img" src="${vcCardImgSrc(card)}" alt="${escHtml(card)}" title="${escHtml(card)}" loading="lazy" />
+        </div>`;
+    }).join('');
+  }
+
   function vcCardImgSrc(name) {
     // Prefer the already-loaded vcData metadata; derive filename the same way download_vc_cards.js does
     const meta = vcData[name];
@@ -3902,6 +3959,7 @@
       document.getElementById('compare-h2h').style.display          = btn.dataset.tab === 'h2h'          ? 'flex' : 'none';
       document.getElementById('compare-similarities').style.display = btn.dataset.tab === 'similarities' ? 'block' : 'none';
       document.getElementById('compare-hottakes').style.display     = btn.dataset.tab === 'hottakes'     ? 'block' : 'none';
+      document.getElementById('compare-lva').style.display          = btn.dataset.tab === 'lva'          ? 'flex'  : 'none';
       renderCompare();
     });
   });
@@ -3910,6 +3968,7 @@
   document.getElementById('h2h-sel-a').addEventListener('change', renderH2HColumns);
   document.getElementById('h2h-sel-b').addEventListener('change', renderH2HColumns);
   document.getElementById('h2h-count').addEventListener('change', renderH2HColumns);
+  document.getElementById('lva-sel').addEventListener('change', renderListVsAvg);
 
   document.querySelectorAll('.cmp-color-btn').forEach(btn => {
     btn.addEventListener('click', () => {
