@@ -4370,7 +4370,7 @@
       // ── Ordering bar ──────────────────────────────────────────
       const savedOrderId = localStorage.getItem(ROT_ORDER_KEY) || '';
       const myLists = Object.values(getLists()).filter(
-        l => l.creator === user && (l.type || 'agricola') === 'vintage_cube'
+        l => isComparable(l) && (l.type || 'agricola') === 'vintage_cube'
       ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
       const orderBar = document.createElement('div');
@@ -4385,7 +4385,7 @@
       myLists.forEach(l => {
         const opt = document.createElement('option');
         opt.value = l.id;
-        opt.textContent = l.name;
+        opt.textContent = listLabel(l);
         if (l.id === savedOrderId) opt.selected = true;
         orderSelect.appendChild(opt);
       });
