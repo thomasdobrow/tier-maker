@@ -24,6 +24,7 @@ const DISCORD_IDS = {
   'David':  '163132966535561216',
   'John B': '177182020345135105',
   'Jack':   '695462993919606855',
+  'Danny':  '525384290591047701',
 };
 
 async function sendDraftStartedPing(draft) {

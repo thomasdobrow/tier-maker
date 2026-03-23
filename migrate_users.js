@@ -94,7 +94,7 @@ async function main() {
   )].sort();
   console.log('\n✓ Final creator roster:', finalCreators);
 
-  const VALID_USERS = ['Tom', 'Joe', 'Kellen', 'Aeye', 'Sam', 'David', 'John B', 'Jack'];
+  const VALID_USERS = ['Tom', 'Joe', 'Kellen', 'Aeye', 'Sam', 'David', 'John B', 'Jack', 'Danny'];
   const missing = finalCreators.filter(u => !VALID_USERS.includes(u));
   if (missing.length) {
     console.log('⚠ Users WITHOUT Discord ID mapping:', missing);
