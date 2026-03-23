@@ -1,9 +1,6 @@
 'use strict';
 // ── Production user migration ──────────────────────────────────
-// - Keep Danny's list (just leave it as-is with creator "Danny")
-// - Reassign all lists owned by 'John B' to 'John'
-// - Remove Dan from all drafts in drafts.json
-// - Rename John B → John in all drafts
+// - Remove all lists/drafts owned by or referencing 'Arye'
 //
 // Run with:
 //   UPSTASH_REDIS_REST_URL=... UPSTASH_REDIS_REST_TOKEN=... node migrate_users.js
@@ -40,18 +37,16 @@ async function main() {
                    .filter(l => l.data);
 
   // ── 2. Report what we found ─────────────────────────────────
-  const johnBLists = lists.filter(l => l.data.creator === 'John B');
   const allCreators = [...new Set(lists.map(l => l.data.creator).filter(Boolean))];
-
   console.log(`\nAll creators found:`, allCreators.sort());
-  console.log(`John B's lists (${johnBLists.length}):`, johnBLists.map(l => l.data.name));
 
-  // ── 3. Reassign John B's lists to John ───────────────────────
-  for (const { id, data } of johnBLists) {
-    const updated = { ...data, creator: 'John' };
-    await redis('SET', `tm:list:${id}`, JSON.stringify(updated));
-    await redis('HSET', 'tm:index', id, updated.name || id);
-    console.log(`  ✎ Reassigned "${data.name}" (${id}) → John`);
+  // ── 3. Delete Arye's lists ──────────────────────────────────
+  for (const { id, data } of lists) {
+    if (data.creator === 'Arye') {
+      await redis('DEL', `tm:list:${id}`);
+      await redis('HDEL', 'tm:index', id);
+      console.log(`  ✗ Deleted "${data.name}" (${id}) — creator was Arye`);
+    }
   }
 
   // ── 4. Check drafts.json for dangling references ─────────────
@@ -60,35 +55,29 @@ async function main() {
     const drafts = JSON.parse(fs.readFileSync(DRAFTS_FILE, 'utf8'));
     let draftsChanged = false;
     for (const [draftId, draft] of Object.entries(drafts)) {
-      const hasDan   = (draft.players || []).includes('Dan')   || draft.creator === 'Dan';
-      const hasJohnB = (draft.players || []).includes('John B') || draft.creator === 'John B';
-      if (!hasDan && !hasJohnB) continue;
+      const hasArye = (draft.players || []).includes('Arye') || draft.creator === 'Arye';
+      if (!hasArye) continue;
 
-      console.log(`\nDraft ${draftId} (status=${draft.status}) references Dan/John B`);
+      console.log(`\nDraft ${draftId} (status=${draft.status}) references Arye`);
 
-      // Reassign John B → John everywhere in the draft
-      if (hasJohnB) {
-        if (draft.creator === 'John B') draft.creator = 'John';
-        draft.players = (draft.players || []).map(p => p === 'John B' ? 'John' : p);
-        if (draft.turnOrder) draft.turnOrder = draft.turnOrder.map(p => p === 'John B' ? 'John' : p);
-        if (draft.picks?.['John B']) {
-          draft.picks['John'] = (draft.picks['John'] || []).concat(draft.picks['John B']);
-          delete draft.picks['John B'];
-        }
+      draft.players = (draft.players || []).filter(p => p !== 'Arye');
+      if (draft.turnOrder) draft.turnOrder = draft.turnOrder.filter(p => p !== 'Arye');
+      if (draft.bots) draft.bots = draft.bots.filter(p => p !== 'Arye');
+      if (draft.picks) delete draft.picks['Arye'];
+      if (draft.creator === 'Arye') draft.creator = draft.players[0] || '';
+      draftsChanged = true;
+      console.log(`  ✗ Removed Arye from draft ${draftId}`);
+    }
+
+    // Remove any drafts that are now empty of players
+    for (const [id, d] of Object.entries(drafts)) {
+      if ((d.players || []).length === 0) {
+        delete drafts[id];
         draftsChanged = true;
-        console.log(`  ✎ Renamed John B → John in draft ${draftId}`);
-      }
-
-      // Remove Dan from all drafts (they are test/placeholder data)
-      if (hasDan) {
-        draft.players = (draft.players || []).filter(p => p !== 'Dan');
-        if (draft.turnOrder) draft.turnOrder = draft.turnOrder.filter(p => p !== 'Dan');
-        if (draft.picks) delete draft.picks['Dan'];
-        if (draft.creator === 'Dan') draft.creator = draft.players[0] || '';
-        draftsChanged = true;
-        console.log(`  ✎ Removed Dan from draft ${draftId} (status=${draft.status})`);
+        console.log(`  ✗ Deleted empty draft ${id}`);
       }
     }
+
     if (draftsChanged) {
       fs.writeFileSync(DRAFTS_FILE, JSON.stringify(drafts, null, 2), 'utf8');
       console.log('\ndrafts.json updated.');
@@ -105,8 +94,8 @@ async function main() {
   )].sort();
   console.log('\n✓ Final creator roster:', finalCreators);
 
-  const DISCORD_IDS = ['Tom', 'Joe', 'Kellen', 'Arye', 'Sam', 'David', 'John', 'Jack'];
-  const missing = finalCreators.filter(u => !DISCORD_IDS.includes(u));
+  const VALID_USERS = ['Tom', 'Joe', 'Kellen', 'Aeye', 'Sam', 'David', 'John B', 'Jack'];
+  const missing = finalCreators.filter(u => !VALID_USERS.includes(u));
   if (missing.length) {
     console.log('⚠ Users WITHOUT Discord ID mapping:', missing);
   } else {

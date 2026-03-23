@@ -19,10 +19,10 @@ const DISCORD_IDS = {
   'Tom':    '226884154610941952',
   'Joe':    '195063835416199168',
   'Kellen': '419855833086558208',
-  'Arye':   '195313553341808642',
+  'Aeye':   '195313553341808642',
   'Sam':    '137441389783810048',
   'David':  '163132966535561216',
-  'John':   '177182020345135105',
+  'John B': '177182020345135105',
   'Jack':   '695462993919606855',
 };
 
@@ -173,6 +173,7 @@ function migrateOldUsers() {
     const drafts = JSON.parse(fs.readFileSync(DRAFTS_FILE, 'utf8'));
     let changed = false;
     for (const d of Object.values(drafts)) {
+      // Remove Dan (legacy test data)
       if ((d.players || []).includes('Dan') || d.creator === 'Dan') {
         d.players = (d.players || []).filter(p => p !== 'Dan');
         if (d.turnOrder) d.turnOrder = d.turnOrder.filter(p => p !== 'Dan');
@@ -180,14 +181,25 @@ function migrateOldUsers() {
         if (d.creator === 'Dan') d.creator = d.players[0] || '';
         changed = true;
       }
-      if ((d.players || []).includes('John B') || d.creator === 'John B') {
-        d.players = (d.players || []).map(p => p === 'John B' ? 'John' : p);
-        if (d.turnOrder) d.turnOrder = d.turnOrder.map(p => p === 'John B' ? 'John' : p);
-        if (d.picks?.['John B']) {
-          d.picks['John'] = (d.picks['John'] || []).concat(d.picks['John B']);
-          delete d.picks['John B'];
+      // Remove Arye
+      if ((d.players || []).includes('Arye') || d.creator === 'Arye') {
+        d.players = (d.players || []).filter(p => p !== 'Arye');
+        if (d.turnOrder) d.turnOrder = d.turnOrder.filter(p => p !== 'Arye');
+        if (d.bots) d.bots = d.bots.filter(p => p !== 'Arye');
+        if (d.picks) delete d.picks['Arye'];
+        if (d.creator === 'Arye') d.creator = d.players[0] || '';
+        changed = true;
+      }
+      // Rename John → John B
+      if ((d.players || []).includes('John') || d.creator === 'John') {
+        d.players = (d.players || []).map(p => p === 'John' ? 'John B' : p);
+        if (d.turnOrder) d.turnOrder = d.turnOrder.map(p => p === 'John' ? 'John B' : p);
+        if (d.bots) d.bots = d.bots.map(p => p === 'John' ? 'John B' : p);
+        if (d.picks?.['John']) {
+          d.picks['John B'] = (d.picks['John B'] || []).concat(d.picks['John']);
+          delete d.picks['John'];
         }
-        if (d.creator === 'John B') d.creator = 'John';
+        if (d.creator === 'John') d.creator = 'John B';
         changed = true;
       }
     }

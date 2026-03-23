@@ -3680,8 +3680,8 @@
       </tr>`
     ).join('');
     const avgRow = `<tr style="border-top:2px solid #444;">
-        <td style="padding:14px 10px 6px;font-size:11px;color:#aaa;white-space:nowrap;">Avg</td>
-        ${lists.map((_, i) => `<td style="text-align:center;padding:14px 12px 6px;${avgCellStyle(rowAvg[i])}">${rowAvg[i] === null ? '—' : rowAvg[i] + '%'}</td>`).join('')}
+        <td style="padding:24px 10px 6px;font-size:13px;color:#ccc;white-space:nowrap;font-weight:600;">Average</td>
+        ${lists.map((_, i) => `<td style="text-align:center;padding:24px 12px 6px;${avgCellStyle(rowAvg[i])}">${rowAvg[i] === null ? '—' : rowAvg[i] + '%'}</td>`).join('')}
       </tr>`;
 
     wrap.innerHTML = `<div style="font-size:11px;color:#777;margin-bottom:8px;">Color range: ${minP.toFixed(1)}% – ${maxP.toFixed(1)}%</div><table style="border-collapse:collapse;font-size:13px;">${header}${rows}${avgRow}</table>`;
@@ -3710,12 +3710,12 @@
         const bestOther  = Math.min(...others);
         const worstOther = Math.max(...others);
 
-        // Type 1: this list ranks it highest (best), card is in its top 100, gap > 5
-        if (rank <= 100 && rank < bestOther && bestOther - rank > 5)
+        // Type 1: this list ranks it highest (best), card is in its top 50, gap > 5
+        if (rank <= 50 && rank < bestOther && bestOther - rank > 5)
           hotTakes[i].type1.push({ card, rank, nextRank: bestOther, gap: bestOther - rank });
 
-        // Type 2: this list ranks it lowest, all others have it in top 100, gap > 5
-        if (rank > worstOther && rank - worstOther > 5 && others.every(r => r <= 100))
+        // Type 2: this list ranks it lowest, all others have it in top 50, gap > 5
+        if (rank > worstOther && rank - worstOther > 5 && others.every(r => r <= 50))
           hotTakes[i].type2.push({ card, rank, nextRank: worstOther, gap: rank - worstOther });
       }
     }
