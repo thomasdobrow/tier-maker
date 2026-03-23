@@ -3823,6 +3823,7 @@
     const thisRankings = computeRankings(list);
     const cards = Object.keys(thisRankings)
       .filter(card => thisRankings[card] <= 100 || (avgRank[card] ?? Infinity) <= 100)
+      .filter(card => Math.abs(rankToBucket(Math.round(avgRank[card] ?? 0)) - rankToBucket(thisRankings[card])) > 1)
       .sort((a, b) => {
         const bdA = rankToBucket(Math.round(avgRank[a] ?? 0)) - rankToBucket(thisRankings[a]);
         const bdB = rankToBucket(Math.round(avgRank[b] ?? 0)) - rankToBucket(thisRankings[b]);
