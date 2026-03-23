@@ -1547,6 +1547,7 @@
     <div id="compare-tabs">
       <button class="compare-tab active" data-tab="rankings">Compare Cards</button>
       <button class="compare-tab" data-tab="h2h">Head to Head</button>
+      <button class="compare-tab" data-tab="similarities">List Similarities</button>
     </div>
     <select id="compare-type-sel"></select>
   </div>
@@ -1582,6 +1583,11 @@
     </div>
     <div id="h2h-metric"></div>
     <div id="h2h-columns"></div>
+  </div>
+
+  <!-- List Similarities view -->
+  <div id="compare-similarities" class="compare-view" style="display:none; overflow:auto; padding:12px;">
+    <div id="sim-table-wrap"></div>
   </div>
 
 </div>
@@ -3518,7 +3524,8 @@
   function renderCompare() {
     const tab = document.querySelector('.compare-tab.active')?.dataset.tab;
     if (tab === 'rankings') renderRankings();
-    else renderH2H();
+    else if (tab === 'h2h') renderH2H();
+    else if (tab === 'similarities') renderSimilarities();
   }
 
   function cardColorCategory(name) {
@@ -3602,6 +3609,46 @@
     if (lists.find(l => l.id === prevB)) selB.value = prevB;
     else if (lists.length > 1) selB.value = lists[1].id;
     renderH2HColumns();
+  }
+
+  function renderSimilarities() {
+    const type = document.getElementById('compare-type-sel').value;
+    const lists = Object.values(listsCache).filter(l => l.type === type && isComparable(l));
+    const wrap = document.getElementById('sim-table-wrap');
+    if (lists.length < 2) {
+      wrap.innerHTML = '<div style="padding:20px;color:#555">Need at least 2 comparable lists.</div>';
+      return;
+    }
+    const rankings = lists.map(l => computeRankings(l));
+    const numCards = Object.keys(rankings[0]).length;
+    const eRandom = numCards === 464 ? E_RANDOM_464 : Math.round(E_RANDOM_464 * numCards / 464);
+
+    const pct = (i, j) => {
+      if (i === j) return null;
+      const dist = listDistanceScore(rankings[i], rankings[j]);
+      return Math.max(0, Math.round((1 - dist / eRandom) * 100));
+    };
+
+    const cellStyle = p => {
+      if (p === null) return 'background:#1e1e1e;';
+      const g = Math.round(40 + p * 1.5);
+      const r = Math.round(190 - p * 1.5);
+      return `background:rgb(${r},${g},60);color:#fff;font-weight:600;`;
+    };
+
+    const label = l => escHtml(listLabel(l));
+    const header = `<tr><th></th>${lists.map(l => `<th style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;font-size:11px;text-align:left;">${label(l)}</th>`).join('')}</tr>`;
+    const rows = lists.map((l, i) =>
+      `<tr>
+        <td style="padding:6px 10px;font-size:11px;white-space:nowrap;">${label(l)}</td>
+        ${lists.map((_, j) => {
+          const p = pct(i, j);
+          return `<td style="text-align:center;padding:6px 12px;${cellStyle(p)}">${p === null ? '—' : p + '%'}</td>`;
+        }).join('')}
+      </tr>`
+    ).join('');
+
+    wrap.innerHTML = `<table style="border-collapse:collapse;font-size:13px;">${header}${rows}</table>`;
   }
 
   function vcCardImgSrc(name) {
@@ -3743,8 +3790,9 @@
     btn.addEventListener('click', () => {
       document.querySelectorAll('.compare-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById('compare-rankings').style.display = btn.dataset.tab === 'rankings' ? 'flex' : 'none';
-      document.getElementById('compare-h2h').style.display     = btn.dataset.tab === 'h2h'      ? 'flex' : 'none';
+      document.getElementById('compare-rankings').style.display    = btn.dataset.tab === 'rankings'     ? 'flex' : 'none';
+      document.getElementById('compare-h2h').style.display          = btn.dataset.tab === 'h2h'          ? 'flex' : 'none';
+      document.getElementById('compare-similarities').style.display = btn.dataset.tab === 'similarities' ? 'block' : 'none';
       renderCompare();
     });
   });
