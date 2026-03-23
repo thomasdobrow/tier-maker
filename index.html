@@ -3633,7 +3633,7 @@
     const pct = (i, j) => {
       if (i === j) return null;
       const dist = listDistanceScore(rankings[i], rankings[j]);
-      return Math.max(0, Math.round((1 - dist / eRandom) * 100));
+      return Math.max(0, parseFloat(((1 - dist / eRandom) * 100).toFixed(1)));
     };
 
     // Normalize colors to the actual data range so small differences are still visually distinct
@@ -3655,7 +3655,7 @@
     // Precompute row averages
     const rowAvg = lists.map((_, i) => {
       const vals = lists.map((__, j) => pct(i, j)).filter(p => p !== null);
-      return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+      return vals.length ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1)) : null;
     });
     const avgMin = Math.min(...rowAvg.filter(v => v !== null));
     const avgMax = Math.max(...rowAvg.filter(v => v !== null));
@@ -3684,7 +3684,7 @@
         ${lists.map((_, i) => `<td style="text-align:center;padding:14px 12px 6px;${avgCellStyle(rowAvg[i])}">${rowAvg[i] === null ? '—' : rowAvg[i] + '%'}</td>`).join('')}
       </tr>`;
 
-    wrap.innerHTML = `<div style="font-size:11px;color:#777;margin-bottom:8px;">Color range: ${minP}% – ${maxP}%</div><table style="border-collapse:collapse;font-size:13px;">${header}${rows}${avgRow}</table>`;
+    wrap.innerHTML = `<div style="font-size:11px;color:#777;margin-bottom:8px;">Color range: ${minP.toFixed(1)}% – ${maxP.toFixed(1)}%</div><table style="border-collapse:collapse;font-size:13px;">${header}${rows}${avgRow}</table>`;
   }
 
   function renderHotTakes() {
