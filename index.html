@@ -3669,7 +3669,7 @@
     };
 
     const label = l => escHtml(listLabel(l));
-    const header = `<tr><th></th>${lists.map(l => `<th style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;font-size:11px;text-align:left;">${label(l)}</th>`).join('')}<th style="padding:6px 10px;font-size:11px;color:#aaa;">Avg</th></tr>`;
+    const header = `<tr><th></th>${lists.map(l => `<th style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 10px;font-size:11px;text-align:left;">${label(l)}</th>`).join('')}</tr>`;
     const rows = lists.map((l, i) =>
       `<tr>
         <td style="padding:6px 10px;font-size:11px;white-space:nowrap;">${label(l)}</td>
@@ -3677,11 +3677,14 @@
           const p = pct(i, j);
           return `<td style="text-align:center;padding:6px 12px;${cellStyle(p)}">${p === null ? '—' : p + '%'}</td>`;
         }).join('')}
-        <td style="text-align:center;padding:6px 12px;border-left:1px solid #333;${avgCellStyle(rowAvg[i])}">${rowAvg[i] === null ? '—' : rowAvg[i] + '%'}</td>
       </tr>`
     ).join('');
+    const avgRow = `<tr style="border-top:2px solid #444;">
+        <td style="padding:14px 10px 6px;font-size:11px;color:#aaa;white-space:nowrap;">Avg</td>
+        ${lists.map((_, i) => `<td style="text-align:center;padding:14px 12px 6px;${avgCellStyle(rowAvg[i])}">${rowAvg[i] === null ? '—' : rowAvg[i] + '%'}</td>`).join('')}
+      </tr>`;
 
-    wrap.innerHTML = `<div style="font-size:11px;color:#777;margin-bottom:8px;">Color range: ${minP}% – ${maxP}%</div><table style="border-collapse:collapse;font-size:13px;">${header}${rows}</table>`;
+    wrap.innerHTML = `<div style="font-size:11px;color:#777;margin-bottom:8px;">Color range: ${minP}% – ${maxP}%</div><table style="border-collapse:collapse;font-size:13px;">${header}${rows}${avgRow}</table>`;
   }
 
   function renderHotTakes() {
