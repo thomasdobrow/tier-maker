@@ -1548,6 +1548,7 @@
       <button class="compare-tab active" data-tab="rankings">Compare Cards</button>
       <button class="compare-tab" data-tab="h2h">Head to Head</button>
       <button class="compare-tab" data-tab="similarities">List Similarities</button>
+      <button class="compare-tab" data-tab="hottakes">Hot Takes</button>
     </div>
     <select id="compare-type-sel"></select>
   </div>
@@ -1588,6 +1589,11 @@
   <!-- List Similarities view -->
   <div id="compare-similarities" class="compare-view" style="display:none; overflow:auto; padding:12px;">
     <div id="sim-table-wrap"></div>
+  </div>
+
+  <!-- Hot Takes view -->
+  <div id="compare-hottakes" class="compare-view" style="display:none; overflow:auto; padding:12px;">
+    <div id="ht-wrap"></div>
   </div>
 
 </div>
@@ -3526,6 +3532,7 @@
     if (tab === 'rankings') renderRankings();
     else if (tab === 'h2h') renderH2H();
     else if (tab === 'similarities') renderSimilarities();
+    else if (tab === 'hottakes') renderHotTakes();
   }
 
   function cardColorCategory(name) {
@@ -3677,6 +3684,78 @@
     wrap.innerHTML = `<div style="font-size:11px;color:#777;margin-bottom:8px;">Color range: ${minP}% – ${maxP}%</div><table style="border-collapse:collapse;font-size:13px;">${header}${rows}</table>`;
   }
 
+  function renderHotTakes() {
+    const type = document.getElementById('compare-type-sel').value;
+    const lists = Object.values(listsCache).filter(l => l.type === type && isComparable(l));
+    const wrap = document.getElementById('ht-wrap');
+    if (lists.length < 2) {
+      wrap.innerHTML = '<div style="padding:20px;color:#555">Need at least 2 comparable lists.</div>';
+      return;
+    }
+
+    const rankings = lists.map(l => computeRankings(l));
+    const allCards = [...new Set(rankings.flatMap(r => Object.keys(r)))];
+    const hotTakes = lists.map(() => ({ type1: [], type2: [] }));
+
+    for (const card of allCards) {
+      const cardRanks = rankings.map(r => r[card] ?? null);
+      for (let i = 0; i < lists.length; i++) {
+        const rank = cardRanks[i];
+        if (rank === null) continue;
+        const others = cardRanks.filter((_, j) => j !== i && cardRanks[j] !== null);
+        if (!others.length) continue;
+        const bestOther  = Math.min(...others);
+        const worstOther = Math.max(...others);
+
+        // Type 1: this list ranks it highest (best), card is in its top 100, gap > 5
+        if (rank <= 100 && rank < bestOther && bestOther - rank > 5)
+          hotTakes[i].type1.push({ card, rank, nextRank: bestOther, gap: bestOther - rank });
+
+        // Type 2: this list ranks it lowest, all others have it in top 100, gap > 5
+        if (rank > worstOther && rank - worstOther > 5 && others.every(r => r <= 100))
+          hotTakes[i].type2.push({ card, rank, nextRank: worstOther, gap: rank - worstOther });
+      }
+    }
+
+    hotTakes.forEach(ht => {
+      ht.type1.sort((a, b) => b.gap - a.gap);
+      ht.type2.sort((a, b) => b.gap - a.gap);
+    });
+
+    const indexed = lists.map((l, i) => ({ list: l, ht: hotTakes[i] }));
+    indexed.sort((a, b) => (b.ht.type1.length + b.ht.type2.length) - (a.ht.type1.length + a.ht.type2.length));
+
+    const cardRow = (c, badge, badgeColor) => `
+      <div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #2a2a2a;">
+        <img src="${vcCardImgSrc(c.card)}" loading="lazy" style="width:36px;border-radius:3px;flex-shrink:0;" alt="${escHtml(c.card)}" title="${escHtml(c.card)}">
+        <div style="flex:1;min-width:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(c.card)}</div>
+        <div style="font-size:11px;color:#aaa;white-space:nowrap;">this: <b style="color:#eee">#${c.rank}</b> · next: <b style="color:#aaa">#${c.nextRank}</b></div>
+        <div style="font-size:11px;font-weight:700;color:${badgeColor};white-space:nowrap;">${badge} ${c.gap > 0 ? '+' : ''}${c.gap}</div>
+      </div>`;
+
+    wrap.innerHTML = indexed.map(({ list, ht }) => {
+      const total = ht.type1.length + ht.type2.length;
+      const t1html = ht.type1.length ? `
+        <div style="font-size:11px;font-weight:600;color:#80aaff;padding:8px 0 4px;">🔼 Ranked higher than anyone (${ht.type1.length})</div>
+        ${ht.type1.map(c => cardRow(c, '▲', '#80aaff')).join('')}` : '';
+      const t2html = ht.type2.length ? `
+        <div style="font-size:11px;font-weight:600;color:#f08080;padding:8px 0 4px;">🔽 Ranked lower than everyone (${ht.type2.length})</div>
+        ${ht.type2.map(c => cardRow(c, '▼', '#f08080')).join('')}` : '';
+      return `
+        <details style="border:1px solid #333;border-radius:5px;margin-bottom:6px;background:#1a1a1a;">
+          <summary style="padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none;user-select:none;">
+            <span style="flex:1;font-size:13px;font-weight:600;">${escHtml(listLabel(list))}</span>
+            ${total === 0
+              ? `<span style="font-size:11px;color:#555;">no hot takes</span>`
+              : `<span style="font-size:12px;font-weight:700;color:#ffcc77;">${total} hot take${total !== 1 ? 's' : ''}</span>
+                 ${ht.type1.length ? `<span style="font-size:11px;color:#80aaff;">▲ ${ht.type1.length}</span>` : ''}
+                 ${ht.type2.length ? `<span style="font-size:11px;color:#f08080;">▼ ${ht.type2.length}</span>` : ''}`}
+          </summary>
+          ${total > 0 ? `<div style="padding:4px 12px 10px;">${t1html}${t2html}</div>` : ''}
+        </details>`;
+    }).join('');
+  }
+
   function vcCardImgSrc(name) {
     // Prefer the already-loaded vcData metadata; derive filename the same way download_vc_cards.js does
     const meta = vcData[name];
@@ -3819,6 +3898,7 @@
       document.getElementById('compare-rankings').style.display    = btn.dataset.tab === 'rankings'     ? 'flex' : 'none';
       document.getElementById('compare-h2h').style.display          = btn.dataset.tab === 'h2h'          ? 'flex' : 'none';
       document.getElementById('compare-similarities').style.display = btn.dataset.tab === 'similarities' ? 'block' : 'none';
+      document.getElementById('compare-hottakes').style.display     = btn.dataset.tab === 'hottakes'     ? 'block' : 'none';
       renderCompare();
     });
   });
