@@ -1214,6 +1214,27 @@
     }
     .cmp-dot:hover::after { opacity: 1; }
 
+    /* List vs Average card tooltip */
+    .lva-card { position: relative; }
+    .lva-card::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18,18,18,0.95);
+      color: #ddd;
+      padding: 4px 7px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s;
+      z-index: 10;
+    }
+    .lva-card:hover::after { opacity: 1; }
+
     /* Head to Head */
     #h2h-controls {
       padding: 10px 16px; display: flex; align-items: center;
@@ -3810,11 +3831,16 @@
 
     grid.innerHTML = cards.map(card => {
       const thisRank = thisRankings[card];
-      const arrow = avgRank[card] != null ? h2hArrow(thisRank, Math.round(avgRank[card])) : '';
+      const avg = avgRank[card];
+      const arrow = avg != null ? h2hArrow(thisRank, Math.round(avg)) : '';
+      const delta = avg != null ? Math.round(avg - thisRank) : null;
+      const tip = avg != null
+        ? `${escHtml(card)} · This list: #${thisRank} · Avg: #${avg.toFixed(1)} · Δ ${delta >= 0 ? '+' : ''}${delta}`
+        : escHtml(card);
       return `
-        <div class="h2h-card-item">
+        <div class="h2h-card-item lva-card" data-tip="${tip}">
           <div class="h2h-num">${thisRank}${arrow}</div>
-          <img class="h2h-card-img" src="${vcCardImgSrc(card)}" alt="${escHtml(card)}" title="${escHtml(card)}" loading="lazy" />
+          <img class="h2h-card-img" src="${vcCardImgSrc(card)}" alt="${escHtml(card)}" loading="lazy" />
         </div>`;
     }).join('');
   }
