@@ -1215,30 +1215,22 @@
     .cmp-dot:hover::after { opacity: 1; }
 
     /* List vs Average card tooltip */
-    .lva-card { position: relative; }
-    .lva-card::after {
-      content: attr(data-tip);
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 50%;
-      transform: translateX(-50%);
+    #lva-tip {
+      position: fixed;
       background: #1a1a1a;
       color: #e0e0e0;
       border: 1px solid #444;
-      padding: 7px 10px;
+      padding: 8px 12px;
       border-radius: 6px;
-      font-size: 0.72rem;
-      line-height: 1.6;
-      white-space: pre-line;
+      font-size: 0.75rem;
+      line-height: 1.7;
+      white-space: pre;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s;
-      z-index: 100;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      min-width: 160px;
-      text-align: left;
+      z-index: 300;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      min-width: 180px;
+      display: none;
     }
-    .lva-card:hover::after { opacity: 1; }
 
     /* Head to Head */
     #h2h-controls {
@@ -1632,6 +1624,7 @@
       <div id="lva-grid" class="h2h-grid"></div>
     </div>
   </div>
+  <div id="lva-tip"></div>
 
 </div>
 
@@ -3840,7 +3833,7 @@
       const arrow = avg != null ? h2hArrow(thisRank, Math.round(avg)) : '';
       const delta = avg != null ? Math.round(avg - thisRank) : null;
       const tip = avg != null
-        ? `${escHtml(card)}&#10;This List's Rank: #${thisRank}&#10;Group Average: #${avg.toFixed(1)}  ·  Delta: ${delta >= 0 ? '+' : ''}${delta} (ranked ${delta >= 0 ? 'higher' : 'lower'} than avg)`
+        ? `${escHtml(card)}&#10;This List's Rank: #${thisRank}&#10;Group Average: #${avg.toFixed(1)}&#10;Delta: ${delta >= 0 ? '+' : ''}${delta} (ranked ${delta >= 0 ? 'higher' : 'lower'} than avg)`
         : escHtml(card);
       return `
         <div class="h2h-card-item lva-card" data-tip="${tip}">
@@ -4003,6 +3996,26 @@
   document.getElementById('h2h-sel-b').addEventListener('change', renderH2HColumns);
   document.getElementById('h2h-count').addEventListener('change', renderH2HColumns);
   document.getElementById('lva-sel').addEventListener('change', renderListVsAvg);
+
+  // LvA floating tooltip
+  const lvaGrid = document.getElementById('lva-col');
+  const lvaTip  = document.getElementById('lva-tip');
+  lvaGrid.addEventListener('mouseover', e => {
+    const card = e.target.closest('.lva-card');
+    if (!card || !card.dataset.tip) { lvaTip.style.display = 'none'; return; }
+    lvaTip.textContent = card.dataset.tip;
+    lvaTip.style.display = 'block';
+  });
+  lvaGrid.addEventListener('mousemove', e => {
+    if (lvaTip.style.display === 'none') return;
+    let x = e.clientX + 16, y = e.clientY + 16;
+    const tw = lvaTip.offsetWidth, th = lvaTip.offsetHeight;
+    if (x + tw > window.innerWidth  - 8) x = e.clientX - tw - 8;
+    if (y + th > window.innerHeight - 8) y = e.clientY - th - 8;
+    lvaTip.style.left = x + 'px';
+    lvaTip.style.top  = y + 'px';
+  });
+  lvaGrid.addEventListener('mouseleave', () => { lvaTip.style.display = 'none'; });
 
   document.querySelectorAll('.cmp-color-btn').forEach(btn => {
     btn.addEventListener('click', () => {
