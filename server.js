@@ -15,6 +15,7 @@ const LISTS_FILE    = path.join(process.env.DATA_DIR || BASE_DIR, 'lists.json');
 
 // ── Discord ────────────────────────────────────────────────────
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const APP_URL = (process.env.APP_URL || 'https://agricola-tomtom-173540a3.koyeb.app').replace(/\/$/, '');
 const DISCORD_IDS = {
   'Tom':    '226884154610941952',
   'Joe':    '195063835416199168',
@@ -37,7 +38,7 @@ async function sendDraftStartedPing(draft) {
   console.log('[discord] mentions:', mentions);
   if (!mentions.length) { console.log('[discord] no mentions, skipping'); return; }
   const firstHuman = (draft.turnOrder || []).find(p => !bots.has(p)) || draft.creator;
-  const content = `${mentions.join(' ')} The rotisserie draft has started — ${firstHuman} picks first (among humans)!`;
+  const content = `${mentions.join(' ')} The rotisserie draft has started — ${firstHuman} picks first (among humans)!\n${APP_URL}/draft/${draft.id}`;
   console.log('[discord] sending:', content);
   try {
     const r = await fetch(DISCORD_WEBHOOK_URL, {
@@ -56,7 +57,7 @@ async function sendIdleTurnPing(draft, currentPlayer) {
   console.log('[discord] sendIdleTurnPing called, player:', currentPlayer, 'webhook set:', !!DISCORD_WEBHOOK_URL);
   if (!DISCORD_WEBHOOK_URL) { console.log('[discord] no webhook URL, skipping'); return; }
   const mention = DISCORD_IDS[currentPlayer] ? `<@${DISCORD_IDS[currentPlayer]}>` : `**${currentPlayer}**`;
-  const content = `${mention} It's your pick in the rotisserie draft — you've been up for 12+ hours!`;
+  const content = `${mention} It's your pick in the rotisserie draft — you've been up for 12+ hours!\n${APP_URL}/draft/${draft.id}`;
   console.log('[discord] sending idle ping:', content);
   try {
     const r = await fetch(DISCORD_WEBHOOK_URL, {
