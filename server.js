@@ -70,6 +70,21 @@ async function sendIdleTurnPing(draft, currentPlayer) {
   } catch (e) { console.error('[discord] idle ping fetch threw:', e.message); }
 }
 
+async function sendTurnPing(draft, player) {
+  if (!DISCORD_WEBHOOK_URL) return;
+  const mention = DISCORD_IDS[player] ? `<@${DISCORD_IDS[player]}>` : `**${player}**`;
+  const content = `${mention} It's your pick in the rotisserie draft!\n${APP_URL}/draft/${draft.id}`;
+  console.log('[discord] sending turn ping for', player);
+  try {
+    const r = await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    if (!r.ok) console.error('[discord] turn ping error:', await r.text());
+  } catch (e) { console.error('[discord] turn ping fetch threw:', e.message); }
+}
+
 const IDLE_PING_MS = 12 * 60 * 60 * 1000; // 12 hours
 
 async function checkIdleTurns() {
@@ -297,7 +312,11 @@ async function makeBotPick(draftId) {
 
     if (!isDone) {
       const nextPlayer = getSnakeDraftPlayerServer(updated.turnOrder, updated.currentTurnIdx);
-      if ((updated.bots || []).includes(nextPlayer)) scheduleBotPick(draftId);
+      if ((updated.bots || []).includes(nextPlayer)) {
+        scheduleBotPick(draftId);
+      } else {
+        sendTurnPing(updated, nextPlayer);
+      }
     } else {
       botRankingCache.delete(draftId);
     }
@@ -531,6 +550,13 @@ const server = http.createServer(async (req, res) => {
           await saveDraft(id, draft);
           broadcastDraft('draft_update', { draft });
           if (justStarted) sendDraftStartedPing(draft);
+          // Ping the next human player when the turn advances (skip if same player picks back-to-back)
+          if (turnAdvanced) {
+            const bots = new Set(draft.bots || []);
+            const prevPlayer = getSnakeDraftPlayerServer(existing.turnOrder, existing.currentTurnIdx);
+            const nextPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);
+            if (!bots.has(nextPlayer) && nextPlayer !== prevPlayer) sendTurnPing(draft, nextPlayer);
+          }
           // Schedule bot pick if it's currently a bot's turn
           if (draft.status === 'active' && draft.bots?.length) {
             const nextPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);

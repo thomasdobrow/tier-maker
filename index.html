@@ -1219,19 +1219,24 @@
     .lva-card::after {
       content: attr(data-tip);
       position: absolute;
-      bottom: calc(100% + 5px);
+      top: calc(100% + 6px);
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(18,18,18,0.95);
-      color: #ddd;
-      padding: 4px 7px;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      white-space: nowrap;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      line-height: 1.6;
+      white-space: pre-line;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.1s;
-      z-index: 10;
+      transition: opacity 0.15s;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      min-width: 160px;
+      text-align: left;
     }
     .lva-card:hover::after { opacity: 1; }
 
@@ -3835,7 +3840,7 @@
       const arrow = avg != null ? h2hArrow(thisRank, Math.round(avg)) : '';
       const delta = avg != null ? Math.round(avg - thisRank) : null;
       const tip = avg != null
-        ? `${escHtml(card)} · This list: #${thisRank} · Avg: #${avg.toFixed(1)} · Δ ${delta >= 0 ? '+' : ''}${delta}`
+        ? `${escHtml(card)}&#10;This List's Rank: #${thisRank}&#10;Group Average: #${avg.toFixed(1)}  ·  Delta: ${delta >= 0 ? '+' : ''}${delta} (ranked ${delta >= 0 ? 'higher' : 'lower'} than avg)`
         : escHtml(card);
       return `
         <div class="h2h-card-item lva-card" data-tip="${tip}">
