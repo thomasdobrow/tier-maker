@@ -3728,11 +3728,11 @@
     const indexed = lists.map((l, i) => ({ list: l, ht: hotTakes[i] }));
     indexed.sort((a, b) => (b.ht.type1.length + b.ht.type2.length) - (a.ht.type1.length + a.ht.type2.length));
 
-    const cardRow = (c, badge, badgeColor) => `
+    const cardRow = (c, badge, badgeColor, nextLabel) => `
       <div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #2a2a2a;">
         <img src="${vcCardImgSrc(c.card)}" loading="lazy" style="width:36px;border-radius:3px;flex-shrink:0;" alt="${escHtml(c.card)}" title="${escHtml(c.card)}">
         <div style="flex:1;min-width:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(c.card)}</div>
-        <div style="font-size:11px;color:#aaa;white-space:nowrap;">this: <b style="color:#eee">#${c.rank}</b> · next: <b style="color:#aaa">#${c.nextRank}</b></div>
+        <div style="font-size:11px;color:#aaa;white-space:nowrap;">This List's Rank: <b style="color:#eee">#${c.rank}</b> · ${nextLabel}: <b style="color:#aaa">#${c.nextRank}</b></div>
         <div style="font-size:11px;font-weight:700;color:${badgeColor};white-space:nowrap;">${badge} ${c.gap > 0 ? '+' : ''}${c.gap}</div>
       </div>`;
 
@@ -3740,10 +3740,10 @@
       const total = ht.type1.length + ht.type2.length;
       const t1html = ht.type1.length ? `
         <div style="font-size:11px;font-weight:600;color:#80aaff;padding:8px 0 4px;">🔼 Ranked higher than anyone (${ht.type1.length})</div>
-        ${ht.type1.map(c => cardRow(c, '▲', '#80aaff')).join('')}` : '';
+        ${ht.type1.map(c => cardRow(c, '▲', '#80aaff', "Next Highest List's Rank")).join('')}` : '';
       const t2html = ht.type2.length ? `
         <div style="font-size:11px;font-weight:600;color:#f08080;padding:8px 0 4px;">🔽 Ranked lower than everyone (${ht.type2.length})</div>
-        ${ht.type2.map(c => cardRow(c, '▼', '#f08080')).join('')}` : '';
+        ${ht.type2.map(c => cardRow(c, '▼', '#f08080', "Next Lowest List's Rank")).join('')}` : '';
       return `
         <details style="border:1px solid #333;border-radius:5px;margin-bottom:6px;background:#1a1a1a;">
           <summary style="padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none;user-select:none;">
