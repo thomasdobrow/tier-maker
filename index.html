@@ -3629,11 +3629,20 @@
       return Math.max(0, Math.round((1 - dist / eRandom) * 100));
     };
 
+    // Normalize colors to the actual data range so small differences are still visually distinct
+    const allPcts = [];
+    for (let i = 0; i < lists.length; i++)
+      for (let j = 0; j < lists.length; j++)
+        if (i !== j) allPcts.push(pct(i, j));
+    const minP = Math.min(...allPcts), maxP = Math.max(...allPcts);
+    const range = maxP - minP || 1;
+
     const cellStyle = p => {
       if (p === null) return 'background:#1e1e1e;';
-      const g = Math.round(40 + p * 1.5);
-      const r = Math.round(190 - p * 1.5);
-      return `background:rgb(${r},${g},60);color:#fff;font-weight:600;`;
+      const t = (p - minP) / range;  // 0 = lowest in dataset, 1 = highest
+      const g = Math.round(50 + t * 180);
+      const r = Math.round(230 - t * 180);
+      return `background:rgb(${r},${g},40);color:#fff;font-weight:600;`;
     };
 
     const label = l => escHtml(listLabel(l));
@@ -3648,7 +3657,7 @@
       </tr>`
     ).join('');
 
-    wrap.innerHTML = `<table style="border-collapse:collapse;font-size:13px;">${header}${rows}</table>`;
+    wrap.innerHTML = `<div style="font-size:11px;color:#777;margin-bottom:8px;">Color range: ${minP}% – ${maxP}%</div><table style="border-collapse:collapse;font-size:13px;">${header}${rows}</table>`;
   }
 
   function vcCardImgSrc(name) {
