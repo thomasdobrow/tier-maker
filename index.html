@@ -3817,23 +3817,27 @@
     }
     for (const card of Object.keys(avgRank)) avgRank[card] /= cardCounts[card];
 
-    // Sort this list's cards by delta (avgRank − thisRank) descending
+    // Sort this list's cards by bucket delta (avgBucket − thisBucket) descending
     // Positive = this list rates it higher than average → appears first
     // Only include cards in the top 100 of this list OR top 100 of the average
     const thisRankings = computeRankings(list);
     const cards = Object.keys(thisRankings)
       .filter(card => thisRankings[card] <= 100 || (avgRank[card] ?? Infinity) <= 100)
-      .sort((a, b) =>
-        ((avgRank[b] ?? 0) - thisRankings[b]) - ((avgRank[a] ?? 0) - thisRankings[a])
-      );
+      .sort((a, b) => {
+        const bdA = rankToBucket(Math.round(avgRank[a] ?? 0)) - rankToBucket(thisRankings[a]);
+        const bdB = rankToBucket(Math.round(avgRank[b] ?? 0)) - rankToBucket(thisRankings[b]);
+        return bdB - bdA;
+      });
 
     grid.innerHTML = cards.map(card => {
       const thisRank = thisRankings[card];
       const avg = avgRank[card];
       const arrow = avg != null ? h2hArrow(thisRank, Math.round(avg)) : '';
-      const delta = avg != null ? Math.round(avg - thisRank) : null;
+      const bucketDelta = avg != null
+        ? rankToBucket(Math.round(avg)) - rankToBucket(thisRank)
+        : null;
       const tip = avg != null
-        ? `${escHtml(card)}&#10;This List's Rank: #${thisRank}&#10;Group Average: #${avg.toFixed(1)}&#10;Delta: ${delta >= 0 ? '+' : ''}${delta} (ranked ${delta >= 0 ? 'higher' : 'lower'} than avg)`
+        ? `${escHtml(card)}&#10;This List's Rank: #${thisRank}&#10;Group Average: #${avg.toFixed(1)}&#10;Delta: ${bucketDelta >= 0 ? '+' : ''}${bucketDelta} buckets (ranked ${bucketDelta >= 0 ? 'higher' : 'lower'} than avg)`
         : escHtml(card);
       return `
         <div class="h2h-card-item lva-card" data-tip="${tip}">
