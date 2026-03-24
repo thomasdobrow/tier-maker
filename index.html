@@ -1215,6 +1215,31 @@
       transition: opacity 0.1s;
     }
     .cmp-dot:hover::after { opacity: 1; }
+    .cmp-dot-labeled::before {
+      content: attr(data-rank);
+      position: absolute;
+      bottom: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.6rem;
+      color: #ddd;
+      background: rgba(0,0,0,0.65);
+      padding: 1px 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Toast notification */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: #1e2e1e; color: #7dcc7d; border: 1px solid #3a5a3a;
+      padding: 8px 20px; border-radius: 20px; font-size: 0.85rem;
+      opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 9999;
+      white-space: nowrap;
+    }
+    #toast.visible { opacity: 1; }
 
     /* List vs Average card tooltip */
     #lva-tip {
@@ -1367,6 +1392,7 @@
     .rot-turn-label { font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
     .rot-turn-label.is-you { color: #7dcc7d; }
     .rot-turn-label.is-other { color: #ccc; }
+    .rot-turn-ctx { font-size: 0.78rem; color: #555; white-space: nowrap; }
     .rot-order-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-left: auto; }
     .rot-order-pill {
       font-size: 0.72rem; padding: 2px 8px; border-radius: 10px;
@@ -1378,6 +1404,7 @@
       border-bottom: 1px solid #222; flex-shrink: 0; max-height: 212px; overflow-y: auto;
     }
     .rot-pick-row { display: flex; align-items: center; gap: 8px; min-height: 46px; }
+    .rot-pick-row.is-current-turn { background: rgba(255,255,220,0.04); border-left: 2px solid rgba(255,255,200,0.18); padding-left: 6px; border-radius: 3px; }
     .rot-pick-player {
       font-size: 0.75rem; font-weight: 600; color: #666; width: 90px;
       flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -1627,6 +1654,7 @@
     </div>
   </div>
   <div id="lva-tip"></div>
+  <div id="toast"></div>
 
 </div>
 
@@ -3034,6 +3062,15 @@
     nextReviewCard();
   }
 
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('visible');
+    clearTimeout(el._tid);
+    el._tid = setTimeout(() => el.classList.remove('visible'), 2500);
+  }
+
   function nextReviewCard() {
     const next = [...pool.querySelectorAll('.img-card')].find(c => c.style.display !== 'none');
     if (next) {
@@ -3041,6 +3078,7 @@
     } else {
       exitReviewMode();
       closeZoom();
+      showToast('All cards ranked! ✓');
     }
   }
 
@@ -3241,7 +3279,8 @@
     let rows = [];
 
     const activeDraftStatus = activeDraftId ? draftsCache[activeDraftId]?.status : null;
-    if (currentListType === 'vintage_cube' || activeDraftStatus === 'active' || activeDraftStatus === 'complete') {
+    const _compareType = document.getElementById('compare-type-sel')?.value;
+    if (currentListType === 'vintage_cube' || _compareType === 'vintage_cube' || activeDraftStatus === 'active' || activeDraftStatus === 'complete') {
       const domCards = [...document.querySelectorAll('.img-card')];
       if (domCards.length > 0) {
         // Normal tier list view — search live DOM cards
@@ -3590,6 +3629,7 @@
       const active = idx === null || Number(dot.dataset.listIdx) === idx;
       dot.style.opacity    = active ? '' : '0.15';
       dot.style.background = active ? dot.dataset.color : '#555';
+      dot.classList.toggle('cmp-dot-labeled', idx !== null && Number(dot.dataset.listIdx) === idx);
     });
   }
 
@@ -3861,6 +3901,11 @@
         const bdB = rankToBucket(Math.round(avgRank[b] ?? 999)) - rankToBucket(thisRankings[b]);
         return bdB - bdA;
       });
+
+    if (!cards.length) {
+      grid.innerHTML = '<div style="color:#555;padding:20px;font-size:0.85rem;">No significant divergences — this list closely matches the group average.</div>';
+      return;
+    }
 
     grid.innerHTML = cards.map(card => {
       const thisRank = thisRankings[card];
@@ -4366,6 +4411,15 @@
           : (isMyTurn ? '▶ Your turn to pick' : `▶ ${currentPlayer}'s turn`);
       }
       turnBar.appendChild(turnLabel);
+      if (status !== 'complete') {
+        const n           = turnOrder.length;
+        const round       = Math.floor(currentTurnIdx / n) + 1;
+        const pickInRound = (currentTurnIdx % n) + 1;
+        const ctxSpan = document.createElement('span');
+        ctxSpan.className = 'rot-turn-ctx';
+        ctxSpan.textContent = `Round ${round} of 40 · Pick ${pickInRound}/${n}`;
+        turnBar.appendChild(ctxSpan);
+      }
       body.appendChild(turnBar);
 
       // ── Picks section ─────────────────────────────────────────
@@ -4373,10 +4427,10 @@
       picksSection.className = 'rot-picks-section';
       turnOrder.forEach(player => {
         const row = document.createElement('div');
-        row.className = 'rot-pick-row';
-        const nameEl = document.createElement('div');
         const isYouPick = player === user;
         const isTurnNow = player === currentPlayer;
+        row.className = 'rot-pick-row' + (isTurnNow ? ' is-current-turn' : '');
+        const nameEl = document.createElement('div');
         nameEl.className = 'rot-pick-player' + (isYouPick ? ' is-you' : '') + (isTurnNow ? ' is-turn' : '');
         const pickCount = ((draft.picks || {})[player] || []).length;
         nameEl.textContent = (isTurnNow ? '▶ ' : '') + player + ' (' + pickCount + ')';

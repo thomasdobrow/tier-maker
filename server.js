@@ -28,46 +28,43 @@ const DISCORD_IDS = {
   'Danny':  '525384290591047701',
 };
 
+async function sendWebhook(content) {
+  if (!DISCORD_WEBHOOK_URL) return;
+  try {
+    const r = await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    if (!r.ok) console.error('[discord] webhook error:', await r.text());
+  } catch (e) { console.error('[discord] webhook fetch threw:', e.message); }
+}
+
 async function sendDraftStartedPing(draft) {
-  console.log('[discord] sendDraftStartedPing called, players:', draft.players, 'bots:', draft.bots, 'webhook set:', !!DISCORD_WEBHOOK_URL);
-  if (!DISCORD_WEBHOOK_URL) { console.log('[discord] no webhook URL, skipping'); return; }
+  if (!DISCORD_WEBHOOK_URL) return;
   const bots = new Set(draft.bots || []);
   const mentions = (draft.players || [])
     .filter(p => !bots.has(p))
     .map(p => DISCORD_IDS[p] ? `<@${DISCORD_IDS[p]}>` : `**${p}**`);
-  console.log('[discord] mentions:', mentions);
-  if (!mentions.length) { console.log('[discord] no mentions, skipping'); return; }
+  if (!mentions.length) return;
   const firstHuman = (draft.turnOrder || []).find(p => !bots.has(p)) || draft.creator;
-  const content = `${mentions.join(' ')} The rotisserie draft has started — ${firstHuman} picks first (among humans)!\n${APP_URL}/draft/${draft.id}`;
-  console.log('[discord] sending:', content);
-  try {
-    const r = await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
-    });
-    console.log('[discord] response status:', r.status);
-    if (!r.ok) console.error('[discord] error body:', await r.text());
-  } catch (e) {
-    console.error('[discord] fetch threw:', e.message);
-  }
+  await sendWebhook(`${mentions.join(' ')} The rotisserie draft has started — ${firstHuman} picks first (among humans)!\n${APP_URL}/draft/${draft.id}`);
+}
+
+async function sendDraftCompletedPing(draft) {
+  if (!DISCORD_WEBHOOK_URL) return;
+  const bots = new Set(draft.bots || []);
+  const mentions = (draft.players || [])
+    .filter(p => !bots.has(p))
+    .map(p => DISCORD_IDS[p] ? `<@${DISCORD_IDS[p]}>` : `**${p}**`);
+  if (!mentions.length) return;
+  await sendWebhook(`${mentions.join(' ')} 🏁 The rotisserie draft is complete!\n${APP_URL}/draft/${draft.id}`);
 }
 
 async function sendIdleTurnPing(draft, currentPlayer) {
-  console.log('[discord] sendIdleTurnPing called, player:', currentPlayer, 'webhook set:', !!DISCORD_WEBHOOK_URL);
-  if (!DISCORD_WEBHOOK_URL) { console.log('[discord] no webhook URL, skipping'); return; }
+  if (!DISCORD_WEBHOOK_URL) return;
   const mention = DISCORD_IDS[currentPlayer] ? `<@${DISCORD_IDS[currentPlayer]}>` : `**${currentPlayer}**`;
-  const content = `${mention} It's your pick in the rotisserie draft — you've been up for 12+ hours!\n${APP_URL}/draft/${draft.id}`;
-  console.log('[discord] sending idle ping:', content);
-  try {
-    const r = await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
-    });
-    console.log('[discord] idle ping response status:', r.status);
-    if (!r.ok) console.error('[discord] idle ping error body:', await r.text());
-  } catch (e) { console.error('[discord] idle ping fetch threw:', e.message); }
+  await sendWebhook(`${mention} It's your pick in the rotisserie draft — you've been up for 12+ hours!\n${APP_URL}/draft/${draft.id}`);
 }
 
 async function sendTurnPing(draft, player, prevPlayer, pickedCards) {
@@ -77,16 +74,7 @@ async function sendTurnPing(draft, player, prevPlayer, pickedCards) {
   const prevLine = (prevPlayer && cards.length)
     ? cards.map(c => `${prevPlayer} took ${c}.`).join('\n') + '\n'
     : '';
-  const content = `${prevLine}${mention} It's your pick in the rotisserie draft!\n${APP_URL}/draft/${draft.id}`;
-  console.log('[discord] sending turn ping for', player);
-  try {
-    const r = await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
-    });
-    if (!r.ok) console.error('[discord] turn ping error:', await r.text());
-  } catch (e) { console.error('[discord] turn ping fetch threw:', e.message); }
+  await sendWebhook(`${prevLine}${mention} It's your pick in the rotisserie draft!\n${APP_URL}/draft/${draft.id}`);
 }
 
 const IDLE_PING_MS = 12 * 60 * 60 * 1000; // 12 hours
@@ -327,6 +315,7 @@ async function makeBotPick(draftId) {
       }
     } else {
       botRankingCache.delete(draftId);
+      sendDraftCompletedPing(updated);
     }
   } catch (e) { console.error('makeBotPick error:', e.message); }
 }
@@ -557,7 +546,9 @@ const server = http.createServer(async (req, res) => {
           }
           await saveDraft(id, draft);
           broadcastDraft('draft_update', { draft });
-          if (justStarted) sendDraftStartedPing(draft);
+          const justCompleted = draft.status === 'complete' && existing?.status !== 'complete';
+          if (justStarted)   sendDraftStartedPing(draft);
+          if (justCompleted) sendDraftCompletedPing(draft);
           // Ping the next human player when the turn advances (skip if same player picks back-to-back)
           if (turnAdvanced) {
             const bots = new Set(draft.bots || []);
