@@ -1475,7 +1475,7 @@
         <div class="rp-new-row">
           <select id="nlp-type" class="nlp-input">
             <option value="vintage_cube">Vintage Cube</option>
-            <option value="agricola">Agricola</option>
+            <option value="agricola" hidden>Agricola</option>
           </select>
           <input id="nlp-name" class="nlp-input" type="text" placeholder="List name…" />
           <button id="nlp-create">Create</button>
@@ -2441,7 +2441,7 @@
     // Type tabs
     const tabs = document.createElement('div');
     tabs.className = 'ld-type-tabs';
-    [{ value: 'agricola', label: 'Agricola' }, { value: 'vintage_cube', label: 'Vintage Cube' }].forEach(t => {
+    [{ value: 'vintage_cube', label: 'Vintage Cube' }].forEach(t => {
       const btn = document.createElement('button');
       btn.className = 'ld-type-tab' + (t.value === loadTypeFilter ? ' active' : '');
       btn.textContent = t.label;
@@ -3542,7 +3542,7 @@
 
   function populateCompareTypeSelector() {
     const sel = document.getElementById('compare-type-sel');
-    const types = [...new Set(Object.values(listsCache).map(l => l.type).filter(Boolean))]
+    const types = [...new Set(Object.values(listsCache).map(l => l.type).filter(t => t && t !== 'agricola'))]
       .sort(a => a === 'vintage_cube' ? -1 : 1);
     sel.innerHTML = types.map(t =>
       `<option value="${t}">${t === 'vintage_cube' ? 'Vintage Cube' : 'Agricola'}</option>`
