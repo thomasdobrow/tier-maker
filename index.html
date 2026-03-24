@@ -1154,7 +1154,9 @@
       padding: 8px 16px; display: flex; flex-wrap: wrap;
       gap: 10px; border-bottom: 1px solid #222; flex-shrink: 0; font-size: 0.78rem;
     }
-    .cmp-legend-item { display: flex; align-items: center; gap: 5px; color: #aaa; }
+    .cmp-legend-item { display: flex; align-items: center; gap: 5px; color: #aaa; cursor: pointer; transition: opacity 0.15s; }
+    .cmp-legend-item.cmp-legend-dim    { opacity: 0.35; }
+    .cmp-legend-item.cmp-legend-active { color: #fff; }
     .cmp-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
     /* All-cards ranking rows */
@@ -1194,7 +1196,7 @@
     .cmp-dot {
       width: 8px; height: 8px; border-radius: 50%;
       position: absolute; top: 50%; transform: translate(-50%, -50%);
-      cursor: default; z-index: 1;
+      cursor: default; z-index: 1; transition: opacity 0.15s, background 0.15s;
     }
     .cmp-dot::after {
       content: attr(data-tip);
@@ -2076,6 +2078,7 @@
   function listLabel(list)   { return list.creator ? `${list.name} (${list.creator})` : list.name; }
 
   let listsCache = {};            // in-memory source of truth
+  let cmpFocusedIdx = null;      // which list index is highlighted in Compare Cards
   function getLists() { return listsCache; }
 
   // Fire-and-forget: persist a single list object to the server
@@ -3577,6 +3580,19 @@
     return colors[0]; // 'W' | 'U' | 'B' | 'R' | 'G'
   }
 
+  function applyCmpFocus(idx) {
+    cmpFocusedIdx = idx;
+    document.querySelectorAll('#cmp-legend .cmp-legend-item').forEach((el, i) => {
+      el.classList.toggle('cmp-legend-active', idx !== null && i === idx);
+      el.classList.toggle('cmp-legend-dim',    idx !== null && i !== idx);
+    });
+    document.querySelectorAll('#cmp-cards .cmp-dot').forEach(dot => {
+      const active = idx === null || Number(dot.dataset.listIdx) === idx;
+      dot.style.opacity    = active ? '' : '0.15';
+      dot.style.background = active ? dot.dataset.color : '#555';
+    });
+  }
+
   function renderRankings() {
     const type = document.getElementById('compare-type-sel').value;
     const lists = Object.values(listsCache).filter(l => l.type === type && isComparable(l));
@@ -3594,8 +3610,8 @@
     }
 
     const listMeta = lists.map((l, i) => ({ list: l, color: CMP_COLORS[i % CMP_COLORS.length] }));
-    legend.innerHTML = listMeta.map(m =>
-      `<div class="cmp-legend-item"><div class="cmp-legend-dot" style="background:${m.color}"></div><span>${escHtml(listLabel(m.list))}</span></div>`
+    legend.innerHTML = listMeta.map((m, i) =>
+      `<div class="cmp-legend-item" data-list-idx="${i}"><div class="cmp-legend-dot" style="background:${m.color}"></div><span>${escHtml(listLabel(m.list))}</span></div>`
     ).join('');
 
     const allRankings = listMeta.map(m => ({ ...m, ranks: computeRankings(m.list) }));
@@ -3610,7 +3626,18 @@
       const pts = allRankings.map(m => m.ranks[name] ?? null);
       const ranked = pts.filter(p => p != null);
       const avg = ranked.length ? ranked.reduce((a, b) => a + b, 0) / ranked.length : Infinity;
-      const avgBucket = ranked.length ? ranked.reduce((s, r) => s + rankToBucket(r), 0) / ranked.length : Infinity;
+      let avgBucket = Infinity;
+      if (ranked.length) {
+        const buckets  = ranked.map(rankToBucket).sort((a, b) => a - b);
+        const n        = buckets.length;
+        const midStart = Math.floor((n - 4) / 2); // first index of the middle-4 window
+        let wSum = 0, wTotal = 0;
+        buckets.forEach((b, i) => {
+          const w = (i >= midStart && i < midStart + 4) ? 2 : 1;
+          wSum += w * b; wTotal += w;
+        });
+        avgBucket = wSum / wTotal;
+      }
       return { name, avg, avgBucket, pts };
     });
     cardData.sort((a, b) => a.avgBucket - b.avgBucket);
@@ -3620,7 +3647,7 @@
         const r = card.pts[i];
         if (r == null) return '';
         const pct = N > 1 ? ((r - 1) / (N - 1)) * 100 : 50;
-        return `<div class="cmp-dot" data-rank="${r}" data-tip="${escHtml(m.list.name)}: #${r}" style="left:${pct.toFixed(1)}%;background:${m.color}"></div>`;
+        return `<div class="cmp-dot" data-list-idx="${i}" data-color="${m.color}" data-rank="${r}" data-tip="${escHtml(m.list.name)}: #${r}" style="left:${pct.toFixed(1)}%;background:${m.color}"></div>`;
       }).join('');
       const avgDisplay = card.avg === Infinity ? '—' : card.avg.toFixed(1);
       return `<div class="cmp-row">
@@ -3633,6 +3660,7 @@
         </div>
       </div>`;
     }).join('');
+    applyCmpFocus(cmpFocusedIdx);
   }
 
   function renderH2H() {
@@ -4032,6 +4060,21 @@
       btn.classList.add('active');
       renderRankings();
     });
+  });
+
+  // Compare Cards: click legend item to highlight that list's dots
+  document.getElementById('cmp-legend').addEventListener('click', e => {
+    const item = e.target.closest('.cmp-legend-item');
+    if (!item) return;
+    const idx = Number(item.dataset.listIdx);
+    applyCmpFocus(cmpFocusedIdx === idx ? null : idx);
+  });
+
+  // Click anywhere in the rankings panel outside the legend/color-filter to clear focus
+  document.getElementById('compare-rankings').addEventListener('click', e => {
+    if (e.target.closest('#cmp-legend'))       return;
+    if (e.target.closest('#cmp-color-filter')) return;
+    applyCmpFocus(null);
   });
 
   // ── Rotisserie ────────────────────────────────────────────────
