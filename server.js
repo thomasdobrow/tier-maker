@@ -70,10 +70,13 @@ async function sendIdleTurnPing(draft, currentPlayer) {
   } catch (e) { console.error('[discord] idle ping fetch threw:', e.message); }
 }
 
-async function sendTurnPing(draft, player, prevPlayer, pickedCard) {
+async function sendTurnPing(draft, player, prevPlayer, pickedCards) {
   if (!DISCORD_WEBHOOK_URL) return;
   const mention = DISCORD_IDS[player] ? `<@${DISCORD_IDS[player]}>` : `**${player}**`;
-  const prevLine = (prevPlayer && pickedCard) ? `${prevPlayer} took ${pickedCard}.\n` : '';
+  const cards = Array.isArray(pickedCards) ? pickedCards : (pickedCards ? [pickedCards] : []);
+  const prevLine = (prevPlayer && cards.length)
+    ? cards.map(c => `${prevPlayer} took ${c}.`).join('\n') + '\n'
+    : '';
   const content = `${prevLine}${mention} It's your pick in the rotisserie draft!\n${APP_URL}/draft/${draft.id}`;
   console.log('[discord] sending turn ping for', player);
   try {
@@ -316,7 +319,11 @@ async function makeBotPick(draftId) {
       if ((updated.bots || []).includes(nextPlayer)) {
         scheduleBotPick(draftId);
       } else {
-        sendTurnPing(updated, nextPlayer, currentPlayer, pick);
+        let runStart = draft.currentTurnIdx;
+        while (runStart > 0 && getSnakeDraftPlayerServer(draft.turnOrder, runStart - 1) === currentPlayer) runStart--;
+        const numPicks = draft.currentTurnIdx - runStart + 1;
+        const pickedCards = (updated.picks[currentPlayer] || []).slice(-numPicks);
+        sendTurnPing(updated, nextPlayer, currentPlayer, pickedCards);
       }
     } else {
       botRankingCache.delete(draftId);
@@ -557,10 +564,11 @@ const server = http.createServer(async (req, res) => {
             const prevPlayer = getSnakeDraftPlayerServer(existing.turnOrder, existing.currentTurnIdx);
             const nextPlayer = getSnakeDraftPlayerServer(draft.turnOrder, draft.currentTurnIdx);
             if (!bots.has(nextPlayer) && nextPlayer !== prevPlayer) {
-              const prevPicks  = existing.picks?.[prevPlayer] || [];
-              const newPicks   = draft.picks?.[prevPlayer]    || [];
-              const pickedCard = newPicks.find(c => !prevPicks.includes(c)) || null;
-              sendTurnPing(draft, nextPlayer, prevPlayer, pickedCard);
+              let runStart = existing.currentTurnIdx;
+              while (runStart > 0 && getSnakeDraftPlayerServer(existing.turnOrder, runStart - 1) === prevPlayer) runStart--;
+              const numPicks = existing.currentTurnIdx - runStart + 1;
+              const pickedCards = (draft.picks?.[prevPlayer] || []).slice(-numPicks);
+              sendTurnPing(draft, nextPlayer, prevPlayer, pickedCards);
             }
           }
           // Schedule bot pick if it's currently a bot's turn
