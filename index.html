@@ -1215,21 +1215,11 @@
       transition: opacity 0.1s;
     }
     .cmp-dot:hover::after { opacity: 1; }
-    .cmp-dot-labeled::before {
-      content: attr(data-rank);
-      position: absolute;
-      bottom: calc(100% + 4px);
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.6rem;
-      color: #ddd;
-      background: rgba(0,0,0,0.65);
-      padding: 1px 3px;
-      border-radius: 2px;
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 2;
+    @keyframes cmpRowFlash {
+      0%   { background: rgba(255,255,140,0.18); }
+      100% { background: transparent; }
     }
+    .cmp-row-highlight { animation: cmpRowFlash 1.8s ease-out forwards; }
 
     /* Toast notification */
     #toast {
@@ -3376,6 +3366,22 @@
     searchDropdown.classList.remove('open');
     searchInput.value = '';
     highlightCard(id);
+
+    // In Compare Cards view: scroll to and flash the card's row instead of zooming
+    const compareVisible = document.getElementById('compare-section').style.display !== 'none';
+    const compareTab = document.querySelector('.compare-tab.active')?.dataset.tab;
+    if (compareVisible && compareTab === 'rankings') {
+      const nameEl = [...document.querySelectorAll('#cmp-cards .cmp-name')].find(el => el.title === id);
+      if (nameEl) {
+        const row = nameEl.closest('.cmp-row');
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row.classList.remove('cmp-row-highlight');
+        void row.offsetWidth; // restart animation
+        row.classList.add('cmp-row-highlight');
+      }
+      return;
+    }
+
     if (activeDraftId) {
       openZoom(vcCardImgSrc(id), id);
     } else if (currentListType === 'vintage_cube') {
@@ -3629,7 +3635,6 @@
       const active = idx === null || Number(dot.dataset.listIdx) === idx;
       dot.style.opacity    = active ? '' : '0.15';
       dot.style.background = active ? dot.dataset.color : '#555';
-      dot.classList.toggle('cmp-dot-labeled', idx !== null && Number(dot.dataset.listIdx) === idx);
     });
   }
 
