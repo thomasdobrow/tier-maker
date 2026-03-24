@@ -61,6 +61,9 @@
       color: #7dcc7d;
     }
     .lb-btn.primary:hover { background: #2a4a2a; }
+    .lb-tab { border-bottom: 2px solid transparent; transition: border-color 0.15s, background 0.15s; }
+    .lb-tab.active { color: #fff; border-bottom: 2px solid #7dcc7d; background: #1a2a1a; }
+    .lb-tab.active:hover { background: #213021; }
 
     #lb-active-list {
       padding: 5px 16px 2px;
@@ -100,80 +103,37 @@
     /* ── Button wrapper for popovers ── */
     .lb-btn-wrap { position: relative; }
 
-    /* ── New List popover ── */
-    #new-list-popover {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      background: #1c1c1c;
-      border: 1px solid #444;
-      border-radius: 6px;
-      padding: 14px 16px;
-      width: 250px;
-      z-index: 6000;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    /* ── Rank panel ── */
+    #rank-panel {
+      display: none; flex-direction: column;
+      position: absolute; top: calc(100% + 6px); left: 0;
+      width: 320px; background: #1c1c1c; border: 1px solid #444;
+      border-radius: 6px; z-index: 6000; box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+      overflow: hidden;
     }
-    #new-list-popover.open { display: block; }
+    #rank-panel.open { display: flex; }
+    .rp-section { padding: 10px 12px; border-bottom: 1px solid #2a2a2a; }
+    .rp-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 7px; }
+    .rp-new-row { display: flex; gap: 6px; align-items: center; }
+    .rp-new-row #nlp-type { flex: 0 0 auto; width: 112px; }
+    .rp-new-row #nlp-name { flex: 1 1 0; min-width: 0; }
+    .rp-new-row #nlp-create {
+      flex: 0 0 auto; padding: 5px 10px; border-radius: 4px;
+      border: 1px solid #3a6a3a; background: #1e3a1e; color: #7dcc7d;
+      font-size: 0.82rem; cursor: pointer; white-space: nowrap;
+    }
+    .rp-new-row #nlp-create:hover { background: #2a4a2a; }
 
-    .nlp-row { margin-bottom: 10px; }
-    .nlp-row label {
-      display: block;
-      font-size: 0.72rem;
-      color: #888;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
     .nlp-input {
-      width: 100%;
-      background: #2a2a2a;
-      color: #eee;
-      border: 1px solid #444;
-      padding: 5px 8px;
-      border-radius: 4px;
-      font-size: 0.83rem;
-      outline: none;
-      user-select: text;
-      transition: border-color 0.1s;
+      background: #2a2a2a; color: #eee; border: 1px solid #444;
+      padding: 5px 8px; border-radius: 4px; font-size: 0.83rem;
+      outline: none; user-select: text; transition: border-color 0.1s;
     }
     .nlp-input:focus { border-color: #666; }
     .nlp-input.err { border-color: #e05050; }
 
-    .nlp-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      margin-top: 12px;
-    }
-    .nlp-actions button {
-      padding: 5px 14px;
-      border-radius: 4px;
-      border: 1px solid #444;
-      cursor: pointer;
-      font-size: 0.82rem;
-    }
-    #nlp-cancel { background: #2a2a2a; color: #aaa; }
-    #nlp-cancel:hover { background: #3a3a3a; }
-    #nlp-create { background: #1e3a1e; color: #7dcc7d; border-color: #3a6a3a; }
-    #nlp-create:hover { background: #2a4a2a; }
-
-    /* ── Load dropdown ── */
-    #load-dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      background: #1c1c1c;
-      border: 1px solid #444;
-      border-radius: 6px;
-      width: 300px;
-      max-height: 340px;
-      overflow-y: auto;
-      z-index: 6000;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.6);
-    }
-    #load-dropdown.open { display: block; }
+    /* ── Load dropdown (inside #rank-panel) ── */
+    #load-dropdown { display: block; max-height: 240px; overflow-y: auto; }
 
     .ld-empty {
       padding: 16px;
@@ -1109,6 +1069,10 @@
         -webkit-overflow-scrolling: touch;
       }
       #list-bar > * { flex-shrink: 0; }
+      #rank-panel {
+        position: fixed; left: 0; right: 0; width: 100%;
+        max-height: 70vh; border-radius: 0 0 8px 8px; overflow-y: auto;
+      }
 
       /* Pool header: Quick Rank stays visible, scroll right for sort options */
       #pool-header {
@@ -1504,38 +1468,26 @@
 <!-- List management bar -->
 <div id="list-bar">
   <div class="lb-btn-wrap">
-    <button class="lb-btn primary" id="new-list-btn">+ New List</button>
-    <div id="new-list-popover">
-      <div class="nlp-row">
-        <label for="nlp-type">List Type</label>
-        <select id="nlp-type" class="nlp-input">
-          <option value="vintage_cube">Vintage Cube</option>
-          <option value="agricola">Agricola</option>
-        </select>
+    <button class="lb-btn lb-tab" id="rank-btn">Rank</button>
+    <div id="rank-panel">
+      <div class="rp-section">
+        <div class="rp-label">New List</div>
+        <div class="rp-new-row">
+          <select id="nlp-type" class="nlp-input">
+            <option value="vintage_cube">Vintage Cube</option>
+            <option value="agricola">Agricola</option>
+          </select>
+          <input id="nlp-name" class="nlp-input" type="text" placeholder="List name…" />
+          <button id="nlp-create">Create</button>
+        </div>
       </div>
-      <div class="nlp-row" style="margin-bottom:0">
-        <label for="nlp-name">List Name</label>
-        <input id="nlp-name" class="nlp-input" type="text" placeholder="e.g. My Draft Rankings" />
-      </div>
-      <div class="nlp-actions">
-        <button id="nlp-cancel">Cancel</button>
-        <button id="nlp-create">Create</button>
-      </div>
+      <div class="rp-label" style="padding:8px 12px 4px">Your Lists</div>
+      <div id="load-dropdown"></div>
     </div>
   </div>
 
-  <div class="lb-btn-wrap">
-    <button class="lb-btn" id="load-btn">Load List ▾</button>
-    <div id="load-dropdown"></div>
-  </div>
-
-  <div class="lb-btn-wrap">
-    <button class="lb-btn" id="compare-btn">Compare ↔</button>
-  </div>
-
-  <div class="lb-btn-wrap">
-    <button class="lb-btn" id="rotisserie-btn">Rotisserie Draft</button>
-  </div>
+  <button class="lb-btn lb-tab" id="compare-btn">Compare</button>
+  <button class="lb-btn lb-tab" id="rotisserie-btn">Draft</button>
 
   <div id="lb-saved">✓ Saved</div>
 </div>
@@ -2195,9 +2147,8 @@
   // ── List bar UI ───────────────────────────────────────────────
   const lbActiveList = document.getElementById('lb-active-list');
   const lbSaved      = document.getElementById('lb-saved');
-  const newListBtn   = document.getElementById('new-list-btn');
-  const newListPop   = document.getElementById('new-list-popover');
-  const loadBtn      = document.getElementById('load-btn');
+  const rankBtn      = document.getElementById('rank-btn');
+  const rankPanel    = document.getElementById('rank-panel');
   const loadDropdown = document.getElementById('load-dropdown');
   const nlpName      = document.getElementById('nlp-name');
   const nlpType      = document.getElementById('nlp-type');
@@ -2215,6 +2166,13 @@
     const list = getLists()[id];
     if (!list) { setActiveListId(null); lbActiveList.textContent = ''; return; }
     lbActiveList.textContent = listLabel(list);
+  }
+
+  function setActiveTab(activeBtn) {
+    ['rank-btn', 'compare-btn', 'rotisserie-btn'].forEach(id => {
+      document.getElementById(id)?.classList.remove('active');
+    });
+    if (activeBtn) activeBtn.classList.add('active');
   }
 
   let saveFlashTimer = null;
@@ -2377,6 +2335,7 @@
     const list = { id, name, creator: creator || '', type: listType, locked: false, createdAt: now, updatedAt: now, state: null };
 
     setActiveListId(id);
+    setActiveTab(rankBtn);
     setTierAreaVisible(true);
     await loadCardsForType(listType);
 
@@ -2396,6 +2355,7 @@
     hideCompare();
     hideRotisserie();
     setActiveListId(id);
+    setActiveTab(rankBtn);
     setTierAreaVisible(true);
     await loadCardsForType(list.type || 'agricola');
     restoreState(list.state);
@@ -2525,23 +2485,18 @@
       item.appendChild(del);
       item.addEventListener('click', () => {
         loadList(list.id);
-        loadDropdown.classList.remove('open');
+        rankPanel.classList.remove('open');
       });
       loadDropdown.appendChild(item);
     });
   }
 
-  // New List button
-  newListBtn.addEventListener('click', e => {
+  // Rank tab — toggle unified panel
+  rankBtn.addEventListener('click', e => {
     e.stopPropagation();
-    loadDropdown.classList.remove('open');
-    nlpType.value = 'vintage_cube';
-    newListPop.classList.toggle('open');
-    if (newListPop.classList.contains('open')) nlpName.focus();
-  });
-
-  document.getElementById('nlp-cancel').addEventListener('click', () => {
-    newListPop.classList.remove('open');
+    const opening = !rankPanel.classList.contains('open');
+    rankPanel.classList.toggle('open');
+    if (opening) { nlpType.value = 'vintage_cube'; buildLoadDropdown(); nlpName.focus(); }
   });
 
   document.getElementById('nlp-create').addEventListener('click', () => {
@@ -2549,31 +2504,21 @@
     if (!name) { nlpName.classList.add('err'); nlpName.focus(); return; }
     createNewList(name, getCurrentUser(), nlpType.value);
     nlpName.value = '';
-    newListPop.classList.remove('open');
+    rankPanel.classList.remove('open');
   });
 
   [nlpName].forEach(inp => {
     inp.addEventListener('input', () => inp.classList.remove('err'));
     inp.addEventListener('keydown', e => {
       if (e.key === 'Enter')  document.getElementById('nlp-create').click();
-      if (e.key === 'Escape') newListPop.classList.remove('open');
+      if (e.key === 'Escape') rankPanel.classList.remove('open');
     });
   });
 
-  // Load button
-  loadBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    newListPop.classList.remove('open');
-    buildLoadDropdown();
-    loadDropdown.classList.toggle('open');
-  });
-
-  // Close popovers on outside click
+  // Close rank panel on outside click
   document.addEventListener('pointerdown', e => {
-    if (!e.target.closest('#new-list-btn') && !e.target.closest('#new-list-popover'))
-      newListPop.classList.remove('open');
-    if (!e.target.closest('#load-btn') && !e.target.closest('#load-dropdown'))
-      loadDropdown.classList.remove('open');
+    if (!e.target.closest('#rank-btn') && !e.target.closest('#rank-panel'))
+      rankPanel.classList.remove('open');
   });
 
   // ── Tier sort wizard ──────────────────────────────────────────
@@ -3560,6 +3505,7 @@
   }
 
   function showCompare() {
+    setActiveTab(document.getElementById('compare-btn'));
     // Clear the active list — compare is a read-only view, not tied to any loaded list
     setActiveListId(null);
     setTierAreaVisible(false);
@@ -4057,6 +4003,7 @@
     setActiveListId(null);
     hideCompare();
     hideRotisserie();
+    setActiveTab(null);
     setTierAreaVisible(false);
     updateListBar();
     updateLockBtn();
@@ -4188,6 +4135,7 @@
   }
 
   function showRotisserie() {
+    setActiveTab(document.getElementById('rotisserie-btn'));
     setActiveListId(null);
     setTierAreaVisible(false);
     updateListBar();
