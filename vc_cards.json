@@ -3468,6 +3468,60 @@
     "colors": [],
     "typeLine": "Land — Island Mountain"
   },
+  "Meticulous Archive": {
+    "file": "meticulous-archive.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Plains Island"
+  },
+  "Shadowy Backstreet": {
+    "file": "shadowy-backstreet.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Plains Swamp"
+  },
+  "Elegant Parlor": {
+    "file": "elegant-parlor.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Plains"
+  },
+  "Lush Portico": {
+    "file": "lush-portico.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Plains"
+  },
+  "Undercity Sewers": {
+    "file": "undercity-sewers.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Island Swamp"
+  },
+  "Hedge Maze": {
+    "file": "hedge-maze.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Forest Island"
+  },
+  "Raucous Theater": {
+    "file": "raucous-theater.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Mountain"
+  },
+  "Underground Mortuary": {
+    "file": "underground-mortuary.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Swamp Forest"
+  },
+  "Commercial District": {
+    "file": "commercial-district.jpg",
+    "cmc": 0,
+    "colors": [],
+    "typeLine": "Land — Mountain Forest"
+  },
   "Indatha Triome": {
     "file": "indatha-triome.jpg",
     "cmc": 0,

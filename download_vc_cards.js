@@ -119,8 +119,9 @@ const VINTAGE_CUBE_CARDS = [
   // Shocklands
   'Blood Crypt','Breeding Pool','Godless Shrine','Hallowed Fountain','Overgrown Tomb',
   'Sacred Foundry','Steam Vents','Stomping Ground','Temple Garden','Watery Grave',
-  // New Duals
-  'Thundering Falls',
+  // New Duals (MKM surveil lands)
+  'Thundering Falls','Meticulous Archive','Shadowy Backstreet','Elegant Parlor','Lush Portico',
+  'Undercity Sewers','Hedge Maze','Raucous Theater','Underground Mortuary','Commercial District',
   // Triomes
   'Indatha Triome','Jetmir\'s Garden','Ketria Triome','Raffine\'s Tower','Raugrin Triome',
   'Savai Triome','Spara\'s Headquarters','Xander\'s Lounge','Zagoth Triome','Ziatora\'s Proving Ground',
