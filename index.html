@@ -1070,9 +1070,11 @@
       }
       #list-bar > * { flex-shrink: 0; }
       #rank-panel {
-        position: fixed; left: 0; right: 0; width: 100%;
-        max-height: 70vh; border-radius: 0 0 8px 8px; overflow-y: auto;
+        position: fixed; top: 50px; left: 0; right: 0; width: 100%;
+        max-height: calc(70vh - 50px); border-radius: 0 0 8px 8px; overflow-y: auto;
       }
+      .rp-new-row #nlp-type { display: none; }
+      .rp-new-row #nlp-name { font-size: 16px; }
 
       /* Pool header: Quick Rank stays visible, scroll right for sort options */
       #pool-header {
@@ -1477,7 +1479,7 @@
             <option value="vintage_cube">Vintage Cube</option>
             <option value="agricola" hidden>Agricola</option>
           </select>
-          <input id="nlp-name" class="nlp-input" type="text" placeholder="List name…" />
+          <input id="nlp-name" class="nlp-input" type="text" placeholder="List name…" autocomplete="off" />
           <button id="nlp-create">Create</button>
         </div>
       </div>
