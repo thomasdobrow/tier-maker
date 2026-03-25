@@ -1075,6 +1075,10 @@
       }
       .rp-new-row #nlp-type { display: none; }
       .rp-new-row #nlp-name { font-size: 16px; }
+      /* Remove nested scroll: let the panel scroll as one unit */
+      #rank-panel #load-dropdown { max-height: none; }
+      /* Compare: allow horizontal scroll on mobile */
+      .compare-view { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
       /* Pool header: Quick Rank stays visible, scroll right for sort options */
       #pool-header {
