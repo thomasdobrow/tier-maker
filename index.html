@@ -1975,9 +1975,10 @@
     VINTAGE_CUBE_CARDS.indexOf('Dryad Arbor')
   ));
 
-  // The 36 redundant cycle lands excluded from rank mode (one representative kept per cycle).
+  // The 45 redundant cycle lands excluded from rank mode (one representative kept per cycle).
   // Excluded: 9 duals (keep Badlands), 9 fetches (keep Arid Mesa),
-  //           9 shocks (keep Blood Crypt), 9 triomes (keep Xander's Lounge).
+  //           9 shocks (keep Blood Crypt), 9 triomes (keep Xander's Lounge),
+  //           9 surveils (keep Thundering Falls).
   const DRAFT_ONLY_LAND_NAMES = new Set([
     // Duals (excl. Badlands)
     'Bayou','Plateau','Savannah','Scrubland','Taiga','Tropical Island','Tundra','Underground Sea','Volcanic Island',
@@ -1990,6 +1991,9 @@
     // Triomes (excl. Xander\'s Lounge)
     'Indatha Triome',"Jetmir's Garden",'Ketria Triome',"Raffine's Tower",'Raugrin Triome',
     'Savai Triome',"Spara's Headquarters",'Zagoth Triome',"Ziatora's Proving Ground",
+    // Surveils (excl. Thundering Falls)
+    'Meticulous Archive','Shadowy Backstreet','Elegant Parlor','Lush Portico',
+    'Undercity Sewers','Hedge Maze','Raucous Theater','Underground Mortuary','Commercial District',
   ]);
 
   // ── Build tier rows ──────────────────────────────────────────
