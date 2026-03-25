@@ -1066,7 +1066,6 @@
       #list-bar {
         overflow-x: auto;
         flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
       }
       #list-bar > * { flex-shrink: 0; }
       #rank-panel {
@@ -2502,7 +2501,7 @@
     e.stopPropagation();
     const opening = !rankPanel.classList.contains('open');
     rankPanel.classList.toggle('open');
-    if (opening) { nlpType.value = 'vintage_cube'; buildLoadDropdown(); nlpName.focus(); }
+    if (opening) { nlpType.value = 'vintage_cube'; buildLoadDropdown(); }
   });
 
   document.getElementById('nlp-create').addEventListener('click', () => {
@@ -2522,7 +2521,7 @@
   });
 
   // Close rank panel on outside click
-  document.addEventListener('pointerdown', e => {
+  document.addEventListener('click', e => {
     if (!e.target.closest('#rank-btn') && !e.target.closest('#rank-panel'))
       rankPanel.classList.remove('open');
   });
