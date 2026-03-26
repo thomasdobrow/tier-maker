@@ -1443,6 +1443,32 @@
       line-height: 1.5; transition: border-color 0.1s, color 0.1s; white-space: nowrap;
     }
     .rot-view-picks-btn:hover { border-color: #555; color: #aaa; }
+    /* Land analysis bar (inside picks viewer) */
+    #picks-viewer-land-btn {
+      background: none; border: 1px solid #3a5a3a; color: #8f8; border-radius: 4px;
+      font-size: 0.7rem; padding: 2px 8px; cursor: pointer; margin-right: 8px;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    #picks-viewer-land-btn:hover { background: #1a2a1a; border-color: #6a9a6a; }
+    #picks-viewer-analysis {
+      padding: 12px 16px 0; flex-shrink: 0; display: none;
+    }
+    #picks-viewer-analysis.open { display: block; }
+    #picks-viewer-analysis:empty { display: none !important; }
+    .land-analysis-bar {
+      background: #1a2a1a; border: 1px solid #3a5a3a; border-radius: 6px;
+      padding: 8px 12px; margin-bottom: 10px; font-size: 13px;
+    }
+    .land-color-pips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+    .pip { padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 12px; }
+    .pip-w { background: #f9f6e8; color: #333; }
+    .pip-u { background: #1a3a6a; color: #9cf; }
+    .pip-b { background: #2a2a3e; color: #bbb; border: 1px solid #555; }
+    .pip-r { background: #5a1a1a; color: #f88; }
+    .pip-g { background: #1a3a1a; color: #8f8; }
+    .pip-tap { background: #333; color: #aaa; }
+    .pip.zero { opacity: 0.35; }
+    .land-powerful { color: #ffd700; margin-top: 2px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -1665,8 +1691,10 @@
   <div id="picks-viewer-dialog" onclick="event.stopPropagation()">
     <div id="picks-viewer-header">
       <span id="picks-viewer-title"></span>
+      <button id="picks-viewer-land-btn">Land Analysis ✦ Beta</button>
       <button id="picks-viewer-close">×</button>
     </div>
+    <div id="picks-viewer-analysis"></div>
     <div id="picks-viewer-grid"></div>
   </div>
 </div>
@@ -1995,6 +2023,107 @@
     'Meticulous Archive','Shadowy Backstreet','Elegant Parlor','Lush Portico',
     'Undercity Sewers','Hedge Maze','Raucous Theater','Underground Mortuary','Commercial District',
   ]);
+
+  // ── Land evaluation data ──────────────────────────────────────
+  // Only lands whose colors cannot be parsed from typeLine need an explicit `colors` array.
+  // Duals, shocks, triomes, surveil lands, and basics all have subtype words in their
+  // typeLine ("Land — Plains Island" etc.) and are handled by the typeLine parser below.
+  // Surveil lands only need `alwaysTapped: true`; their colors come from typeLine.
+  const LAND_ANALYSIS_DATA = {
+    // Fetch lands (colors = the two basic land types they can fetch)
+    'Arid Mesa':          { colors: ['W','R'] },
+    'Bloodstained Mire':  { colors: ['B','R'] },
+    'Flooded Strand':     { colors: ['W','U'] },
+    'Marsh Flats':        { colors: ['W','B'] },
+    'Misty Rainforest':   { colors: ['U','G'] },
+    'Polluted Delta':     { colors: ['U','B'] },
+    'Scalding Tarn':      { colors: ['U','R'] },
+    'Verdant Catacombs':  { colors: ['B','G'] },
+    'Windswept Heath':    { colors: ['W','G'] },
+    'Wooded Foothills':   { colors: ['R','G'] },
+    'Prismatic Vista':    { colors: ['W','U','B','R','G'] },
+    // Manlands
+    'Celestial Colonnade': { colors: ['W','U'], powerful: 'Manland (W/U)' },
+    'Creeping Tar Pit':    { colors: ['U','B'], powerful: 'Manland (U/B)', alwaysTapped: true },
+    'Raging Ravine':       { colors: ['R','G'], powerful: 'Manland (R/G)' },
+    // Horizon lands
+    'Horizon Canopy':      { colors: ['W','G'], powerful: 'Draw (pay 1 life)' },
+    'Nurturing Peatland':  { colors: ['B','G'], powerful: 'Draw (pay 1 life)' },
+    'Waterlogged Grove':   { colors: ['U','G'], powerful: 'Draw (pay 1 life)' },
+    'Fiery Islet':         { colors: ['U','R'], powerful: 'Draw (pay 1 life)' },
+    // Verge manlands
+    'Blazemire Verge':    { colors: ['U','B'], powerful: 'Manland' },
+    'Bleachbone Verge':   { colors: ['W','B'], powerful: 'Manland' },
+    'Riverpyre Verge':    { colors: ['U','R'], powerful: 'Manland' },
+    'Thornspire Verge':   { colors: ['R','G'], powerful: 'Manland' },
+    'Wastewood Verge':    { colors: ['B','G'], powerful: 'Manland' },
+    // Surveil lands — alwaysTapped only; colors derived from typeLine
+    'Thundering Falls':     { alwaysTapped: true },
+    'Meticulous Archive':   { alwaysTapped: true },
+    'Shadowy Backstreet':   { alwaysTapped: true },
+    'Elegant Parlor':       { alwaysTapped: true },
+    'Lush Portico':         { alwaysTapped: true },
+    'Undercity Sewers':     { alwaysTapped: true },
+    'Hedge Maze':           { alwaysTapped: true },
+    'Raucous Theater':      { alwaysTapped: true },
+    'Underground Mortuary': { alwaysTapped: true },
+    'Commercial District':  { alwaysTapped: true },
+    // Special / utility lands
+    'Ancient Tomb':              { colors: [],                    powerful: 'Tap for 2 colorless' },
+    'Arena of Glory':            { colors: ['R'] },
+    'Bazaar of Baghdad':         { colors: [],                    powerful: 'Draw/discard engine' },
+    'Boseiju, Who Endures':      { colors: ['G'],                 powerful: 'Channel: destroy noncreature permanent' },
+    'City of Traitors':          { colors: [],                    powerful: 'Tap for 2 colorless, sacs on land drop' },
+    'Dark Depths':               { colors: [],                    powerful: 'Creates 20/20 Marit Lage' },
+    'Dryad Arbor':               { colors: ['G'],                 powerful: 'Creature-land, fetchable as creature' },
+    "Gaea's Cradle":             { colors: ['G'],                 powerful: 'Tap for G per creature' },
+    'Karakas':                   { colors: ['W'],                 powerful: 'Bounce legendary creatures' },
+    'Library of Alexandria':     { colors: [],                    powerful: 'Draw (7 cards in hand)' },
+    'Mana Confluence':           { colors: ['W','U','B','R','G'], powerful: 'Pay 1 life for any color' },
+    "Mishra's Workshop":         { colors: [],                    powerful: 'Tap for 3 colorless for artifacts' },
+    'Multiversal Passage':       { colors: ['W','U','B','R','G'] },
+    'Otawara, Soaring City':     { colors: ['U'],                 powerful: 'Channel: bounce noncreature permanent' },
+    'Seat of the Synod':         { colors: ['U'],                 powerful: 'Artifact land (affinity)' },
+    'Shelldock Isle':            { colors: ['U'],                 powerful: 'Hideaway' },
+    'Shifting Woodland':         { colors: ['G'],                 powerful: 'Becomes a copy of another permanent' },
+    'Starting Town':             { colors: [],                    powerful: 'Town type — cycling effects' },
+    'Strip Mine':                { colors: [],                    powerful: 'Destroy any land' },
+    "Thespian's Stage":          { colors: [],                    powerful: 'Copy another land' },
+    'Tolarian Academy':          { colors: ['U'],                 powerful: 'Tap for U per artifact' },
+    'Urborg, Tomb of Yawgmoth':  { colors: ['B'],                 powerful: 'All lands are Swamps' },
+    "Urza's Saga":               { colors: [],                    powerful: 'Saga — searches for 0/1-cost artifacts' },
+    'Wasteland':                 { colors: [],                    powerful: 'Destroy nonbasic land' },
+  };
+
+  const BASIC_SUBTYPE_COLOR = { Plains:'W', Island:'U', Swamp:'B', Mountain:'R', Forest:'G' };
+
+  function analyzeLands(landNames) {
+    const colorCounts = { W:0, U:0, B:0, R:0, G:0 };
+    let tappedCount = 0;
+    const powerfulEffects = [];
+    for (const name of landNames) {
+      const meta = vcData[name];
+      if (!meta) continue;
+      const typeLine = meta.typeLine || '';
+      if (typeLine.includes('//')) continue; // skip MDFC (non-land primary face)
+      const override = LAND_ANALYSIS_DATA[name] || {};
+      // Colors
+      if (override.colors !== undefined) {
+        for (const c of override.colors) colorCounts[c]++;
+      } else {
+        // Parse basic land subtype words (works for duals, shocks, triomes, surveils, basics)
+        for (const [sub, col] of Object.entries(BASIC_SUBTYPE_COLOR)) {
+          if (typeLine.includes(sub)) colorCounts[col]++;
+        }
+      }
+      // Tapped: surveil lands flagged explicitly; triomes detected by ≥3 subtype words
+      const subtypeCount = (typeLine.match(/\b(Plains|Island|Swamp|Mountain|Forest)\b/g) || []).length;
+      if (override.alwaysTapped || subtypeCount >= 3) tappedCount++;
+      // Powerful effects
+      if (override.powerful) powerfulEffects.push({ name, effect: override.powerful });
+    }
+    return { colorCounts, tappedCount, powerfulEffects };
+  }
 
   // ── Build tier rows ──────────────────────────────────────────
   const tierList = document.getElementById('tier-list');
@@ -4584,7 +4713,10 @@
     }
     document.getElementById('picks-viewer-title').textContent = `${playerName}'s picks (${picks.length})`;
     const grid = document.getElementById('picks-viewer-grid');
+    const analysisEl = document.getElementById('picks-viewer-analysis');
     grid.innerHTML = '';
+    analysisEl.innerHTML = '';
+    analysisEl.classList.remove('open');
 
     if (!picks.length) {
       const empty = document.createElement('div');
@@ -4612,6 +4744,25 @@
     const COL_ORDER  = ['land', '0', '1', '2', '3', '4', '5', '6', '7+'];
     const COL_LABELS = { land: '🌳', '0': '0', '1': '1', '2': '2', '3': '3',
                          '4': '4', '5': '5', '6': '6', '7+': '7+' };
+
+    // Pre-compute land analysis so the button can reveal it on demand
+    const landNames = buckets['land'] || [];
+    const landBtn = document.getElementById('picks-viewer-land-btn');
+    landBtn.style.display = landNames.length ? '' : 'none';
+    if (landNames.length) {
+      const { colorCounts, tappedCount, powerfulEffects } = analyzeLands(landNames);
+      const pips = ['W','U','B','R','G'].map(c => {
+        const cls = `pip pip-${c.toLowerCase()}${colorCounts[c] === 0 ? ' zero' : ''}`;
+        return `<span class="${cls}">${c} ${colorCounts[c]}</span>`;
+      }).join('');
+      const tapPip = `<span class="pip pip-tap">⏳ ${tappedCount} tapped</span>`;
+      analysisEl.innerHTML = `<div class="land-analysis-bar">`
+        + `<div class="land-color-pips">${pips}${tapPip}</div>`
+        + (powerfulEffects.length
+            ? `<div class="land-powerful">⭐ ${powerfulEffects.map(e => e.name).join(' · ')}</div>`
+            : '')
+        + `</div>`;
+    }
 
     for (const key of COL_ORDER) {
       const cards = buckets[key];
@@ -4651,6 +4802,9 @@
   });
   document.getElementById('picks-viewer-modal').addEventListener('click', () => {
     document.getElementById('picks-viewer-modal').classList.remove('open');
+  });
+  document.getElementById('picks-viewer-land-btn').addEventListener('click', () => {
+    document.getElementById('picks-viewer-analysis').classList.toggle('open');
   });
 
   const PICKS_PER_PLAYER = 40;
