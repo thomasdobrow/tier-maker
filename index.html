@@ -1443,32 +1443,37 @@
       line-height: 1.5; transition: border-color 0.1s, color 0.1s; white-space: nowrap;
     }
     .rot-view-picks-btn:hover { border-color: #555; color: #aaa; }
-    /* Land analysis bar (inside picks viewer) */
+    /* Land analysis panel */
+    #picks-viewer-analysis { flex-shrink: 0; }
+    #picks-viewer-analysis:empty { display: none; }
     #picks-viewer-land-btn {
-      background: none; border: 1px solid #3a5a3a; color: #8f8; border-radius: 4px;
-      font-size: 0.7rem; padding: 2px 8px; cursor: pointer; margin-right: 8px;
-      transition: background 0.12s, border-color 0.12s;
+      display: block; width: 100%; background: none; border: none; border-top: 1px solid #222;
+      padding: 5px 16px; text-align: left; color: #4a4a4a; font-size: 0.68rem;
+      cursor: pointer; letter-spacing: 0.02em; transition: color 0.1s;
     }
-    #picks-viewer-land-btn:hover { background: #1a2a1a; border-color: #6a9a6a; }
-    #picks-viewer-analysis {
-      padding: 12px 16px 0; flex-shrink: 0; display: none;
+    #picks-viewer-land-btn:hover { color: #777; }
+    #picks-viewer-land-btn.open { color: #666; border-bottom: 1px solid #1e1e1e; }
+    #picks-viewer-land-detail { display: none; padding: 8px 16px 10px; }
+    #picks-viewer-land-detail.open { display: block; }
+    .la-section-label {
+      font-size: 10px; color: #444; letter-spacing: 0.07em; text-transform: uppercase;
+      margin-bottom: 6px;
     }
-    #picks-viewer-analysis.open { display: block; }
-    #picks-viewer-analysis:empty { display: none !important; }
-    .land-analysis-bar {
-      background: #1a2a1a; border: 1px solid #3a5a3a; border-radius: 6px;
-      padding: 8px 12px; margin-bottom: 10px; font-size: 13px;
+    .la-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+    .la-item { display: flex; align-items: baseline; gap: 3px; }
+    .la-letter { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
+    .la-letter.la-w { color: #a09880; }
+    .la-letter.la-u { color: #5a7aaa; }
+    .la-letter.la-b { color: #6a6a7a; }
+    .la-letter.la-r { color: #9a5050; }
+    .la-letter.la-g { color: #4a7a4a; }
+    .la-num { color: #bbb; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .la-num.zero { color: #333; }
+    .la-tapped-badge {
+      display: inline-block; margin-top: 7px;
+      border-radius: 20px; border: 1px solid #2a2a2a;
+      padding: 1px 9px; font-size: 10px; color: #444; letter-spacing: 0.03em;
     }
-    .land-color-pips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
-    .pip { padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 12px; }
-    .pip-w { background: #f9f6e8; color: #333; }
-    .pip-u { background: #1a3a6a; color: #9cf; }
-    .pip-b { background: #2a2a3e; color: #bbb; border: 1px solid #555; }
-    .pip-r { background: #5a1a1a; color: #f88; }
-    .pip-g { background: #1a3a1a; color: #8f8; }
-    .pip-tap { background: #333; color: #aaa; }
-    .pip.zero { opacity: 0.35; }
-    .land-powerful { color: #ffd700; margin-top: 2px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -1691,10 +1696,12 @@
   <div id="picks-viewer-dialog" onclick="event.stopPropagation()">
     <div id="picks-viewer-header">
       <span id="picks-viewer-title"></span>
-      <button id="picks-viewer-land-btn">Land Analysis ✦ Beta</button>
       <button id="picks-viewer-close">×</button>
     </div>
-    <div id="picks-viewer-analysis"></div>
+    <div id="picks-viewer-analysis">
+      <button id="picks-viewer-land-btn">Land Analysis ▾</button>
+      <div id="picks-viewer-land-detail"></div>
+    </div>
     <div id="picks-viewer-grid"></div>
   </div>
 </div>
@@ -4713,10 +4720,13 @@
     }
     document.getElementById('picks-viewer-title').textContent = `${playerName}'s picks (${picks.length})`;
     const grid = document.getElementById('picks-viewer-grid');
-    const analysisEl = document.getElementById('picks-viewer-analysis');
     grid.innerHTML = '';
-    analysisEl.innerHTML = '';
-    analysisEl.classList.remove('open');
+    const landDetailEl = document.getElementById('picks-viewer-land-detail');
+    landDetailEl.innerHTML = '';
+    landDetailEl.classList.remove('open');
+    const landBtnEl = document.getElementById('picks-viewer-land-btn');
+    landBtnEl.classList.remove('open');
+    landBtnEl.textContent = 'Land Analysis ▾';
 
     if (!picks.length) {
       const empty = document.createElement('div');
@@ -4750,18 +4760,21 @@
     const landBtn = document.getElementById('picks-viewer-land-btn');
     landBtn.style.display = landNames.length ? '' : 'none';
     if (landNames.length) {
-      const { colorCounts, tappedCount, powerfulEffects } = analyzeLands(landNames);
-      const pips = ['W','U','B','R','G'].map(c => {
-        const cls = `pip pip-${c.toLowerCase()}${colorCounts[c] === 0 ? ' zero' : ''}`;
-        return `<span class="${cls}">${c} ${colorCounts[c]}</span>`;
+      const { colorCounts, tappedCount } = analyzeLands(landNames);
+      const colorItems = ['W','U','B','R','G'].map(c => {
+        const n = colorCounts[c];
+        return `<span class="la-item">`
+          + `<span class="la-letter la-${c.toLowerCase()}">${c}</span>`
+          + `<span class="la-num${n === 0 ? ' zero' : ''}">${n}</span>`
+          + `</span>`;
       }).join('');
-      const tapPip = `<span class="pip pip-tap">⏳ ${tappedCount} tapped</span>`;
-      analysisEl.innerHTML = `<div class="land-analysis-bar">`
-        + `<div class="land-color-pips">${pips}${tapPip}</div>`
-        + (powerfulEffects.length
-            ? `<div class="land-powerful">⭐ ${powerfulEffects.map(e => e.name).join(' · ')}</div>`
-            : '')
-        + `</div>`;
+      const tappedBadge = tappedCount > 0
+        ? `<div class="la-tapped-badge">Tapped Lands: ${tappedCount}</div>`
+        : '';
+      landDetailEl.innerHTML =
+          `<div class="la-section-label">Color Sources</div>`
+        + `<div class="la-row">${colorItems}</div>`
+        + tappedBadge;
     }
 
     for (const key of COL_ORDER) {
@@ -4790,7 +4803,7 @@
         stack.appendChild(img);
       }
 
-      col.append(label, stack);
+      col.append(stack);
       grid.appendChild(col);
     }
 
@@ -4804,7 +4817,11 @@
     document.getElementById('picks-viewer-modal').classList.remove('open');
   });
   document.getElementById('picks-viewer-land-btn').addEventListener('click', () => {
-    document.getElementById('picks-viewer-analysis').classList.toggle('open');
+    const detail = document.getElementById('picks-viewer-land-detail');
+    const btn    = document.getElementById('picks-viewer-land-btn');
+    const opening = detail.classList.toggle('open');
+    btn.classList.toggle('open', opening);
+    btn.textContent = opening ? 'Land Analysis ▴' : 'Land Analysis ▾';
   });
 
   const PICKS_PER_PLAYER = 40;

@@ -5,7 +5,7 @@
       "name": "tier-maker",
       "runtimeExecutable": "node",
       "runtimeArgs": ["server.js"],
-      "port": 8765
+      "port": 3000
     }
   ]
 }
