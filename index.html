@@ -3650,6 +3650,19 @@
     return out;
   }
 
+  function computeAvgRankings(type) {
+    const lists = Object.values(getLists()).filter(l => l.type === type && isComparable(l));
+    const avgRank = {}, cardCounts = {};
+    for (const rankings of lists.map(l => computeRankings(l))) {
+      for (const [card, rank] of Object.entries(rankings)) {
+        avgRank[card]    = (avgRank[card]    || 0) + rank;
+        cardCounts[card] = (cardCounts[card] || 0) + 1;
+      }
+    }
+    for (const card of Object.keys(avgRank)) avgRank[card] /= cardCounts[card];
+    return avgRank;
+  }
+
   function showCompare() {
     setActiveTab(document.getElementById('compare-btn'));
     // Clear the active list — compare is a read-only view, not tied to any loaded list
@@ -3973,14 +3986,7 @@
     }
 
     // Compute average rank per card across all comparable lists
-    const avgRank = {}, cardCounts = {};
-    for (const rankings of lists.map(l => computeRankings(l))) {
-      for (const [card, rank] of Object.entries(rankings)) {
-        avgRank[card]    = (avgRank[card]    || 0) + rank;
-        cardCounts[card] = (cardCounts[card] || 0) + 1;
-      }
-    }
-    for (const card of Object.keys(avgRank)) avgRank[card] /= cardCounts[card];
+    const avgRank = computeAvgRankings(type);
 
     // Sort this list's cards by bucket delta (avgBucket − thisBucket) descending
     // Positive = this list rates it higher than average → appears first
@@ -4585,6 +4591,13 @@
         if (l.id === savedOrderId) opt.selected = true;
         orderSelect.appendChild(opt);
       });
+      if (myLists.length >= 2) {
+        const avgOpt = document.createElement('option');
+        avgOpt.value = '__avg__';
+        avgOpt.textContent = 'Average';
+        if (savedOrderId === '__avg__') avgOpt.selected = true;
+        orderSelect.appendChild(avgOpt);
+      }
       orderSelect.addEventListener('change', () => {
         localStorage.setItem(ROT_ORDER_KEY, orderSelect.value);
         renderDraftDetail();
@@ -4872,6 +4885,13 @@
       undrafted = new Set(VINTAGE_CUBE_CARDS.filter(c => !allPicked.has(c)));
     }
     if (!orderListId) return sortLandsLast(VINTAGE_CUBE_CARDS.filter(c => undrafted.has(c)));
+    if (orderListId === '__avg__') {
+      const avgRank = computeAvgRankings('vintage_cube');
+      const result = VINTAGE_CUBE_CARDS
+        .filter(c => undrafted.has(c))
+        .sort((a, b) => (avgRank[a] ?? Infinity) - (avgRank[b] ?? Infinity));
+      return sortLandsLast(result);
+    }
     const list = getLists()[orderListId];
     if (!list?.state?.tiers) return sortLandsLast(VINTAGE_CUBE_CARDS.filter(c => undrafted.has(c)));
     const result = [];
