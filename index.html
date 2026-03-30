@@ -1392,6 +1392,12 @@
       border: 1px solid #2a2a2a; transition: transform 0.1s, box-shadow 0.1s;
     }
     .rot-card-grid img:hover { transform: scale(1.04); box-shadow: 0 4px 14px rgba(0,0,0,0.7); }
+    .rot-card-wrapper { padding: 2px; border-radius: 5px; }
+    .rot-card-wrapper[data-tier="S"] { background: rgba(255, 200,  50, 0.22); }
+    .rot-card-wrapper[data-tier="A"] { background: rgba(100, 160, 255, 0.18); }
+    .rot-card-wrapper[data-tier="B"] { background: rgba( 50, 180, 120, 0.15); }
+    .rot-card-wrapper[data-tier="C"] { background: rgba(150, 150, 150, 0.12); }
+    .rot-card-wrapper[data-tier="F"] { background: rgba(180,  70,  70, 0.15); }
     .zoom-pick-btn {
       padding: 10px 24px; background: #1e3a1e; border: 1px solid #4a9a4a;
       color: #7dcc7d; border-radius: 6px; font-size: 1rem; font-weight: 700;
@@ -4611,15 +4617,22 @@
       const grid = document.createElement('div');
       grid.className = 'rot-card-grid';
       const orderedCards = getOrderedUndrafted(draft, orderSelect.value);
+      const tierMap = getTierMap(orderSelect.value);
       orderedCards.forEach(name => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'rot-card-wrapper';
+        const tier = tierMap?.[name];
+        if (tier) wrapper.dataset.tier = tier;
+
         const img = document.createElement('img');
-        img.src   = vcCardImgSrc(name);
-        img.alt   = name;
-        img.title = name;
+        img.src     = vcCardImgSrc(name);
+        img.alt     = name;
+        img.title   = name;
         img.loading = 'lazy';
         img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
         img.addEventListener('click', () => openZoom(vcCardImgSrc(name), name));
-        grid.appendChild(img);
+        wrapper.appendChild(img);
+        grid.appendChild(wrapper);
       });
       pool.appendChild(grid);
 
@@ -4872,6 +4885,17 @@
     const normal   = arr.filter(c => !DRAFT_ONLY_LAND_NAMES.has(c));
     const draftOnly = arr.filter(c =>  DRAFT_ONLY_LAND_NAMES.has(c));
     return [...normal, ...draftOnly];
+  }
+
+  function getTierMap(listId) {
+    if (!listId || listId === '__avg__') return null;
+    const list = getLists()[listId];
+    if (!list?.state?.tiers) return null;
+    const map = {};
+    for (const tier of ['S', 'A', 'B', 'C', 'F']) {
+      for (const name of (list.state.tiers[tier] || [])) map[name] = tier;
+    }
+    return map;
   }
 
   function getOrderedUndrafted(draft, orderListId) {
