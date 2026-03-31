@@ -4764,23 +4764,44 @@
       return;
     }
 
+    // Hardcoded cost overrides for phyrexian/cycling cards
+    const CMC_OVERRIDES = {
+      'Dismember':          1,
+      'Gitaxian Probe':     0,
+      'Oliphaunt':          0,
+      'Troll of Khazad-dûm': 0,
+      'Generous Ent':       0,
+      'Eagles of the North': 0,
+    };
+    // Cards treated as lands regardless of type line
+    const LAND_OVERRIDES = new Set(['Lórien Revealed']);
+    // Cards with X in their cost → always go in the rightmost X column
+    const X_CARDS = new Set([
+      'Forth Eorlingas!', 'Mawloc', 'Lutri the Spellchaser',
+      'Lurrus of the Dream-Den', 'Zirda the Dawnwaker',
+    ]);
+
     // Bucket picks by CMC; lands get their own column
     const buckets = {};
     for (const name of picks) {
       const meta = vcData[name];
       let key;
-      if ((meta?.typeLine || '').includes('Land')) {
+      if (LAND_OVERRIDES.has(name) || (meta?.typeLine || '').includes('Land')) {
         key = 'land';
+      } else if (X_CARDS.has(name)) {
+        key = 'X';
       } else {
-        const cmc = meta?.cmc ?? 0;
+        const cmc = Object.prototype.hasOwnProperty.call(CMC_OVERRIDES, name)
+          ? CMC_OVERRIDES[name]
+          : (meta?.cmc ?? 0);
         key = cmc >= 7 ? '7+' : String(Math.floor(cmc));
       }
       (buckets[key] = buckets[key] || []).push(name);
     }
 
-    const COL_ORDER  = ['land', '0', '1', '2', '3', '4', '5', '6', '7+'];
+    const COL_ORDER  = ['land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
     const COL_LABELS = { land: '🌳', '0': '0', '1': '1', '2': '2', '3': '3',
-                         '4': '4', '5': '5', '6': '6', '7+': '7+' };
+                         '4': '4', '5': '5', '6': '6', '7+': '7+', 'X': 'X' };
 
     // Pre-compute land analysis so the button can reveal it on demand
     const landNames = buckets['land'] || [];
