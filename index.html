@@ -1427,11 +1427,12 @@
     }
     #picks-viewer-close:hover { color: #aaa; }
     #picks-viewer-grid {
-      display: flex; flex-direction: row; gap: 10px; padding: 16px;
-      overflow-x: auto; overflow-y: auto; align-items: flex-start;
+      display: grid; grid-template-rows: auto auto; grid-auto-columns: max-content;
+      gap: 16px 10px; padding: 16px;
+      overflow-x: auto; overflow-y: auto; align-items: start;
       flex: 1; min-height: 0;
     }
-    .pv-cmc-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+    .pv-cmc-col { display: flex; flex-direction: column; align-items: center; }
     .pv-cmc-label {
       font-size: 0.7rem; color: #666; margin-bottom: 6px;
       font-weight: 600; letter-spacing: 0.04em;
@@ -4803,35 +4804,53 @@
         + tappedBadge;
     }
 
-    for (const key of COL_ORDER) {
-      const cards = buckets[key];
-      if (!cards?.length) continue;
-
-      const col = document.createElement('div');
-      col.className = 'pv-cmc-col';
-
-      const label = document.createElement('div');
-      label.className = 'pv-cmc-label';
-      label.textContent = COL_LABELS[key];
-
+    function isSpell(typeLine) {
+      return /\b(Instant|Sorcery)\b/.test(typeLine || '');
+    }
+    function buildStack(names) {
       const stack = document.createElement('div');
       stack.className = 'pv-cmc-stack';
-
-      const sorted = [...cards].sort((a, b) => vcColorPriorityByName(a) - vcColorPriorityByName(b));
+      const sorted = [...names].sort((a, b) => vcColorPriorityByName(a) - vcColorPriorityByName(b));
       for (const name of sorted) {
         const img = document.createElement('img');
         img.src = vcCardImgSrc(name);
-        img.alt = name;
-        img.title = name;
+        img.alt = name; img.title = name;
         img.className = 'pv-stack-card';
         img.addEventListener('click', () => openZoom(vcCardImgSrc(name), name));
         img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
         stack.appendChild(img);
       }
-
-      col.append(stack);
-      grid.appendChild(col);
+      return stack;
     }
+
+    const activeCols = COL_ORDER.filter(k => buckets[k]?.length > 0);
+    activeCols.forEach((key, i) => {
+      const colNum = i + 1;
+
+      if (key === 'land') {
+        const cell = document.createElement('div');
+        cell.className = 'pv-cmc-col';
+        cell.style.cssText = `grid-column:${colNum}; grid-row: 1 / span 2; align-self: start;`;
+        cell.appendChild(buildStack(buckets[key]));
+        grid.appendChild(cell);
+      } else {
+        const cards = buckets[key];
+        const perms  = cards.filter(n => !isSpell(vcData[n]?.typeLine));
+        const spells = cards.filter(n =>  isSpell(vcData[n]?.typeLine));
+
+        const topCell = document.createElement('div');
+        topCell.className = 'pv-cmc-col';
+        topCell.style.cssText = `grid-column:${colNum}; grid-row:1; align-self: end;`;
+        if (perms.length) topCell.appendChild(buildStack(perms));
+        grid.appendChild(topCell);
+
+        const botCell = document.createElement('div');
+        botCell.className = 'pv-cmc-col';
+        botCell.style.cssText = `grid-column:${colNum}; grid-row:2; align-self: start;`;
+        if (spells.length) botCell.appendChild(buildStack(spells));
+        grid.appendChild(botCell);
+      }
+    });
 
     document.getElementById('picks-viewer-modal').classList.add('open');
   }
