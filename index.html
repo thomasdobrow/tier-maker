@@ -4852,7 +4852,7 @@
       if (occupiedSet.has(COL_ORDER[i])) { lastIdx = i; break; }
     }
     // Only preserve gaps within CMC 0-5; 6, 7+, X collapse to adjacent columns
-    const GAP_COLS = new Set(['0', '1', '2', '3', '4', '5']);
+    const GAP_COLS = new Set(['0', '1', '2', '3']);
 
     for (let i = firstIdx; i <= lastIdx; i++) {
       const key    = COL_ORDER[i];
