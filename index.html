@@ -1432,7 +1432,7 @@
       overflow-x: auto; overflow-y: auto; align-items: start;
       flex: 1; min-height: 0;
     }
-    .pv-cmc-col { display: flex; flex-direction: column; align-items: center; }
+    .pv-cmc-col { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
     .pv-cmc-label {
       font-size: 0.7rem; color: #666; margin-bottom: 6px;
       font-weight: 600; letter-spacing: 0.04em;
@@ -4768,17 +4768,19 @@
     const CMC_OVERRIDES = {
       'Dismember':          1,
       'Gitaxian Probe':     0,
+      'Lórien Revealed':    0,
       'Oliphaunt':          0,
       'Troll of Khazad-dûm': 0,
       'Generous Ent':       0,
       'Eagles of the North': 0,
     };
     // Cards treated as lands regardless of type line
-    const LAND_OVERRIDES = new Set(['Lórien Revealed']);
+    const LAND_OVERRIDES = new Set([]);
     // Cards with X in their cost → always go in the rightmost X column
     const X_CARDS = new Set([
       'Forth Eorlingas!', 'Mawloc', 'Lutri the Spellchaser',
       'Lurrus of the Dream-Den', 'Zirda the Dawnwaker',
+      'Occult Epiphany', 'Walking Ballista', 'Mind Twist',
     ]);
 
     // Bucket picks by CMC; lands get their own column
@@ -4800,8 +4802,6 @@
     }
 
     const COL_ORDER  = ['land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
-    const COL_LABELS = { land: '🌳', '0': '0', '1': '1', '2': '2', '3': '3',
-                         '4': '4', '5': '5', '6': '6', '7+': '7+', 'X': 'X' };
 
     // Pre-compute land analysis so the button can reveal it on demand
     const landNames = buckets['land'] || [];
@@ -4844,34 +4844,48 @@
       return stack;
     }
 
-    const activeCols = COL_ORDER.filter(k => buckets[k]?.length > 0);
-    activeCols.forEach((key, i) => {
+    // Find occupied range so gaps between present CMC values are preserved
+    const occupiedSet = new Set(COL_ORDER.filter(k => buckets[k]?.length > 0));
+    const firstIdx = COL_ORDER.findIndex(k => occupiedSet.has(k));
+    let lastIdx = -1;
+    for (let i = COL_ORDER.length - 1; i >= 0; i--) {
+      if (occupiedSet.has(COL_ORDER[i])) { lastIdx = i; break; }
+    }
+    // Only preserve gaps within CMC 0-5; 6, 7+, X collapse to adjacent columns
+    const GAP_COLS = new Set(['0', '1', '2', '3', '4', '5']);
+
+    for (let i = firstIdx; i <= lastIdx; i++) {
+      const key    = COL_ORDER[i];
       const colNum = i + 1;
+      const cards  = buckets[key] || [];
+
+      // Skip empty cells outside the gap-preserving range
+      if (!cards.length && !GAP_COLS.has(key)) continue;
 
       if (key === 'land') {
+        if (!cards.length) continue;
         const cell = document.createElement('div');
         cell.className = 'pv-cmc-col';
-        cell.style.cssText = `grid-column:${colNum}; grid-row: 1 / span 2; align-self: start;`;
-        cell.appendChild(buildStack(buckets[key]));
+        cell.style.cssText = `grid-column:${colNum}; grid-row:1/span 2; align-self:start;`;
+        cell.appendChild(buildStack(cards));
         grid.appendChild(cell);
       } else {
-        const cards = buckets[key];
         const perms  = cards.filter(n => !isSpell(vcData[n]?.typeLine));
         const spells = cards.filter(n =>  isSpell(vcData[n]?.typeLine));
 
         const topCell = document.createElement('div');
         topCell.className = 'pv-cmc-col';
-        topCell.style.cssText = `grid-column:${colNum}; grid-row:1; align-self: end;`;
+        topCell.style.cssText = `grid-column:${colNum}; grid-row:1; align-self:end;`;
         if (perms.length) topCell.appendChild(buildStack(perms));
         grid.appendChild(topCell);
 
         const botCell = document.createElement('div');
         botCell.className = 'pv-cmc-col';
-        botCell.style.cssText = `grid-column:${colNum}; grid-row:2; align-self: start;`;
+        botCell.style.cssText = `grid-column:${colNum}; grid-row:2; align-self:start;`;
         if (spells.length) botCell.appendChild(buildStack(spells));
         grid.appendChild(botCell);
       }
-    });
+    }
 
     document.getElementById('picks-viewer-modal').classList.add('open');
   }
