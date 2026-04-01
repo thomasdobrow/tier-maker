@@ -4778,9 +4778,14 @@
     const LAND_OVERRIDES = new Set([]);
     // Cards with X in their cost → always go in the rightmost X column
     const X_CARDS = new Set([
-      'Forth Eorlingas!', 'Mawloc', 'Lutri the Spellchaser',
-      'Lurrus of the Dream-Den', 'Zirda the Dawnwaker',
+      'Forth Eorlingas!', 'Mawloc',
       'Occult Epiphany', 'Walking Ballista', 'Mind Twist',
+    ]);
+    // Companion cards → get their own column to the left of lands
+    const COMPANION_CARDS = new Set([
+      'Lutri the Spellchaser',
+      'Lurrus of the Dream-Den',
+      'Zirda the Dawnwaker',
     ]);
 
     // Bucket picks by CMC; lands get their own column
@@ -4788,7 +4793,9 @@
     for (const name of picks) {
       const meta = vcData[name];
       let key;
-      if (LAND_OVERRIDES.has(name) || (meta?.typeLine || '').includes('Land')) {
+      if (COMPANION_CARDS.has(name)) {
+        key = 'companion';
+      } else if (LAND_OVERRIDES.has(name) || (meta?.typeLine || '').includes('Land')) {
         key = 'land';
       } else if (X_CARDS.has(name)) {
         key = 'X';
@@ -4801,7 +4808,7 @@
       (buckets[key] = buckets[key] || []).push(name);
     }
 
-    const COL_ORDER  = ['land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
+    const COL_ORDER  = ['companion', 'land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
 
     // Pre-compute land analysis so the button can reveal it on demand
     const landNames = buckets['land'] || [];
@@ -4862,7 +4869,7 @@
       // Skip empty cells outside the gap-preserving range
       if (!cards.length && !GAP_COLS.has(key)) continue;
 
-      if (key === 'land') {
+      if (key === 'companion' || key === 'land') {
         if (!cards.length) continue;
         const cell = document.createElement('div');
         cell.className = 'pv-cmc-col';
