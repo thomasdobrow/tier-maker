@@ -78,7 +78,28 @@ async function main() {
     }
   }
 
-  // 4. Build the list object — all cards in S tier in pick order
+  // 4. Distribute cards across tiers using normalized targets (mirrors app's computeNormalizedCounts)
+  const TIER_TARGETS = { S: 0.10, A: 0.20, B: 0.30, C: 0.25, F: 0.15 };
+  const TIER_LABELS  = ['S', 'A', 'B', 'C', 'F'];
+  const total = 35 * draft.turnOrder.length; // full draft size, not current pick count
+  const tierCounts = {};
+  let assigned = 0;
+  for (let i = 0; i < TIER_LABELS.length - 1; i++) {
+    const label = TIER_LABELS[i];
+    tierCounts[label] = Math.round(total * TIER_TARGETS[label]);
+    assigned += tierCounts[label];
+  }
+  tierCounts['F'] = total - assigned; // absorbs rounding, same as app
+  // Slice pickOrder into tiers in order
+  const tiers = {};
+  let offset = 0;
+  for (const label of TIER_LABELS) {
+    tiers[label] = pickOrder.slice(offset, offset + tierCounts[label]);
+    offset += tierCounts[label];
+  }
+  console.log('Tier counts:', TIER_LABELS.map(l => `${l}:${tierCounts[l]}`).join(' '));
+
+  // 5. Build the list object
   const id  = existingId || generateId();
   const now = new Date().toISOString();
   const existingRaw = existingId ? await redis('GET', `tm:list:${existingId}`) : null;
@@ -88,13 +109,10 @@ async function main() {
     locked: false,
     createdAt: existing?.createdAt || now,
     updatedAt: now,
-    state: {
-      tiers: { S: pickOrder, A: [], B: [], C: [], F: [] },
-      sortedAt: {},
-    },
+    state: { tiers, sortedAt: {} },
   };
 
-  // 5. Save to Redis
+  // 6. Save to Redis
   await Promise.all([
     redis('SET', `tm:list:${id}`, JSON.stringify(list)),
     redis('HSET', 'tm:index', id, LIST_NAME),
