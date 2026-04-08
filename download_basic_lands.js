@@ -1,6 +1,6 @@
 'use strict';
-// One-time script: download Full Art Unhinged basic land art.
-// Files land in cards/vc/ for future use — no changes to vc_cards.json.
+// One-time script: download Alpha basic land art.
+// Saves as basic-plains.jpg etc. to avoid conflicts with cube card filenames.
 // Usage: node download_basic_lands.js
 
 const https = require('https');
@@ -10,15 +10,12 @@ const path  = require('path');
 const CARDS_DIR = path.join(__dirname, 'cards', 'vc');
 const DELAY     = 120; // ms between Scryfall requests
 
-// Unhinged (unh) full-art basics. Scryfall has 5 of each; we pick by collector number
-// to get the John Avon panorama art (the most iconic set).
-// Collector numbers: Plains=34, Island=35, Swamp=36, Mountain=37, Forest=38
 const BASICS = [
-  ['Plains',   'unh', 34, 'plains.jpg'],
-  ['Island',   'unh', 35, 'island.jpg'],
-  ['Swamp',    'unh', 36, 'swamp.jpg'],
-  ['Mountain', 'unh', 37, 'mountain.jpg'],
-  ['Forest',   'unh', 38, 'forest.jpg'],
+  ['Plains',   'lea', 'basic-plains.jpg'],
+  ['Island',   'lea', 'basic-island.jpg'],
+  ['Swamp',    'lea', 'basic-swamp.jpg'],
+  ['Mountain', 'lea', 'basic-mountain.jpg'],
+  ['Forest',   'lea', 'basic-forest.jpg'],
 ];
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -52,8 +49,8 @@ function downloadTo(url, dest) {
 
 async function main() {
   let ok = 0, fail = 0;
-  for (const [name, set, collector, file] of BASICS) {
-    const url  = `https://api.scryfall.com/cards/${set}/${collector}`;
+  for (const [name, set, file] of BASICS) {
+    const url  = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(name)}&set=${set}`;
     const dest = path.join(CARDS_DIR, file);
     try {
       const card   = await fetchJson(url);
@@ -61,7 +58,7 @@ async function main() {
       const imgUrl = card.image_uris?.normal;
       if (!imgUrl) throw new Error('no image_uris.normal');
       await downloadTo(imgUrl, dest);
-      console.log(`  ✓  ${name} (${set} #${collector})`);
+      console.log(`  ✓  ${name} (${set}) → ${file}`);
       ok++;
     } catch (e) {
       console.error(`  ✗  ${name}: ${e.message}`);

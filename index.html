@@ -4790,9 +4790,15 @@
       return { basics, basicsList: buildList(basics), total: N };
     }
 
+    // Blend proportional demand with an even split among active colors (nudges toward balance)
+    const EVENNESS = 0.3;
+    const activeCount = COLORS.filter(c => demand[c] > 0).length;
+    const evenFrac = activeCount > 0 ? 1 / activeCount : 0;
     const raw = {};
     COLORS.forEach(c => {
-      raw[c] = Math.max(0, targetLandCount * (demand[c] / totalDemand) - (landColorCounts[c] || 0));
+      const propFrac = demand[c] / totalDemand;
+      const blended  = demand[c] > 0 ? (1 - EVENNESS) * propFrac + EVENNESS * evenFrac : 0;
+      raw[c] = Math.max(0, targetLandCount * blended - (landColorCounts[c] || 0));
     });
 
     const totalRaw = COLORS.reduce((s, c) => s + raw[c], 0);
@@ -4940,9 +4946,11 @@
     };
 
     const BASIC_LAND_SRCS = {
-      Plains: '/cards/vc/plains.jpg', Island: '/cards/vc/island.jpg',
-      Swamp:  '/cards/vc/swamp.jpg',  Mountain: '/cards/vc/mountain.jpg',
-      Forest: '/cards/vc/forest.jpg',
+      Plains:   '/cards/vc/basic-plains.jpg',
+      Island:   '/cards/vc/basic-island.jpg',
+      Swamp:    '/cards/vc/basic-swamp.jpg',
+      Mountain: '/cards/vc/basic-mountain.jpg',
+      Forest:   '/cards/vc/basic-forest.jpg',
     };
     const BASIC_LAND_SET = new Set(Object.keys(BASIC_LAND_SRCS));
 
