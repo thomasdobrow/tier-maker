@@ -4882,24 +4882,20 @@
     document.getElementById('picks-viewer-title').textContent = `${playerName}'s picks (${picks.length})`;
     const grid = document.getElementById('picks-viewer-grid');
     grid.innerHTML = '';
-    const landDetailEl = document.getElementById('picks-viewer-land-detail');
-    landDetailEl.innerHTML = '';
-    landDetailEl.classList.remove('open');
-    const landBtnEl = document.getElementById('picks-viewer-land-btn');
-    landBtnEl.classList.remove('open');
-    landBtnEl.textContent = 'Land Analysis ▾';
-    const basicsDetailEl = document.getElementById('picks-viewer-basics-detail');
-    basicsDetailEl.innerHTML = '';
-    basicsDetailEl.classList.remove('open');
-    const basicsBtnEl = document.getElementById('picks-viewer-basics-btn');
-    basicsBtnEl.classList.remove('open');
-    basicsBtnEl.textContent = 'Fill in Basics ▾';
-    const handsDetailEl = document.getElementById('picks-viewer-hands-detail');
-    handsDetailEl.innerHTML = '';
-    handsDetailEl.classList.remove('open');
-    const handsBtnEl = document.getElementById('picks-viewer-hands-btn');
-    handsBtnEl.classList.remove('open');
-    handsBtnEl.textContent = 'Sample Hands ▾';
+    document.getElementById('picks-viewer-land-detail').innerHTML = '';
+    document.getElementById('picks-viewer-land-detail').classList.remove('open');
+    document.getElementById('picks-viewer-land-btn').classList.remove('open');
+    document.getElementById('picks-viewer-land-btn').textContent = 'Land Analysis ▾';
+    document.getElementById('picks-viewer-basics-detail').innerHTML = '';
+    document.getElementById('picks-viewer-basics-detail').classList.remove('open');
+    document.getElementById('picks-viewer-basics-btn').classList.remove('open');
+    document.getElementById('picks-viewer-basics-btn').textContent = 'Fill in Basics ▾';
+    document.getElementById('picks-viewer-hands-detail').innerHTML = '';
+    document.getElementById('picks-viewer-hands-detail').classList.remove('open');
+    document.getElementById('picks-viewer-hands-btn').classList.remove('open');
+    document.getElementById('picks-viewer-hands-btn').textContent = 'Sample Hands ▾';
+    document.getElementById('picks-viewer-sideboard').innerHTML = '';
+    document.getElementById('picks-viewer-sideboard').style.display = 'none';
 
     if (!picks.length) {
       const empty = document.createElement('div');
