@@ -1442,8 +1442,42 @@
       width: 120px; border-radius: 6px; cursor: pointer;
       display: block; flex-shrink: 0; transition: opacity 0.1s;
     }
-    .pv-stack-card:not(:first-child) { margin-top: -131px; }
-    .pv-stack-card:hover { opacity: 0.82; position: relative; z-index: 10; }
+    .pv-cmc-stack > *:not(:first-child) { margin-top: -131px; }
+    .pv-card-wrapper { position: relative; display: block; }
+    .pv-card-wrapper:hover { position: relative; z-index: 10; }
+    .pv-card-wrapper:hover .pv-stack-card { opacity: 0.82; }
+    .pv-sb-toggle {
+      position: absolute; bottom: 8px; right: 4px;
+      background: rgba(0,0,0,0.78); color: #555;
+      font-size: 8px; padding: 2px 5px; border-radius: 3px;
+      cursor: pointer; opacity: 0; transition: opacity 0.15s;
+      z-index: 20; letter-spacing: 0.06em; text-transform: uppercase;
+      border: 1px solid #333; user-select: none;
+    }
+    .pv-card-wrapper:hover .pv-sb-toggle { opacity: 1; }
+    #picks-viewer-sideboard {
+      flex-shrink: 0; border-top: 1px solid #1e1e1e;
+      padding: 8px 16px 12px; display: none;
+    }
+    .pv-sb-section-label {
+      font-size: 10px; color: #444; letter-spacing: 0.07em; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .pv-sb-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pv-sb-card-wrapper { position: relative; flex-shrink: 0; }
+    .pv-sb-card {
+      width: 72px; border-radius: 4px; display: block; cursor: pointer;
+      opacity: 0.7; transition: opacity 0.1s;
+    }
+    .pv-sb-card:hover { opacity: 0.9; }
+    .pv-sb-return {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,0.82); color: #aaa;
+      font-size: 10px; width: 17px; height: 17px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      border: 1px solid #444; opacity: 0; transition: opacity 0.15s; z-index: 5;
+    }
+    .pv-sb-card-wrapper:hover .pv-sb-return { opacity: 1; }
     .rot-view-picks-btn {
       background: none; border: 1px solid #2a2a2a; color: #555; border-radius: 3px;
       font-size: 0.65rem; padding: 1px 6px; cursor: pointer; flex-shrink: 0;
@@ -1472,6 +1506,27 @@
     #picks-viewer-basics-detail { display: none; padding: 8px 16px 10px; }
     #picks-viewer-basics-detail.open { display: block; }
     .pv-basic-card { opacity: 0.55; }
+    #picks-viewer-hands-btn {
+      display: block; width: 100%; background: none; border: none; border-top: 1px solid #222;
+      padding: 5px 16px; text-align: left; color: #4a4a4a; font-size: 0.68rem;
+      cursor: pointer; letter-spacing: 0.02em; transition: color 0.1s;
+    }
+    #picks-viewer-hands-btn:hover { color: #777; }
+    #picks-viewer-hands-btn.open { color: #666; border-bottom: 1px solid #1e1e1e; }
+    #picks-viewer-hands-detail { display: none; padding: 8px 16px 12px; }
+    #picks-viewer-hands-detail.open { display: block; }
+    .pv-hands-header {
+      font-size: 10px; color: #444; letter-spacing: 0.07em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .pv-hand-row { margin-bottom: 10px; }
+    .pv-hand-row:last-child { margin-bottom: 0; }
+    .pv-hand-label {
+      font-size: 9px; color: #383838; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .pv-hand-cards { display: flex; gap: 3px; }
+    .pv-hand-cards img { flex: 1; min-width: 0; border-radius: 4px; cursor: pointer; display: block; }
     .la-section-label {
       font-size: 10px; color: #444; letter-spacing: 0.07em; text-transform: uppercase;
       margin-bottom: 6px;
@@ -1720,8 +1775,11 @@
       <div id="picks-viewer-land-detail"></div>
       <button id="picks-viewer-basics-btn">Fill in Basics ▾</button>
       <div id="picks-viewer-basics-detail"></div>
+      <button id="picks-viewer-hands-btn">Sample Hands ▾</button>
+      <div id="picks-viewer-hands-detail"></div>
     </div>
     <div id="picks-viewer-grid"></div>
+    <div id="picks-viewer-sideboard"></div>
   </div>
 </div>
 
@@ -4836,6 +4894,12 @@
     const basicsBtnEl = document.getElementById('picks-viewer-basics-btn');
     basicsBtnEl.classList.remove('open');
     basicsBtnEl.textContent = 'Fill in Basics ▾';
+    const handsDetailEl = document.getElementById('picks-viewer-hands-detail');
+    handsDetailEl.innerHTML = '';
+    handsDetailEl.classList.remove('open');
+    const handsBtnEl = document.getElementById('picks-viewer-hands-btn');
+    handsBtnEl.classList.remove('open');
+    handsBtnEl.textContent = 'Sample Hands ▾';
 
     if (!picks.length) {
       const empty = document.createElement('div');
@@ -4890,16 +4954,60 @@
       (buckets[key] = buckets[key] || []).push(name);
     }
 
-    const COL_ORDER  = ['companion', 'land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
+    const COL_ORDER = ['companion', 'land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
 
-    // Pre-compute land analysis so the button can reveal it on demand
-    const landNames = buckets['land'] || [];
-    const landBtn = document.getElementById('picks-viewer-land-btn');
-    landBtn.style.display = landNames.length ? '' : 'none';
+    // ── Constants ──────────────────────────────────────────────────────────────
+    const COMPANION_NAMES = new Set([
+      'Lutri, the Spellchaser', 'Lurrus of the Dream-Den', 'Zirda, the Dawnwaker',
+    ]);
+    const BASIC_LAND_SRCS = {
+      Plains:   '/cards/vc/basic-plains.jpg',
+      Island:   '/cards/vc/basic-island.jpg',
+      Swamp:    '/cards/vc/basic-swamp.jpg',
+      Mountain: '/cards/vc/basic-mountain.jpg',
+      Forest:   '/cards/vc/basic-forest.jpg',
+    };
+    const GAP_COLS = new Set(['0', '1', '2', '3']);
+
+    // ── DOM refs ───────────────────────────────────────────────────────────────
+    const landBtn      = document.getElementById('picks-viewer-land-btn');
+    const landDetailEl = document.getElementById('picks-viewer-land-detail');
+    const basicsBtn    = document.getElementById('picks-viewer-basics-btn');
+    const basicsDetail = document.getElementById('picks-viewer-basics-detail');
+    const handsBtn     = document.getElementById('picks-viewer-hands-btn');
+    const handsDetail  = document.getElementById('picks-viewer-hands-detail');
+    const sbSection    = document.getElementById('picks-viewer-sideboard');
+
+    // ── Mutable state ──────────────────────────────────────────────────────────
+    const sideboardSet = new Set();
     let landColorCounts = { W:0, U:0, B:0, R:0, G:0 };
-    if (landNames.length) {
-      const { colorCounts, tappedCount } = analyzeLands(landNames);
-      landColorCounts = colorCounts;
+    let fillResult      = { basics: {}, basicsList: [], total: 0 };
+    let deck40          = [];
+    let basicsActive    = false;
+    let handsActive     = false;
+
+    // ── Analysis ───────────────────────────────────────────────────────────────
+    function recompute() {
+      const activePicks     = picks.filter(n => !sideboardSet.has(n));
+      const activeLandNames = (buckets['land'] || []).filter(n => !sideboardSet.has(n));
+      let tappedCount = 0;
+      landColorCounts = { W:0, U:0, B:0, R:0, G:0 };
+      if (activeLandNames.length) {
+        const r = analyzeLands(activeLandNames);
+        landColorCounts = r.colorCounts;
+        tappedCount = r.tappedCount;
+      }
+      fillResult = computeBasicFill(activePicks, activeLandNames, landColorCounts);
+      deck40 = [
+        ...activePicks.filter(n => !COMPANION_NAMES.has(n)),
+        ...fillResult.basicsList,
+      ];
+      return { activeLandNames, tappedCount };
+    }
+
+    function renderLandDetail(activeLandNames, colorCounts, tappedCount) {
+      landBtn.style.display = activeLandNames.length ? '' : 'none';
+      if (!activeLandNames.length) { landDetailEl.innerHTML = ''; return; }
       const colorItems = ['W','U','B','R','G'].map(c => {
         const n = colorCounts[c];
         return `<span class="la-item">`
@@ -4908,20 +5016,16 @@
           + `</span>`;
       }).join('');
       const tappedBadge = tappedCount > 0
-        ? `<div class="la-tapped-badge">Tapped Lands: ${tappedCount}</div>`
-        : '';
+        ? `<div class="la-tapped-badge">Tapped Lands: ${tappedCount}</div>` : '';
       landDetailEl.innerHTML =
           `<div class="la-section-label">Color Sources</div>`
         + `<div class="la-row">${colorItems}</div>`
         + tappedBadge;
     }
 
-    // Fill in Basics
-    const fillResult = computeBasicFill(picks, landNames, landColorCounts);
-    const basicsBtn    = document.getElementById('picks-viewer-basics-btn');
-    const basicsDetail = document.getElementById('picks-viewer-basics-detail');
-    basicsBtn.style.display = fillResult.total > 0 ? '' : 'none';
-    if (fillResult.total > 0) {
+    function renderBasicsDetail() {
+      basicsBtn.style.display = fillResult.total > 0 ? '' : 'none';
+      if (fillResult.total === 0) { basicsDetail.innerHTML = ''; return; }
       const BASIC_TO_COLOR = { Plains:'W', Island:'U', Swamp:'B', Mountain:'R', Forest:'G' };
       const items = Object.entries(fillResult.basics)
         .filter(([, n]) => n > 0)
@@ -4936,39 +5040,82 @@
           `<div class="la-section-label">Adding ${fillResult.total} basic${fillResult.total > 1 ? 's' : ''}</div>`
         + `<div class="la-row">${items}</div>`;
     }
-    let basicsActive = false;
-    basicsBtn.onclick = () => {
-      basicsActive = !basicsActive;
-      basicsDetail.classList.toggle('open', basicsActive);
-      basicsBtn.classList.toggle('open', basicsActive);
-      basicsBtn.textContent = basicsActive ? 'Fill in Basics ▴' : 'Fill in Basics ▾';
+
+    function renderSideboardSection() {
+      sbSection.innerHTML = '';
+      sbSection.style.display = sideboardSet.size > 0 ? '' : 'none';
+      if (sideboardSet.size === 0) return;
+      const lbl = document.createElement('div');
+      lbl.className = 'pv-sb-section-label';
+      lbl.textContent = `Sideboard (${sideboardSet.size})`;
+      sbSection.appendChild(lbl);
+      const strip = document.createElement('div');
+      strip.className = 'pv-sb-strip';
+      for (const name of sideboardSet) {
+        const wrap = document.createElement('div');
+        wrap.className = 'pv-sb-card-wrapper';
+        const img = document.createElement('img');
+        img.src = vcCardImgSrc(name);
+        img.className = 'pv-sb-card';
+        img.alt = name; img.title = name;
+        img.addEventListener('click', () => openZoom(img.src, name));
+        img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
+        const ret = document.createElement('div');
+        ret.className = 'pv-sb-return';
+        ret.textContent = '↩';
+        ret.title = 'Return to deck';
+        ret.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sideboardSet.delete(name);
+          refreshAll();
+        });
+        wrap.appendChild(img);
+        wrap.appendChild(ret);
+        strip.appendChild(wrap);
+      }
+      sbSection.appendChild(strip);
+    }
+
+    function refreshAll() {
+      const { activeLandNames, tappedCount } = recompute();
+      renderLandDetail(activeLandNames, landColorCounts, tappedCount);
+      renderBasicsDetail();
+      handsBtn.style.display = deck40.length >= 7 ? '' : 'none';
+      if (handsActive) renderSampleHands();
       rebuildGrid(basicsActive ? fillResult.basicsList : []);
-    };
+      renderSideboardSection();
+    }
 
-    const BASIC_LAND_SRCS = {
-      Plains:   '/cards/vc/basic-plains.jpg',
-      Island:   '/cards/vc/basic-island.jpg',
-      Swamp:    '/cards/vc/basic-swamp.jpg',
-      Mountain: '/cards/vc/basic-mountain.jpg',
-      Forest:   '/cards/vc/basic-forest.jpg',
-    };
-    const BASIC_LAND_SET = new Set(Object.keys(BASIC_LAND_SRCS));
-
+    // ── Grid ───────────────────────────────────────────────────────────────────
     function isSpell(typeLine) {
       return /\b(Instant|Sorcery)\b/.test(typeLine || '');
     }
+
     function buildStack(names, extraNames = []) {
       const stack = document.createElement('div');
       stack.className = 'pv-cmc-stack';
       const sorted = [...names].sort((a, b) => vcColorPriorityByName(a) - vcColorPriorityByName(b));
       for (const name of sorted) {
+        const wrap = document.createElement('div');
+        wrap.className = 'pv-card-wrapper';
         const img = document.createElement('img');
         img.src = vcCardImgSrc(name);
         img.alt = name; img.title = name;
         img.className = 'pv-stack-card';
         img.addEventListener('click', () => openZoom(img.src, name));
         img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
-        stack.appendChild(img);
+        const sbBtn = document.createElement('div');
+        sbBtn.className = 'pv-sb-toggle';
+        sbBtn.textContent = 'SB';
+        sbBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (sideboardSet.has(name)) sideboardSet.delete(name);
+          else sideboardSet.add(name);
+          refreshAll();
+        });
+        wrap.appendChild(img);
+        wrap.appendChild(sbBtn);
+        stack.appendChild(wrap);
       }
       for (const name of extraNames) {
         const img = document.createElement('img');
@@ -4982,26 +5129,24 @@
       return stack;
     }
 
-    // Only preserve gaps within CMC 0-3; 4, 5, 6, 7+, X collapse to adjacent columns
-    const GAP_COLS = new Set(['0', '1', '2', '3']);
-
     function rebuildGrid(extraLands = []) {
       grid.innerHTML = '';
-      // Find occupied range so gaps between present CMC values are preserved
-      const occupiedSet = new Set(COL_ORDER.filter(k => buckets[k]?.length > 0));
+      const occupiedSet = new Set(
+        COL_ORDER.filter(k => (buckets[k] || []).some(n => !sideboardSet.has(n)))
+      );
       if (extraLands.length) occupiedSet.add('land');
       const firstIdx = COL_ORDER.findIndex(k => occupiedSet.has(k));
       let lastIdx = -1;
       for (let i = COL_ORDER.length - 1; i >= 0; i--) {
         if (occupiedSet.has(COL_ORDER[i])) { lastIdx = i; break; }
       }
+      if (firstIdx < 0) return;
 
       for (let i = firstIdx; i <= lastIdx; i++) {
         const key    = COL_ORDER[i];
         const colNum = i + 1;
-        const cards  = buckets[key] || [];
+        const cards  = (buckets[key] || []).filter(n => !sideboardSet.has(n));
 
-        // Skip empty cells outside the gap-preserving range
         if (!cards.length && !GAP_COLS.has(key) && !(key === 'land' && extraLands.length)) continue;
 
         if (key === 'companion' || key === 'land') {
@@ -5014,13 +5159,11 @@
         } else {
           const perms  = cards.filter(n => !isSpell(vcData[n]?.typeLine));
           const spells = cards.filter(n =>  isSpell(vcData[n]?.typeLine));
-
           const topCell = document.createElement('div');
           topCell.className = 'pv-cmc-col';
           topCell.style.cssText = `grid-column:${colNum}; grid-row:1; align-self:end;`;
           if (perms.length) topCell.appendChild(buildStack(perms));
           grid.appendChild(topCell);
-
           const botCell = document.createElement('div');
           botCell.className = 'pv-cmc-col';
           botCell.style.cssText = `grid-column:${colNum}; grid-row:2; align-self:start;`;
@@ -5030,7 +5173,72 @@
       }
     }
 
-    rebuildGrid();
+    // ── Sample Hands ───────────────────────────────────────────────────────────
+    function fisherYates(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function renderSampleHands() {
+      handsDetail.innerHTML = '';
+      const header = document.createElement('div');
+      header.className = 'pv-hands-header';
+      header.textContent = '5 sample hands';
+      handsDetail.appendChild(header);
+      for (let h = 0; h < 5; h++) {
+        const hand = fisherYates(deck40).slice(0, 7);
+        const row = document.createElement('div');
+        row.className = 'pv-hand-row';
+        const lbl = document.createElement('div');
+        lbl.className = 'pv-hand-label';
+        lbl.textContent = `Hand ${h + 1}`;
+        row.appendChild(lbl);
+        const cards = document.createElement('div');
+        cards.className = 'pv-hand-cards';
+        for (const name of hand) {
+          const img = document.createElement('img');
+          img.src = BASIC_LAND_SRCS[name] || vcCardImgSrc(name);
+          img.alt = name; img.title = name;
+          img.addEventListener('click', () => openZoom(img.src, name));
+          img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
+          cards.appendChild(img);
+        }
+        row.appendChild(cards);
+        handsDetail.appendChild(row);
+      }
+    }
+
+    // ── Button wiring ──────────────────────────────────────────────────────────
+    basicsBtn.onclick = () => {
+      basicsActive = !basicsActive;
+      basicsDetail.classList.toggle('open', basicsActive);
+      basicsBtn.classList.toggle('open', basicsActive);
+      basicsBtn.textContent = basicsActive ? 'Fill in Basics ▴' : 'Fill in Basics ▾';
+      rebuildGrid(basicsActive ? fillResult.basicsList : []);
+    };
+
+    handsBtn.onclick = () => {
+      handsActive = !handsActive;
+      handsDetail.classList.toggle('open', handsActive);
+      handsBtn.classList.toggle('open', handsActive);
+      handsBtn.textContent = handsActive ? 'Sample Hands ▴' : 'Sample Hands ▾';
+      if (handsActive) renderSampleHands();
+      else handsDetail.innerHTML = '';
+    };
+
+    // ── Initial render ─────────────────────────────────────────────────────────
+    {
+      const { activeLandNames, tappedCount } = recompute();
+      renderLandDetail(activeLandNames, landColorCounts, tappedCount);
+      renderBasicsDetail();
+      handsBtn.style.display = deck40.length >= 7 ? '' : 'none';
+      renderSideboardSection();
+      rebuildGrid();
+    }
 
     document.getElementById('picks-viewer-modal').classList.add('open');
   }
