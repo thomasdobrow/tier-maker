@@ -81,7 +81,7 @@ async function main() {
   // 4. Distribute cards across tiers using normalized targets (mirrors app's computeNormalizedCounts)
   const TIER_TARGETS = { S: 0.10, A: 0.20, B: 0.30, C: 0.25, F: 0.15 };
   const TIER_LABELS  = ['S', 'A', 'B', 'C', 'F'];
-  const total = 35 * draft.turnOrder.length; // full draft size, not current pick count
+  const total = 40 * draft.turnOrder.length; // full draft size, not current pick count
   const tierCounts = {};
   let assigned = 0;
   for (let i = 0; i < TIER_LABELS.length - 1; i++) {

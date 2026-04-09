@@ -291,7 +291,7 @@ async function makeBotPick(draftId) {
     const picks = { ...draft.picks };
     picks[currentPlayer] = [...(picks[currentPlayer] || []), pick];
     const undraftedCards = draft.undraftedCards.filter(c => c !== pick);
-    const isDone = draft.turnOrder.every(p => (picks[p] || []).length >= 35);
+    const isDone = draft.turnOrder.every(p => (picks[p] || []).length >= 40);
     const updated = {
       ...draft, picks, undraftedCards,
       currentTurnIdx: draft.currentTurnIdx + 1,

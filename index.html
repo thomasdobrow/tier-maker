@@ -4608,7 +4608,7 @@
         const pickInRound = (currentTurnIdx % n) + 1;
         const ctxSpan = document.createElement('span');
         ctxSpan.className = 'rot-turn-ctx';
-        ctxSpan.textContent = `Round ${round} of 35 · Pick ${pickInRound}/${n}`;
+        ctxSpan.textContent = `Round ${round} of 40 · Pick ${pickInRound}/${n}`;
         turnBar.appendChild(ctxSpan);
       }
       body.appendChild(turnBar);
@@ -5265,7 +5265,7 @@
     btn.textContent = opening ? 'Land Analysis ▴' : 'Land Analysis ▾';
   });
 
-  const PICKS_PER_PLAYER = 35;
+  const PICKS_PER_PLAYER = 40;
 
   function pickCard(cardName) {
     const draft = draftsCache[activeDraftId];
