@@ -1456,6 +1456,10 @@
     }
     .pv-card-wrapper:hover .pv-sb-toggle { opacity: 1; }
     .pv-sb-toggle:hover { background: #2558a0; color: #aed0f0; }
+    .pv-sb-return-toggle { background: #2a2a2a; color: #888; border-color: #444; }
+    .pv-sb-return-toggle:hover { background: #383838; color: #bbb; }
+    .pv-sb-dimmed { opacity: 0.5; }
+    .pv-sb-col { border-right: 1px solid #222; padding-right: 8px; margin-right: 2px; }
     #picks-viewer-sideboard {
       flex-shrink: 0; border-top: 1px solid #1e1e1e;
       padding: 8px 16px 12px; display: none;
@@ -4820,19 +4824,16 @@
   }
 
   function computeBasicFill(allPicks, landBucket, landColorCounts) {
-    const COMPANION_SET = new Set([
-      'Lurrus of the Dream-Den', 'Lutri, the Spellchaser', 'Zirda, the Dawnwaker',
-    ]);
     const COLOR_TO_BASIC = { W:'Plains', U:'Island', B:'Swamp', R:'Mountain', G:'Forest' };
     const COLORS = ['W','U','B','R','G'];
     const landSet = new Set(landBucket);
 
-    const effectivePicks = allPicks.filter(n => !COMPANION_SET.has(n));
-    const N = Math.max(0, 40 - effectivePicks.length);
+    // allPicks has already had sideborded cards removed by the caller
+    const N = Math.max(0, 40 - allPicks.length);
     if (N === 0) return { basics: {}, basicsList: [], total: 0 };
 
     const demand = { W:0, U:0, B:0, R:0, G:0 };
-    for (const name of effectivePicks) {
+    for (const name of allPicks) {
       if (landSet.has(name)) continue;
       const meta = vcData[name];
       if (!meta || (meta.cmc ?? 0) >= 7) continue;
@@ -4881,6 +4882,19 @@
     rems.sort((a, b) => b.r - a.r);
     for (let i = 0; i < N - assigned; i++) basics[COLOR_TO_BASIC[rems[i].c]]++;
     return { basics, basicsList: buildList(basics), total: N };
+  }
+
+  const DEFAULT_SIDEBOARD = new Set([
+    'Lutri, the Spellchaser', 'Lurrus of the Dream-Den', 'Zirda, the Dawnwaker',
+  ]);
+  function sbKey(draftId, playerName) { return `sb:${draftId}:${playerName}`; }
+  function loadSideboard(draftId, playerName, picks) {
+    const stored = localStorage.getItem(sbKey(draftId, playerName));
+    if (stored !== null) return new Set(JSON.parse(stored));
+    return new Set(picks.filter(n => DEFAULT_SIDEBOARD.has(n)));
+  }
+  function saveSideboard(draftId, playerName, set) {
+    localStorage.setItem(sbKey(draftId, playerName), JSON.stringify([...set]));
   }
 
   async function openPicksViewer(playerName, picks) {
@@ -4960,12 +4974,9 @@
       (buckets[key] = buckets[key] || []).push(name);
     }
 
-    const COL_ORDER = ['companion', 'land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
+    const COL_ORDER = ['sideboard', 'companion', 'land', '0', '1', '2', '3', '4', '5', '6', '7+', 'X'];
 
     // ── Constants ──────────────────────────────────────────────────────────────
-    const COMPANION_NAMES = new Set([
-      'Lutri, the Spellchaser', 'Lurrus of the Dream-Den', 'Zirda, the Dawnwaker',
-    ]);
     const BASIC_LAND_SRCS = {
       Plains:   '/cards/vc/basic-plains.jpg',
       Island:   '/cards/vc/basic-island.jpg',
@@ -4985,7 +4996,7 @@
     const sbSection    = document.getElementById('picks-viewer-sideboard');
 
     // ── Mutable state ──────────────────────────────────────────────────────────
-    const sideboardSet = new Set();
+    const sideboardSet = loadSideboard(activeDraftId, playerName, picks);
     let landColorCounts = { W:0, U:0, B:0, R:0, G:0 };
     let fillResult      = { basics: {}, basicsList: [], total: 0 };
     let deck40          = [];
@@ -5004,10 +5015,7 @@
         tappedCount = r.tappedCount;
       }
       fillResult = computeBasicFill(activePicks, activeLandNames, landColorCounts);
-      deck40 = [
-        ...activePicks.filter(n => !COMPANION_NAMES.has(n)),
-        ...fillResult.basicsList,
-      ];
+      deck40 = [...activePicks, ...fillResult.basicsList];
       return { activeLandNames, tappedCount };
     }
 
@@ -5083,13 +5091,13 @@
     }
 
     function refreshAll() {
+      saveSideboard(activeDraftId, playerName, sideboardSet);
       const { activeLandNames, tappedCount } = recompute();
       renderLandDetail(activeLandNames, landColorCounts, tappedCount);
       renderBasicsDetail();
       handsBtn.style.display = deck40.length >= 7 ? '' : 'none';
       if (handsActive) renderSampleHands();
       rebuildGrid(basicsActive ? fillResult.basicsList : []);
-      renderSideboardSection();
     }
 
     // ── Grid ───────────────────────────────────────────────────────────────────
@@ -5097,7 +5105,7 @@
       return /\b(Instant|Sorcery)\b/.test(typeLine || '');
     }
 
-    function buildStack(names, extraNames = []) {
+    function buildStack(names, extraNames = [], mode = 'normal') {
       const stack = document.createElement('div');
       stack.className = 'pv-cmc-stack';
       const sorted = [...names].sort((a, b) => vcColorPriorityByName(a) - vcColorPriorityByName(b));
@@ -5107,20 +5115,32 @@
         const img = document.createElement('img');
         img.src = vcCardImgSrc(name);
         img.alt = name; img.title = name;
-        img.className = 'pv-stack-card';
+        img.className = 'pv-stack-card' + (mode === 'sideboard' ? ' pv-sb-dimmed' : '');
         img.addEventListener('click', () => openZoom(img.src, name));
         img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
-        const sbBtn = document.createElement('div');
-        sbBtn.className = 'pv-sb-toggle';
-        sbBtn.textContent = 'Sideboard';
-        sbBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (sideboardSet.has(name)) sideboardSet.delete(name);
-          else sideboardSet.add(name);
-          refreshAll();
-        });
-        wrap.appendChild(img);
-        wrap.appendChild(sbBtn);
+        if (mode === 'sideboard') {
+          const retBtn = document.createElement('div');
+          retBtn.className = 'pv-sb-toggle pv-sb-return-toggle';
+          retBtn.textContent = '↩ Deck';
+          retBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sideboardSet.delete(name);
+            refreshAll();
+          });
+          wrap.appendChild(img);
+          wrap.appendChild(retBtn);
+        } else {
+          const sbBtn = document.createElement('div');
+          sbBtn.className = 'pv-sb-toggle';
+          sbBtn.textContent = 'Sideboard';
+          sbBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sideboardSet.add(name);
+            refreshAll();
+          });
+          wrap.appendChild(img);
+          wrap.appendChild(sbBtn);
+        }
         stack.appendChild(wrap);
       }
       for (const name of extraNames) {
@@ -5138,7 +5158,9 @@
     function rebuildGrid(extraLands = []) {
       grid.innerHTML = '';
       const occupiedSet = new Set(
-        COL_ORDER.filter(k => (buckets[k] || []).some(n => !sideboardSet.has(n)))
+        COL_ORDER.filter(k => k === 'sideboard'
+          ? sideboardSet.size > 0
+          : (buckets[k] || []).some(n => !sideboardSet.has(n)))
       );
       if (extraLands.length) occupiedSet.add('land');
       const firstIdx = COL_ORDER.findIndex(k => occupiedSet.has(k));
@@ -5151,6 +5173,22 @@
       for (let i = firstIdx; i <= lastIdx; i++) {
         const key    = COL_ORDER[i];
         const colNum = i + 1;
+
+        // Sideboard column: special — uses sideboardSet, not buckets
+        if (key === 'sideboard') {
+          if (sideboardSet.size === 0) continue;
+          const cell = document.createElement('div');
+          cell.className = 'pv-cmc-col pv-sb-col';
+          cell.style.cssText = `grid-column:${colNum}; grid-row:1/span 2; align-self:start;`;
+          const lbl = document.createElement('div');
+          lbl.className = 'pv-cmc-label';
+          lbl.textContent = 'SB';
+          cell.appendChild(lbl);
+          cell.appendChild(buildStack([...sideboardSet], [], 'sideboard'));
+          grid.appendChild(cell);
+          continue;
+        }
+
         const cards  = (buckets[key] || []).filter(n => !sideboardSet.has(n));
 
         if (!cards.length && !GAP_COLS.has(key) && !(key === 'land' && extraLands.length)) continue;
@@ -5238,13 +5276,14 @@
 
     // ── Initial render ─────────────────────────────────────────────────────────
     {
+      saveSideboard(activeDraftId, playerName, sideboardSet); // persist defaults on first load
       const { activeLandNames, tappedCount } = recompute();
       renderLandDetail(activeLandNames, landColorCounts, tappedCount);
       renderBasicsDetail();
       handsBtn.style.display = deck40.length >= 7 ? '' : 'none';
-      renderSideboardSection();
       rebuildGrid();
     }
+    sbSection.style.display = 'none'; // below-grid strip replaced by SB column
 
     document.getElementById('picks-viewer-modal').classList.add('open');
   }
