@@ -1448,13 +1448,14 @@
     .pv-card-wrapper:hover .pv-stack-card { opacity: 0.82; }
     .pv-sb-toggle {
       position: absolute; bottom: 8px; right: 4px;
-      background: rgba(0,0,0,0.78); color: #555;
-      font-size: 8px; padding: 2px 5px; border-radius: 3px;
+      background: #1e4a80; color: #8bb8e8;
+      font-size: 9px; padding: 3px 7px; border-radius: 4px;
       cursor: pointer; opacity: 0; transition: opacity 0.15s;
-      z-index: 20; letter-spacing: 0.06em; text-transform: uppercase;
-      border: 1px solid #333; user-select: none;
+      z-index: 20; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600;
+      border: 1px solid #2d6ab0; user-select: none; white-space: nowrap;
     }
     .pv-card-wrapper:hover .pv-sb-toggle { opacity: 1; }
+    .pv-sb-toggle:hover { background: #2558a0; color: #aed0f0; }
     #picks-viewer-sideboard {
       flex-shrink: 0; border-top: 1px solid #1e1e1e;
       padding: 8px 16px 12px; display: none;
@@ -1513,20 +1514,23 @@
     }
     #picks-viewer-hands-btn:hover { color: #777; }
     #picks-viewer-hands-btn.open { color: #666; border-bottom: 1px solid #1e1e1e; }
-    #picks-viewer-hands-detail { display: none; padding: 8px 16px 12px; }
+    #picks-viewer-hands-detail { display: none; }
     #picks-viewer-hands-detail.open {
       display: block; max-height: 44vh;
       overflow-y: auto; overscroll-behavior: contain;
+      background: #252525; border-top: 2px solid #2d5a8e; border-bottom: 2px solid #2d5a8e;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.55);
+      padding: 10px 16px 14px;
     }
     .pv-hands-header {
-      font-size: 10px; color: #444; letter-spacing: 0.07em; text-transform: uppercase;
+      font-size: 10px; color: #5a88c0; letter-spacing: 0.07em; text-transform: uppercase;
       margin-bottom: 10px;
     }
-    .pv-hand-row { margin-bottom: 10px; }
+    .pv-hand-row { margin-bottom: 12px; }
     .pv-hand-row:last-child { margin-bottom: 0; }
     .pv-hand-label {
-      font-size: 9px; color: #383838; letter-spacing: 0.08em; text-transform: uppercase;
-      margin-bottom: 3px;
+      font-size: 9px; color: #4a6a8a; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 4px;
     }
     .pv-hand-cards { display: flex; gap: 3px; }
     .pv-hand-cards img { flex: 1; min-width: 0; border-radius: 4px; cursor: pointer; display: block; }
@@ -5108,7 +5112,7 @@
         img.addEventListener('error', function () { this.style.opacity = '0.3'; }, { once: true });
         const sbBtn = document.createElement('div');
         sbBtn.className = 'pv-sb-toggle';
-        sbBtn.textContent = 'SB';
+        sbBtn.textContent = 'Sideboard';
         sbBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           if (sideboardSet.has(name)) sideboardSet.delete(name);
