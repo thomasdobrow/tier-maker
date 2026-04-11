@@ -1405,6 +1405,51 @@
     }
     .zoom-pick-btn:hover { background: #2a5a2a; }
     .zoom-pick-status { font-size: 1.05rem; font-weight: 600; color: #888; text-align: center; padding: 8px; white-space: nowrap; }
+    /* Queue */
+    #queue-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center; z-index: 1100;
+    }
+    #queue-modal.open { display: flex; }
+    #queue-modal-dialog {
+      background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+      min-width: 340px; max-width: 500px; width: 90%; max-height: 80vh;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    #queue-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px; border-bottom: 1px solid #2a2a2a; font-size: 15px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    #queue-modal-header button {
+      background: none; border: none; color: #666; cursor: pointer; font-size: 16px; padding: 2px 6px;
+    }
+    #queue-modal-header button:hover { color: #ccc; }
+    #queue-modal-body { overflow-y: auto; padding: 8px 0; flex: 1; }
+    .queue-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 16px; border-bottom: 1px solid #1e1e1e;
+    }
+    .queue-row.stale { opacity: 0.4; }
+    .queue-priority { color: #888; font-size: 12px; min-width: 18px; text-align: right; }
+    .queue-name { flex: 1; font-size: 13px; }
+    .queue-stale-label { font-size: 10px; color: #666; background: #2a2a2a; padding: 2px 5px; border-radius: 3px; }
+    .queue-remove-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 13px; padding: 2px 6px; }
+    .queue-remove-btn:hover { color: #cc4444; }
+    .queue-empty { padding: 24px 16px; color: #666; font-size: 13px; text-align: center; }
+    .zoom-queue-btn {
+      background: #2a2a2a; color: #aaa; border: 1px solid #444;
+      padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600;
+      display: block; white-space: nowrap; transition: background 0.12s;
+    }
+    .zoom-queue-btn:hover { background: #3a3a3a; }
+    .zoom-queue-btn.queued { background: #1e4a80; color: #8bb8e8; border-color: #2d6ab0; }
+    .zoom-queue-btn.queued:hover { background: #2a5a90; }
+    #queue-bar-btn {
+      background: #2a2a2a; color: #aaa; border: 1px solid #444;
+      padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; white-space: nowrap;
+    }
+    #queue-bar-btn:hover { border-color: #666; color: #ccc; }
     /* Picks viewer modal */
     #picks-viewer-modal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82);
@@ -1856,6 +1901,16 @@
       <button id="sort-resort-all">↺ Re-sort All</button>
       <button id="sort-cancel">Cancel</button>
     </div>
+  </div>
+</div>
+
+<div id="queue-modal" onclick="document.getElementById('queue-modal').classList.remove('open')">
+  <div id="queue-modal-dialog" onclick="event.stopPropagation()">
+    <div id="queue-modal-header">
+      <span>Queued Picks</span>
+      <button onclick="document.getElementById('queue-modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="queue-modal-body"></div>
   </div>
 </div>
 
@@ -3329,10 +3384,26 @@
         btn.textContent = '✓ Confirm Pick';
         btn.addEventListener('click', e => { e.stopPropagation(); pickCard(id); });
         zoomTierBtns.appendChild(btn);
+      } else if (!isMyTurn && available) {
+        const isQueued = getMyQueue().includes(id);
+        const queueBtn = document.createElement('button');
+        queueBtn.className = 'zoom-queue-btn' + (isQueued ? ' queued' : '');
+        queueBtn.textContent = isQueued ? '✓ Queued' : '+ Add to Queue';
+        queueBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          if (isQueued) { removeFromQueue(id); } else { addToQueue(id); }
+          zoomTierBtns.innerHTML = '';
+          buildZoomTierButtons(id);
+        });
+        const lbl = document.createElement('div');
+        lbl.className = 'zoom-pick-status';
+        lbl.textContent = `${ctxPlayer}'s Turn`;
+        zoomTierBtns.appendChild(lbl);
+        zoomTierBtns.appendChild(queueBtn);
       } else {
         const lbl = document.createElement('div');
         lbl.className = 'zoom-pick-status';
-        lbl.textContent = !available ? 'Already Drafted' : `${ctxPlayer}'s Turn`;
+        lbl.textContent = 'Already Drafted';
         zoomTierBtns.appendChild(lbl);
       }
       return;
@@ -3423,6 +3494,9 @@
       }
       if (document.getElementById('normalize-modal').classList.contains('open')) {
         closeNormalizeModal(); return;
+      }
+      if (document.getElementById('queue-modal').classList.contains('open')) {
+        document.getElementById('queue-modal').classList.remove('open'); return;
       }
       if (document.getElementById('picks-viewer-modal').classList.contains('open')) {
         document.getElementById('picks-viewer-modal').classList.remove('open');
@@ -4353,6 +4427,7 @@
       const msg = JSON.parse(e.data);
       if (msg.type === 'draft_update') {
         draftsCache[msg.draft.id] = msg.draft;
+        if (activeDraftId === msg.draft.id) processQueueIfMyTurn(msg.draft);
         if (activeDraftId === msg.draft.id &&
             document.getElementById('rot-draft-detail').style.display !== 'none') {
           renderDraftDetail();
@@ -4614,6 +4689,18 @@
         ctxSpan.className = 'rot-turn-ctx';
         ctxSpan.textContent = `Round ${round} of 40 · Pick ${pickInRound}/${n}`;
         turnBar.appendChild(ctxSpan);
+
+        if ((draft.players || []).includes(user)) {
+          const myQueue = (draft.queues?.[user] || [])
+            .filter(n => (draft.undraftedCards || []).includes(n));
+          const queueBarBtn = document.createElement('button');
+          queueBarBtn.id = 'queue-bar-btn';
+          queueBarBtn.textContent = myQueue.length > 0
+            ? `Queued Picks (${myQueue.length})`
+            : 'Queued Picks';
+          queueBarBtn.addEventListener('click', openQueueModal);
+          turnBar.appendChild(queueBarBtn);
+        }
       }
       body.appendChild(turnBar);
 
@@ -5326,6 +5413,105 @@
     persistDraft(updated);
     closeZoom();
     renderDraftDetail();
+  }
+
+  function getMyQueue() {
+    const draft = draftsCache[activeDraftId];
+    if (!draft) return [];
+    return (draft.queues?.[getCurrentUser()] || []);
+  }
+
+  function saveQueue(draft, user, queue) {
+    const updated = { ...draft, queues: { ...(draft.queues || {}), [user]: queue } };
+    draftsCache[updated.id] = updated;
+    persistDraft(updated);
+    return updated;
+  }
+
+  function addToQueue(cardName) {
+    const draft = draftsCache[activeDraftId];
+    if (!draft) return;
+    const user = getCurrentUser();
+    const queue = getMyQueue().filter(n => n !== cardName); // prevent duplicates
+    saveQueue(draft, user, [...queue, cardName]);
+    renderDraftDetail();
+  }
+
+  function removeFromQueue(cardName) {
+    const draft = draftsCache[activeDraftId];
+    if (!draft) return;
+    const user = getCurrentUser();
+    const queue = getMyQueue().filter(n => n !== cardName);
+    saveQueue(draft, user, queue);
+    renderQueueModal();
+    renderDraftDetail();
+  }
+
+  function processQueueIfMyTurn(draft) {
+    if (!draft || draft.status !== 'active') return;
+    const user = getCurrentUser();
+    const currentPlayer = getSnakeDraftPlayer(draft.turnOrder, draft.currentTurnIdx);
+    if (currentPlayer !== user) return;
+    const queue = draft.queues?.[user] || [];
+    const available = draft.undraftedCards || [];
+    const toPick = queue.find(n => available.includes(n));
+    if (!toPick) return;
+    const newQueue = queue.filter(n => n !== toPick && available.includes(n));
+    const picks = { ...draft.picks };
+    picks[user] = [...(picks[user] || []), toPick];
+    const undraftedCards = draft.undraftedCards.filter(c => c !== toPick);
+    const isDone = draft.turnOrder.every(p => (picks[p] || []).length >= PICKS_PER_PLAYER);
+    const updated = {
+      ...draft, picks, undraftedCards,
+      currentTurnIdx: draft.currentTurnIdx + 1,
+      queues: { ...(draft.queues || {}), [user]: newQueue },
+      ...(isDone ? { status: 'complete', completedAt: new Date().toISOString() } : {}),
+    };
+    draftsCache[updated.id] = updated;
+    persistDraft(updated);
+    renderDraftDetail();
+  }
+
+  function openQueueModal() {
+    document.getElementById('queue-modal').classList.add('open');
+    renderQueueModal();
+  }
+
+  function renderQueueModal() {
+    const draft = draftsCache[activeDraftId];
+    const user = getCurrentUser();
+    const allQueued = draft?.queues?.[user] || [];
+    const available = new Set(draft?.undraftedCards || []);
+    const body = document.getElementById('queue-modal-body');
+    if (allQueued.length === 0) {
+      body.innerHTML = '<div class="queue-empty">No cards queued. Open a card while it\'s not your turn to add it.</div>';
+      return;
+    }
+    body.innerHTML = '';
+    allQueued.forEach((name, i) => {
+      const stale = !available.has(name);
+      const row = document.createElement('div');
+      row.className = 'queue-row' + (stale ? ' stale' : '');
+      const pri = document.createElement('span');
+      pri.className = 'queue-priority';
+      pri.textContent = i + 1;
+      const nm = document.createElement('span');
+      nm.className = 'queue-name';
+      nm.textContent = name;
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'queue-remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', () => removeFromQueue(name));
+      row.append(pri, nm);
+      if (stale) {
+        const staleEl = document.createElement('span');
+        staleEl.className = 'queue-stale-label';
+        staleEl.textContent = 'drafted';
+        row.appendChild(staleEl);
+      }
+      row.appendChild(removeBtn);
+      body.appendChild(row);
+    });
   }
 
   function isLandCard(name) {
