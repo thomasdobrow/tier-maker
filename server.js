@@ -507,6 +507,33 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ── GET/POST /api/drafts/:id/queue/:player ─────────────────
+  const queueMatch = pathname.match(/^\/api\/drafts\/([^/]+)\/queue\/([^/]+)$/);
+  if (queueMatch) {
+    const [, draftId, player] = queueMatch;
+    const key = `tm:queue:${draftId}:${player}`;
+    if (req.method === 'GET') {
+      try {
+        const val = USE_REDIS ? await redis('GET', key) : null;
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(val || '[]');
+      } catch { res.writeHead(500).end('Server error'); }
+      return;
+    }
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', async () => {
+        try {
+          JSON.parse(body); // validate it's a JSON array
+          if (USE_REDIS) await redis('SET', key, body);
+          res.writeHead(200).end('{"ok":true}');
+        } catch { res.writeHead(400).end('Bad request'); }
+      });
+      return;
+    }
+  }
+
   // ── POST /api/drafts/:id — save one draft ──────────────────
   // ── DELETE /api/drafts/:id — remove one draft ──────────────
   const draftMatch = pathname.match(/^\/api\/drafts\/([^/]+)$/);

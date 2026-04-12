@@ -4599,6 +4599,7 @@
 
   function enterDraftDetail(id) {
     activeDraftId = id;
+    myQueueCache = [];
     if (!vcDataPromise) {
       vcDataPromise = fetch('/vc_cards.json').then(r => r.ok ? r.json() : null).then(d => { if (d) vcData = d; }).catch(() => {});
     }
@@ -4607,10 +4608,12 @@
     document.getElementById('rot-body').style.display = 'none';
     document.getElementById('rot-draft-detail').style.display = 'flex';
     renderDraftDetail();
+    loadMyQueue();
   }
 
   function exitDraftDetail() {
     activeDraftId = null;
+    myQueueCache = [];
     history.pushState(null, '', '/');
     document.getElementById('list-bar').style.display = '';
     document.getElementById('rot-draft-detail').style.display = 'none';
@@ -4691,7 +4694,7 @@
         turnBar.appendChild(ctxSpan);
 
         if ((draft.players || []).includes(user)) {
-          const myQueue = (draft.queues?.[user] || [])
+          const myQueue = getMyQueue()
             .filter(n => (draft.undraftedCards || []).includes(n));
           const queueBarBtn = document.createElement('button');
           queueBarBtn.id = 'queue-bar-btn';
@@ -5031,7 +5034,7 @@
     const LAND_OVERRIDES = new Set([]);
     // Cards with X in their cost → always go in the rightmost X column
     const X_CARDS = new Set([
-      'Forth Eorlingas!', 'Mawloc',
+      'Forth Eorlingas!', 'Jacked Rabbit', 'Mawloc',
       'Occult Epiphany', 'Walking Ballista', 'Mind Twist',
     ]);
     // Companion cards → get their own column to the left of lands
@@ -5415,34 +5418,37 @@
     renderDraftDetail();
   }
 
-  function getMyQueue() {
-    const draft = draftsCache[activeDraftId];
-    if (!draft) return [];
-    return (draft.queues?.[getCurrentUser()] || []);
+  // Per-player queue stored independently in Redis — never touches draft object
+  let myQueueCache = [];
+
+  function getMyQueue() { return myQueueCache; }
+
+  function persistQueue(queue) {
+    myQueueCache = queue;
+    if (!activeDraftId) return;
+    fetch(`/api/drafts/${activeDraftId}/queue/${encodeURIComponent(getCurrentUser())}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(queue),
+    }).catch(e => console.warn('persistQueue:', e));
   }
 
-  function saveQueue(draft, user, queue) {
-    const updated = { ...draft, queues: { ...(draft.queues || {}), [user]: queue } };
-    draftsCache[updated.id] = updated;
-    persistDraft(updated);
-    return updated;
+  async function loadMyQueue() {
+    if (!activeDraftId) return;
+    try {
+      const r = await fetch(`/api/drafts/${activeDraftId}/queue/${encodeURIComponent(getCurrentUser())}`);
+      myQueueCache = r.ok ? await r.json() : [];
+    } catch { myQueueCache = []; }
+    renderDraftDetail();
   }
 
   function addToQueue(cardName) {
-    const draft = draftsCache[activeDraftId];
-    if (!draft) return;
-    const user = getCurrentUser();
     const queue = getMyQueue().filter(n => n !== cardName); // prevent duplicates
-    saveQueue(draft, user, [...queue, cardName]);
+    persistQueue([...queue, cardName]);
     renderDraftDetail();
   }
 
   function removeFromQueue(cardName) {
-    const draft = draftsCache[activeDraftId];
-    if (!draft) return;
-    const user = getCurrentUser();
-    const queue = getMyQueue().filter(n => n !== cardName);
-    saveQueue(draft, user, queue);
+    persistQueue(getMyQueue().filter(n => n !== cardName));
     renderQueueModal();
     renderDraftDetail();
   }
@@ -5452,11 +5458,11 @@
     const user = getCurrentUser();
     const currentPlayer = getSnakeDraftPlayer(draft.turnOrder, draft.currentTurnIdx);
     if (currentPlayer !== user) return;
-    const queue = draft.queues?.[user] || [];
+    const queue = getMyQueue();
     const available = draft.undraftedCards || [];
     const toPick = queue.find(n => available.includes(n));
     if (!toPick) return;
-    const newQueue = queue.filter(n => n !== toPick && available.includes(n));
+    persistQueue(queue.filter(n => n !== toPick && available.includes(n)));
     const picks = { ...draft.picks };
     picks[user] = [...(picks[user] || []), toPick];
     const undraftedCards = draft.undraftedCards.filter(c => c !== toPick);
@@ -5464,7 +5470,6 @@
     const updated = {
       ...draft, picks, undraftedCards,
       currentTurnIdx: draft.currentTurnIdx + 1,
-      queues: { ...(draft.queues || {}), [user]: newQueue },
       ...(isDone ? { status: 'complete', completedAt: new Date().toISOString() } : {}),
     };
     draftsCache[updated.id] = updated;
@@ -5479,8 +5484,7 @@
 
   function renderQueueModal() {
     const draft = draftsCache[activeDraftId];
-    const user = getCurrentUser();
-    const allQueued = draft?.queues?.[user] || [];
+    const allQueued = getMyQueue();
     const available = new Set(draft?.undraftedCards || []);
     const body = document.getElementById('queue-modal-body');
     if (allQueued.length === 0) {
@@ -5618,10 +5622,12 @@
     const m = window.location.pathname.match(/^\/draft\/([^/]+)$/);
     if (m && draftsCache[m[1]]) {
       activeDraftId = m[1];
+      myQueueCache = [];
       document.getElementById('list-bar').style.display = 'none';
       document.getElementById('rot-body').style.display = 'none';
       document.getElementById('rot-draft-detail').style.display = 'flex';
       renderDraftDetail();
+      loadMyQueue();
     } else if (activeDraftId) {
       activeDraftId = null;
       document.getElementById('list-bar').style.display = '';
