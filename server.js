@@ -257,6 +257,7 @@ function computeBotRanking(lists, undraftedCards) {
 
 const botRankingCache = new Map(); // draftId → string[]
 const pendingBotPicks = new Map(); // draftId → timeoutId
+const queueStore      = new Map(); // 'tm:queue:{draftId}:{player}' → JSON string (local dev fallback)
 
 function scheduleBotPick(draftId, delayMs = 2000) {
   if (pendingBotPicks.has(draftId)) clearTimeout(pendingBotPicks.get(draftId));
@@ -514,7 +515,7 @@ const server = http.createServer(async (req, res) => {
     const key = `tm:queue:${draftId}:${player}`;
     if (req.method === 'GET') {
       try {
-        const val = USE_REDIS ? await redis('GET', key) : null;
+        const val = USE_REDIS ? await redis('GET', key) : (queueStore.get(key) ?? null);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(val || '[]');
       } catch { res.writeHead(500).end('Server error'); }
@@ -527,6 +528,7 @@ const server = http.createServer(async (req, res) => {
         try {
           JSON.parse(body); // validate it's a JSON array
           if (USE_REDIS) await redis('SET', key, body);
+          else queueStore.set(key, body);
           res.writeHead(200).end('{"ok":true}');
         } catch { res.writeHead(400).end('Bad request'); }
       });
