@@ -5439,6 +5439,9 @@
       myQueueCache = r.ok ? await r.json() : [];
     } catch { myQueueCache = []; }
     renderDraftDetail();
+    // Fire auto-pick if it's already our turn (covers page-load and SSE race condition)
+    const draft = draftsCache[activeDraftId];
+    if (draft) processQueueIfMyTurn(draft);
   }
 
   function addToQueue(cardName) {
