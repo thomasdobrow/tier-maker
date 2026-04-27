@@ -3564,6 +3564,9 @@
           .map(name => {
             const draft = activeDraftId ? draftsCache[activeDraftId] : null;
             const isUndrafted = !draft || (draft.undraftedCards || []).includes(name);
+            const pickedBy = (!isUndrafted && draft)
+              ? (Object.entries(draft.picks || {}).find(([, cards]) => cards.includes(name)) || [])[0]
+              : null;
             const row = document.createElement('div');
             row.className = 'sr';
             row.dataset.id = name;
@@ -3575,7 +3578,7 @@
             info.innerHTML = `<div class="sr-name">${name}</div>`;
             const badge = document.createElement('div');
             badge.className = 'sr-tier';
-            badge.textContent = isUndrafted ? 'Available' : 'Picked';
+            badge.textContent = isUndrafted ? 'Available' : (pickedBy || 'Picked');
             badge.style.background = isUndrafted ? '#1e2a1e' : '#2a1e1e';
             badge.style.color      = isUndrafted ? '#7dcc7d' : '#cc7777';
             row.appendChild(thumb); row.appendChild(info); row.appendChild(badge);
